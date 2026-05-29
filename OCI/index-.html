@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard OCI · Oncologia Alagoas</title>
+<script>
+(function(){
+  function loadScript(urls,idx,cb){
+    if(idx>=urls.length){cb(new Error('CDNs failed'));return;}
+    var s=document.createElement('script');
+    s.src=urls[idx];
+    s.onload=function(){cb(null);};
+    s.onerror=function(){loadScript(urls,idx+1,cb);};
+    document.head.appendChild(s);
+  }
+  window._rdy=0;window._q=[];
+  function check(){if(++window._rdy===2){window._rdy='ok';window._q.forEach(function(f){f();});}}
+  loadScript([
+    'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js',
+    'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+    'https://unpkg.com/chart.js@4.4.0/dist/chart.umd.min.js'
+  ],0,function(e){if(e)console.error('Chart.js:',e);check();});
+  loadScript([
+    'https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js',
+    'https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js',
+    'https://unpkg.com/papaparse@5.4.1/papaparse.min.js'
+  ],0,function(e){if(e)console.error('PapaParse:',e);check();});
+  window.onLibsReady=function(fn){
+    if(window._rdy==='ok')fn();else window._q.push(fn);
+  };
+})();
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --r-sm:10px;--r-md:14px;--r-lg:18px;--r-xl:22px;
+  --tr:all .25s cubic-bezier(.4,0,.2,1);
+}
+
+[data-theme="dark"]{
+  --bg:#000;--bg2:#0d0d0d;
+  --s1:#1c1c1e;--s2:#2c2c2e;--s3:#3a3a3c;
+  --bd:rgba(255,255,255,.08);--bd2:rgba(255,255,255,.04);
+  --t1:#fff;--t2:rgba(235,235,245,.6);--t3:rgba(235,235,245,.3);
+  --blue:#0a84ff;--green:#30d158;--orange:#ff9f0a;
+  --red:#ff453a;--purple:#bf5af2;--pink:#ff375f;
+  --teal:#5ac8fa;--yellow:#ffd60a;--indigo:#5e5ce6;
+  --grid:rgba(255,255,255,.05);
+  --sh:0 2px 20px rgba(0,0,0,.5);
+  --sh2:0 8px 40px rgba(0,0,0,.6);
+}
+
+[data-theme="light"]{
+  --bg:#f2f2f7;--bg2:#e5e5ea;
+  --s1:#fff;--s2:#f2f2f7;--s3:#e5e5ea;
+  --bd:rgba(0,0,0,.08);--bd2:rgba(0,0,0,.04);
+  --t1:#000;--t2:rgba(60,60,67,.6);--t3:rgba(60,60,67,.3);
+  --blue:#007aff;--green:#34c759;--orange:#ff9500;
+  --red:#ff3b30;--purple:#af52de;--pink:#ff2d55;
+  --teal:#5ac8fa;--yellow:#ffcc00;--indigo:#5856d6;
+  --grid:rgba(0,0,0,.05);
+  --sh:0 2px 12px rgba(0,0,0,.06);
+  --sh2:0 8px 24px rgba(0,0,0,.1);
+}
+
+html{font-size:15px;scroll-behavior:smooth}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',sans-serif;
+  background:var(--bg);
+  color:var(--t1);
+  min-height:100vh;
+  transition:background .3s,color .3s;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── HEADER ── */
+header{
+  position:sticky;top:0;z-index:100;
+  background:var(--bg);
+  border-bottom:1px solid var(--bd);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  padding:0 clamp(16px,4vw,40px);
+}
+.header-inner{
+  display:flex;align-items:center;gap:12px;
+  height:60px;max-width:1600px;margin:0 auto;
+}
+.logo{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--red),var(--orange));
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(255,69,58,.4);
+}
+.header-title{
+  font-size:15px;font-weight:600;letter-spacing:-.2px;
+  flex:1;min-width:0;
+}
+.header-title span{color:var(--t2);font-weight:400}
+.header-meta{
+  display:flex;align-items:center;gap:8px;flex-shrink:0;
+}
+.last-updated{
+  font-size:11px;color:var(--t3);
+  white-space:nowrap;
+  display:none;
+}
+.last-updated.visible{display:block}
+.btn-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--s2);border:1px solid var(--bd);
+  color:var(--t2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;transition:var(--tr);
+}
+.btn-icon:hover{background:var(--s3);color:var(--t1)}
+.btn-icon.spinning{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── STATUS BAR ── */
+.status-bar{
+  background:var(--bg);
+  border-bottom:1px solid var(--bd2);
+  padding:0 clamp(16px,4vw,40px);
+}
+.status-inner{
+  display:flex;align-items:center;gap:0;
+  height:44px;max-width:1600px;margin:0 auto;
+  overflow-x:auto;scrollbar-width:none;
+}
+.status-inner::-webkit-scrollbar{display:none}
+.tab-btn{
+  height:100%;padding:0 16px;
+  font-size:13px;font-weight:500;
+  color:var(--t2);background:transparent;
+  border:none;cursor:pointer;
+  border-bottom:2px solid transparent;
+  white-space:nowrap;transition:var(--tr);
+  display:flex;align-items:center;gap:6px;
+}
+.tab-btn:hover{color:var(--t1)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-badge{
+  background:var(--s2);
+  color:var(--t2);
+  font-size:10px;font-weight:600;
+  padding:1px 6px;border-radius:10px;
+}
+.tab-btn.active .tab-badge{background:rgba(10,132,255,.15);color:var(--blue)}
+
+/* ── MAIN ── */
+.main{
+  max-width:1600px;margin:0 auto;
+  padding:clamp(16px,3vw,32px) clamp(16px,4vw,40px);
+  display:flex;flex-direction:column;gap:clamp(16px,2.5vw,28px);
+}
+
+/* ── SECTION TITLE ── */
+.section-title{
+  font-size:11px;font-weight:600;
+  letter-spacing:.6px;text-transform:uppercase;
+  color:var(--t3);margin-bottom:-8px;
+}
+
+/* ── LOADING ── */
+.loading-overlay{
+  position:fixed;inset:0;z-index:999;
+  background:var(--bg);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:16px;
+}
+.loading-overlay.hidden{display:none}
+.loading-ring{
+  width:40px;height:40px;
+  border:3px solid var(--bd);
+  border-top-color:var(--blue);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+.loading-text{font-size:13px;color:var(--t2)}
+
+/* ── ERROR BANNER ── */
+.error-banner{
+  display:none;
+  background:rgba(255,69,58,.1);
+  border:1px solid rgba(255,69,58,.25);
+  border-radius:var(--r-md);
+  padding:12px 16px;
+  font-size:13px;
+  color:var(--red);
+  line-height:1.5;
+}
+.error-banner.visible{display:block}
+
+/* ── KPI GRID ── */
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:12px;
+}
+
+.kpi-card{
+  background:var(--s1);
+  border:1px solid var(--bd);
+  border-radius:var(--r-lg);
+  padding:18px 20px;
+  position:relative;
+  overflow:hidden;
+  transition:var(--tr);
+  box-shadow:var(--sh);
+}
+.kpi-card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:3px;
+  background:var(--accent-color, var(--blue));
+  border-radius:var(--r-lg) var(--r-lg) 0 0;
+}
+.kpi-card:hover{
+  transform:translateY(-2px);
+  box-shadow:var(--sh2);
+}
+.kpi-label{
+  font-size:11px;font-weight:500;
+  letter-spacing:.2px;
+  color:var(--t2);
+  margin-bottom:8px;
+}
+.kpi-value{
+  font-size:28px;font-weight:700;
+  letter-spacing:-1px;
+  color:var(--t1);
+  line-height:1;
+  margin-bottom:4px;
+}
+.kpi-value.small{font-size:22px}
+.kpi-sub{
+  font-size:11px;color:var(--t3);
+  display:flex;align-items:center;gap:4px;
+}
+.kpi-trend{
+  font-size:11px;font-weight:600;
+  padding:2px 6px;border-radius:6px;
+}
+.kpi-trend.up{background:rgba(48,209,88,.15);color:var(--green)}
+.kpi-trend.down{background:rgba(255,69,58,.15);color:var(--red)}
+.kpi-trend.neutral{background:rgba(235,235,245,.1);color:var(--t2)}
+.kpi-icon{
+  position:absolute;top:16px;right:16px;
+  font-size:20px;opacity:.3;
+}
+
+/* ── CHARTS LAYOUT ── */
+.charts-2col{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.charts-3col{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:12px;
+}
+
+.chart-card{
+  background:var(--s1);
+  border:1px solid var(--bd);
+  border-radius:var(--r-lg);
+  padding:20px 22px;
+  box-shadow:var(--sh);
+  position:relative;
+  overflow:hidden;
+}
+.chart-header{
+  display:flex;align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:16px;gap:8px;
+}
+.chart-title{
+  font-size:14px;font-weight:600;
+  letter-spacing:-.2px;
+  color:var(--t1);
+}
+.chart-sub{
+  font-size:11px;color:var(--t2);
+  margin-top:2px;
+}
+.chart-badge{
+  font-size:10px;font-weight:600;
+  padding:3px 8px;border-radius:8px;
+  background:var(--s2);color:var(--t2);
+  white-space:nowrap;flex-shrink:0;
+}
+.chart-wrap{
+  position:relative;
+}
+.chart-wrap canvas{display:block}
+
+/* Donut center text */
+.donut-center{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;pointer-events:none;
+}
+.donut-center-val{
+  font-size:24px;font-weight:700;
+  color:var(--t1);letter-spacing:-1px;
+}
+.donut-center-lbl{
+  font-size:10px;color:var(--t2);margin-top:1px;
+}
+
+/* ── LEGEND ── */
+.legend{
+  display:flex;flex-wrap:wrap;gap:8px 16px;
+  margin-top:14px;
+}
+.legend-item{
+  display:flex;align-items:center;gap:6px;
+  font-size:11px;color:var(--t2);cursor:pointer;
+}
+.legend-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+
+/* ── PROGRESS BARS (Regiões) ── */
+.region-list{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.region-item{}
+.region-header{
+  display:flex;justify-content:space-between;
+  font-size:12px;margin-bottom:4px;
+}
+.region-name{color:var(--t1);font-weight:500}
+.region-count{color:var(--t2)}
+.region-bar-bg{
+  height:5px;background:var(--s3);
+  border-radius:10px;overflow:hidden;
+}
+.region-bar-fill{
+  height:100%;border-radius:10px;
+  transition:width .8s cubic-bezier(.4,0,.2,1);
+  background:var(--blue);
+}
+
+/* ── TABLE (Top Municípios) ── */
+.muni-table{width:100%;border-collapse:collapse;font-size:12px}
+.muni-table thead tr{border-bottom:1px solid var(--bd)}
+.muni-table th{
+  padding:6px 10px;text-align:left;
+  font-size:10px;font-weight:600;letter-spacing:.4px;
+  text-transform:uppercase;color:var(--t3);
+}
+.muni-table tbody tr{
+  border-bottom:1px solid var(--bd2);
+  transition:background .15s;
+}
+.muni-table tbody tr:hover{background:var(--s2)}
+.muni-table tbody tr:last-child{border-bottom:none}
+.muni-table td{padding:8px 10px;color:var(--t2)}
+.muni-table td:first-child{color:var(--t1);font-weight:500}
+.muni-table .rank{
+  color:var(--t3);font-size:11px;font-weight:700;
+  width:24px;text-align:center;
+}
+.muni-mini-bar{
+  width:80px;height:4px;background:var(--s3);
+  border-radius:4px;overflow:hidden;
+}
+.muni-mini-fill{
+  height:100%;border-radius:4px;
+  background:var(--blue);
+}
+.muni-badge{
+  font-size:10px;font-weight:600;
+  padding:2px 7px;border-radius:6px;
+}
+.muni-badge.pos{background:rgba(255,69,58,.15);color:var(--red)}
+.muni-badge.neg{background:rgba(48,209,88,.15);color:var(--green)}
+.muni-badge.pend{background:rgba(255,159,10,.15);color:var(--orange)}
+
+/* ── FUNNEL ── */
+.funnel{display:flex;flex-direction:column;gap:0;margin-top:4px}
+.funnel-step{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 0;border-bottom:1px solid var(--bd2);
+}
+.funnel-step:last-child{border-bottom:none}
+.funnel-label{font-size:12px;color:var(--t2);flex:1}
+.funnel-bar-wrap{flex:2;display:flex;align-items:center;gap:8px}
+.funnel-bar{
+  height:6px;border-radius:6px;
+  transition:width .8s cubic-bezier(.4,0,.2,1);
+}
+.funnel-val{font-size:12px;font-weight:600;color:var(--t1);min-width:32px;text-align:right}
+.funnel-pct{font-size:10px;color:var(--t3);min-width:36px;text-align:right}
+
+/* ── FOOTER ── */
+footer{
+  text-align:center;
+  padding:24px;
+  font-size:11px;
+  color:var(--t3);
+  border-top:1px solid var(--bd2);
+  margin-top:12px;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .charts-2col,.charts-3col{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:500px){
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .kpi-value{font-size:22px}
+  .header-title span{display:none}
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.kpi-card{animation:fadeInUp .35s ease both}
+.kpi-card:nth-child(1){animation-delay:.05s}
+.kpi-card:nth-child(2){animation-delay:.08s}
+.kpi-card:nth-child(3){animation-delay:.11s}
+.kpi-card:nth-child(4){animation-delay:.14s}
+.kpi-card:nth-child(5){animation-delay:.17s}
+.kpi-card:nth-child(6){animation-delay:.20s}
+.kpi-card:nth-child(7){animation-delay:.23s}
+.kpi-card:nth-child(8){animation-delay:.26s}
+.chart-card{animation:fadeInUp .4s ease both;animation-delay:.2s}
+
+/* ── ALERT BADGE ── */
+.alert-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--red);
+  display:inline-block;margin-left:4px;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── DONUT OVERRIDE ── */
+.chart-wrap.donut{
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-ring"></div>
+  <div class="loading-text">Carregando dados das OCIs…</div>
+</div>
+
+<!-- Header -->
+<header>
+  <div class="header-inner">
+    <div class="logo">🎗️</div>
+    <div class="header-title">
+      Dashboard OCI <span>· Programa Estadual de Oncologia · Alagoas</span>
+    </div>
+    <div class="header-meta">
+      <span class="last-updated" id="lastUpdated">—</span>
+      <button class="btn-icon" id="btnRefresh" title="Atualizar dados" onclick="loadData()">↺</button>
+      <button class="btn-icon" id="btnTheme" title="Alternar tema" onclick="toggleTheme()">☀️</button>
+    </div>
+  </div>
+</header>
+
+<!-- Tabs -->
+<div class="status-bar">
+  <div class="status-inner">
+    <button class="tab-btn active" data-hospital="all" onclick="setHospital('all',this)">
+      Todos <span class="tab-badge" id="tabBadgeAll">—</span>
+    </button>
+    <button class="tab-btn" data-hospital="metro" onclick="setHospital('metro',this)">
+      Hospital Metropolitano <span class="tab-badge" id="tabBadgeMetro">—</span>
+    </button>
+    <button class="tab-btn" data-hospital="hm" onclick="setHospital('hm',this)">
+      Hospital da Mulher <span class="tab-badge" id="tabBadgeHM">—</span>
+    </button>
+  </div>
+</div>
+
+<!-- Main -->
+<main class="main">
+
+  <div class="error-banner" id="errorBanner">
+    ⚠️ Não foi possível carregar os dados da planilha. Verifique se o documento está compartilhado como <strong>"Qualquer pessoa com o link pode visualizar"</strong> no Google Sheets, e que os nomes das abas são <code>metropolitano</code> e <code>hm</code>.
+  </div>
+
+  <!-- KPIs -->
+  <div>
+    <div class="section-title">Indicadores Gerais</div>
+    <div class="kpi-grid" id="kpiGrid" style="margin-top:12px">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- Row 1: Tipo OCI + Desfecho -->
+  <div class="charts-2col">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Distribuição por Tipo de OCI</div>
+          <div class="chart-sub">Oncologia oncológica por linha de cuidado</div>
+        </div>
+        <span class="chart-badge" id="badgeOciType">—</span>
+      </div>
+      <div class="chart-wrap donut" style="height:220px">
+        <canvas id="chartOciType"></canvas>
+        <div class="donut-center">
+          <div class="donut-center-val" id="donutTotal">—</div>
+          <div class="donut-center-lbl">Total</div>
+        </div>
+      </div>
+      <div class="legend" id="legendOciType"></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Desfechos das OCIs</div>
+          <div class="chart-sub">Resultado final por categoria</div>
+        </div>
+        <span class="chart-badge" id="badgeDesfecho">—</span>
+      </div>
+      <div class="chart-wrap" style="height:252px">
+        <canvas id="chartDesfecho"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Evolução Mensal -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Evolução Mensal de OCIs Abertas</div>
+        <div class="chart-sub">Entradas por mês — comparativo entre unidades</div>
+      </div>
+      <span class="chart-badge" id="badgeMensal">—</span>
+    </div>
+    <div class="chart-wrap" style="height:220px">
+      <canvas id="chartMensal"></canvas>
+    </div>
+  </div>
+
+  <!-- Row 3: Comparecimento + Tempo -->
+  <div class="charts-2col">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Comparecimento por Tipo de OCI</div>
+          <div class="chart-sub">% SIM vs NÃO por linha oncológica</div>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="chartComp"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Tempo de Realização da OCI</div>
+          <div class="chart-sub">Distribuição do prazo entre abertura e desfecho</div>
+        </div>
+      </div>
+      <div class="chart-wrap donut" style="height:200px">
+        <canvas id="chartTempo"></canvas>
+      </div>
+      <div class="legend" id="legendTempo"></div>
+    </div>
+  </div>
+
+  <!-- Row 4: Regiões + Funil -->
+  <div class="charts-2col">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Regiões de Saúde</div>
+          <div class="chart-sub">Volume de OCIs por regional</div>
+        </div>
+      </div>
+      <div id="regionList" class="region-list"></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Funil de Triagem Oncológica</div>
+          <div class="chart-sub">Fluxo do paciente dentro da OCI</div>
+        </div>
+      </div>
+      <div class="funnel" id="funnelList"></div>
+    </div>
+  </div>
+
+  <!-- Row 5: Top Municípios -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Top 15 Municípios</div>
+        <div class="chart-sub">Municípios com maior volume de pacientes encaminhados</div>
+      </div>
+      <span class="chart-badge" id="badgeMuni">—</span>
+    </div>
+    <div class="chart-wrap" style="height:260px">
+      <canvas id="chartMuni"></canvas>
+    </div>
+  </div>
+
+  <!-- Row 6: CA por tipo + Desfecho por hospital -->
+  <div class="charts-2col">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Taxa de Confirmação de CA por Tipo</div>
+          <div class="chart-sub">% de cânceres confirmados entre atendidos</div>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:220px">
+        <canvas id="chartCARate"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Motivos de Encerramento</div>
+          <div class="chart-sub">OCIs encerradas sem desfecho clínico</div>
+        </div>
+      </div>
+      <div class="chart-wrap donut" style="height:180px">
+        <canvas id="chartEncerramento"></canvas>
+      </div>
+      <div class="legend" id="legendEncerramento"></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Dashboard OCI · Programa Estadual de Oncologia · Alagoas &nbsp;·&nbsp;
+  Fonte: Google Sheets (atualização automática) &nbsp;·&nbsp;
+  Desenvolvido para gestão em saúde
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════════════ */
+const SHEET_ID = '1NDNwj3DNYeitO1TQNii7uI730MQ3mvnN-pNaEHCgizQ';
+const URLS = {
+  metro: [
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=metropolitano`,
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=metropolitano`
+  ],
+  hm: [
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=hm`,
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=hm`
+  ]
+};
+
+const OCI_MAP = {
+  '004-9': {name:'Próstata',     color:'#30D158'},
+  '008-1': {name:'Colorretal',   color:'#FF9F0A'},
+  '007-3': {name:'Gástrico',     color:'#FF453A'},
+  '001-4': {name:'Mama',         color:'#FF375F'},
+  '010-3': {name:'Mama II',      color:'#BF5AF2'},
+  '005-7': {name:'Colo do Útero',color:'#5AC8FA'},
+  '012-0': {name:'Colo do Útero II',color:'#0A84FF'},
+};
+
+const OUTCOME_ORDER = [
+  'CA Confirmado','CA Descartado','Indicação Cirúrgica',
+  'Encaminhado Oncologia','Em Andamento','OCI Encerrada',
+  'Desistência','Não Localizado','Óbito'
+];
+const OUTCOME_COLORS = {
+  'CA Confirmado':        '#FF453A',
+  'CA Descartado':        '#30D158',
+  'Indicação Cirúrgica':  '#FF9F0A',
+  'Encaminhado Oncologia':'#0A84FF',
+  'Em Andamento':         '#FFD60A',
+  'OCI Encerrada':        '#8E8E93',
+  'Desistência':          '#636366',
+  'Não Localizado':       '#48484A',
+  'Óbito':                '#2C2C2E',
+};
+const TEMPO_COLORS = ['#30D158','#0A84FF','#FF9F0A','#FF453A','#8E8E93'];
+const ENCERRAMENTO_COLORS = ['#FF453A','#FF9F0A','#8E8E93','#636366','#5AC8FA'];
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+let allData = [];
+let currentHospital = 'all';
+let charts = {};
+
+/* ═══════════════════════════════════════════════════════
+   DATA HELPERS
+═══════════════════════════════════════════════════════ */
+function getOCIType(str) {
+  if (!str) return 'Outros';
+  const m = str.match(/(\d{3}-\d)/);
+  if (m && OCI_MAP[m[1]]) return OCI_MAP[m[1]].name;
+  return 'Outros';
+}
+
+function getOCIColor(name) {
+  const e = Object.values(OCI_MAP).find(v => v.name === name);
+  return e ? e.color : '#8E8E93';
+}
+
+function classifyOutcome(d) {
+  if (!d) return 'Em Andamento';
+  const u = d.toUpperCase().trim();
+  if (/FALECEU|ÓBITO|OBITO|FOI A ÓBITO/.test(u)) return 'Óbito';
+  if (/NÃO LOCALIZADO|NAO LOCALIZADO/.test(u)) return 'Não Localizado';
+  if (/DESISTÊNCI|RECUSA|INTERESSE/.test(u)) return 'Desistência';
+  if (/(CA |C\.A |CÂNCER |CANCER )CONFIRMADO|CONFIRMADO.*(CA|C\.A|CÂNCER)|^CA CONFIRMADO/.test(u)) return 'CA Confirmado';
+  if (/DESCARTAD|NÃO É CA|NAO É CA|NÃO É C\.A|NAO E C\.A|C\.A DESCARTADO|CA DESCARTADO|NÃO É C\.A/.test(u)) return 'CA Descartado';
+  if (/INDICAD.*CIRURGIA|CIRURGIA.*INDICAD|ENCAMINH.*CIRURGIA|CASO CIRUGICO/.test(u)) return 'Indicação Cirúrgica';
+  if (/ENCAMINH.*ONCOLOGIA|ONCOLOGIA.*ENCAMINH|PARA ONCOLOGIA/.test(u)) return 'Encaminhado Oncologia';
+  if (/ENCERRAD|ENCERRADA|OCI ENCERRADA|O\.C\.I ENCERRADA/.test(u)) return 'OCI Encerrada';
+  if (/AGUARD|RESULTADO|BIOPSIA|EXAME|PENDENTE/.test(u)) return 'Em Andamento';
+  return 'Em Andamento';
+}
+
+function classifyTempo(t) {
+  if (!t) return 'Não informado';
+  const u = t.toLowerCase();
+  if (u.includes('1-10') || u.includes('1 a 10')) return '1–10 dias';
+  if (u.includes('11-20') || u.includes('11 a 20')) return '11–20 dias';
+  if (u.includes('21-30') || u.includes('21 a 30')) return '21–30 dias';
+  if (u.includes('mais de 30') || u.includes('>30') || u.includes('+ 30')) return '+30 dias';
+  return 'Não informado';
+}
+
+function parseMonth(dateStr) {
+  if (!dateStr) return null;
+  const m = dateStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (!m) return null;
+  return `${m[3]}-${String(m[2]).padStart(2,'0')}`;
+}
+
+function fmt(n) {
+  if (n >= 1000) return (n/1000).toFixed(1).replace('.',',') + 'k';
+  return n.toString();
+}
+
+/* ═══════════════════════════════════════════════════════
+   DATA LOADING
+═══════════════════════════════════════════════════════ */
+async function loadData() {
+  const btn = document.getElementById('btnRefresh');
+  btn.classList.add('spinning');
+  document.getElementById('errorBanner').classList.remove('visible');
+  document.getElementById('loadingOverlay').classList.remove('hidden');
+
+  try {
+    const [metroRaw, hmRaw] = await Promise.all([
+      fetchCSVWithFallback(URLS.metro),
+      fetchCSVWithFallback(URLS.hm)
+    ]);
+
+    const metro = parseRows(metroRaw, 'Metropolitano');
+    const hm    = parseRows(hmRaw,   'Hospital da Mulher');
+    allData = [...metro, ...hm];
+
+    document.getElementById('tabBadgeAll').textContent   = allData.length;
+    document.getElementById('tabBadgeMetro').textContent = metro.length;
+    document.getElementById('tabBadgeHM').textContent    = hm.length;
+
+    const now = new Date();
+    const lu  = document.getElementById('lastUpdated');
+    lu.textContent = `Atualizado: ${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`;
+    lu.classList.add('visible');
+
+    renderAll();
+  } catch(e) {
+    console.error('Erro ao carregar dados:', e);
+    const eb = document.getElementById('errorBanner');
+    eb.innerHTML = `⚠️ <strong>Não foi possível carregar os dados.</strong><br>
+      Verifique se: (1) a planilha está compartilhada como <em>"Qualquer pessoa com o link"</em>,
+      (2) o arquivo está sendo aberto de um <strong>servidor web</strong> (não direto do computador via file://),
+      (3) você tem acesso à internet.<br>
+      <small style="opacity:.7">Erro técnico: ${e.message || e}</small>`;
+    eb.classList.add('visible');
+  } finally {
+    btn.classList.remove('spinning');
+    document.getElementById('loadingOverlay').classList.add('hidden');
+  }
+}
+
+// Tenta cada URL da lista até uma funcionar
+async function fetchCSVWithFallback(urlList) {
+  let lastError;
+  for (const url of urlList) {
+    try {
+      return await fetchCSV(url);
+    } catch(e) {
+      console.warn('URL falhou, tentando próxima:', url, e.message);
+      lastError = e;
+    }
+  }
+  throw lastError;
+}
+
+// Usa fetch nativo + PapaParse para parse (evita CORS do PapaParse download mode)
+async function fetchCSV(url) {
+  const resp = await fetch(url, {
+    method: 'GET',
+    mode: 'cors',
+    credentials: 'omit',
+    headers: { 'Accept': 'text/csv,text/plain,*/*' }
+  });
+  if (!resp.ok) throw new Error(`HTTP ${resp.status} ao acessar ${url}`);
+  const text = await resp.text();
+  if (!text || text.trim().length < 10) throw new Error('Resposta vazia da planilha');
+  return new Promise((resolve, reject) => {
+    Papa.parse(text, {
+      header: true,
+      skipEmptyLines: true,
+      complete: r => {
+        if (!r.data || r.data.length === 0) reject(new Error('Nenhuma linha encontrada'));
+        else resolve(r.data);
+      },
+      error: e => reject(new Error('Erro ao parsear CSV: ' + e.message))
+    });
+  });
+}
+
+function parseRows(rows, hospital) {
+  return rows
+    .filter(r => {
+      const name = (r['NOME DO PACIENTE'] || r['Nome do Paciente'] || '').trim();
+      return name && name.length > 2 && !/^(NOME|nome)/i.test(name);
+    })
+    .map(r => ({
+      hospital,
+      data:        r['DATA'] || '',
+      nome:        r['NOME DO PACIENTE'] || '',
+      municipio:   (r['MUNICIPIO DE RESIDÊNCIA'] || r['MUNICÍPIO DE RESIDÊNCIA'] || '').trim(),
+      regiao:      (r['REGIÃO DE SAÚDE'] || '').trim(),
+      oci:         r['OCI'] || '',
+      ociType:     getOCIType(r['OCI'] || ''),
+      exame:       r['EXAME/PROCEDIMENTO'] || '',
+      compareceu:  (r['COMPARECEU?'] || '').trim().toUpperCase(),
+      realizacao:  r['REALIZAÇÃO DO PROCEDIMENTO'] || '',
+      tempo:       classifyTempo(r['TEMPO DE REALIZAÇÃO DA OCI'] || ''),
+      desfecho:    r['DESFECHO'] || '',
+      outcome:     classifyOutcome(r['DESFECHO'] || ''),
+      idade:       parseInt(r['IDADE']) || 0,
+      mesAno:      parseMonth(r['DATA'] || ''),
+    }));
+}
+
+/* ═══════════════════════════════════════════════════════
+   FILTER
+═══════════════════════════════════════════════════════ */
+function getFiltered() {
+  if (currentHospital === 'metro') return allData.filter(r => r.hospital === 'Metropolitano');
+  if (currentHospital === 'hm')    return allData.filter(r => r.hospital === 'Hospital da Mulher');
+  return allData;
+}
+
+function setHospital(h, el) {
+  currentHospital = h;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderAll();
+}
+
+/* ═══════════════════════════════════════════════════════
+   RENDER ALL
+═══════════════════════════════════════════════════════ */
+function renderAll() {
+  const data = getFiltered();
+  renderKPIs(data);
+  renderOciType(data);
+  renderDesfecho(data);
+  renderMensal(data);
+  renderComparecimento(data);
+  renderTempo(data);
+  renderRegioes(data);
+  renderFunil(data);
+  renderMunicipios(data);
+  renderCARate(data);
+  renderEncerramento(data);
+}
+
+/* ═══════════════════════════════════════════════════════
+   KPI CARDS
+═══════════════════════════════════════════════════════ */
+function renderKPIs(data) {
+  const total      = data.length;
+  const attended   = data.filter(r => r.compareceu === 'SIM').length;
+  const notAtt     = data.filter(r => r.compareceu === 'NÃO').length;
+  const attRate    = total > 0 ? (attended/total*100).toFixed(1) : 0;
+  const confirmed  = data.filter(r => r.outcome === 'CA Confirmado').length;
+  const caRate     = attended > 0 ? (confirmed/attended*100).toFixed(1) : 0;
+  const surgery    = data.filter(r => r.outcome === 'Indicação Cirúrgica').length;
+  const oncRef     = data.filter(r => r.outcome === 'Encaminhado Oncologia').length;
+  const pending    = data.filter(r => r.outcome === 'Em Andamento').length;
+  const closed     = data.filter(r => ['OCI Encerrada','Desistência','Não Localizado'].includes(r.outcome)).length;
+  const deaths     = data.filter(r => r.outcome === 'Óbito').length;
+  const munis      = new Set(data.map(r => r.municipio).filter(Boolean)).size;
+  const discarded  = data.filter(r => r.outcome === 'CA Descartado').length;
+
+  const cards = [
+    { label:'Total de OCIs',         value:fmt(total),       sub:`${data.filter(r=>r.hospital==='Metropolitano').length} Metro · ${data.filter(r=>r.hospital==='Hospital da Mulher').length} HM`, icon:'📋', accent:'var(--blue)',    trend:null },
+    { label:'Taxa de Comparecimento', value:attRate+'%',      sub:`${attended} compareceram · ${notAtt} faltaram`,          icon:'✅', accent:'var(--green)',   trend:attRate>=70?'up':attRate>=50?'neutral':'down' },
+    { label:'CAs Confirmados',        value:fmt(confirmed),   sub:`+ ${surgery} com indicação cirúrgica`,                   icon:'⚠️', accent:'var(--red)',     trend:null },
+    { label:'Taxa de CA (atendidos)', value:caRate+'%',       sub:`Em ${attended} pacientes que compareceram`,              icon:'📊', accent:'var(--orange)',  trend:null },
+    { label:'Descartados',            value:fmt(discarded),   sub:`CA descartado na triagem`,                               icon:'✔️', accent:'var(--green)',   trend:null },
+    { label:'Em Andamento',           value:fmt(pending),     sub:`Aguardando resultado ou retorno`,                        icon:'⏳', accent:'var(--yellow)',  trend:null },
+    { label:'Municípios Atendidos',   value:fmt(munis),       sub:`Regiões de saúde com pacientes`,                        icon:'🗺️', accent:'var(--teal)',    trend:null },
+    { label:'Óbitos Registrados',     value:fmt(deaths),      sub:`Durante o acompanhamento da OCI`,                       icon:'💔', accent:'var(--purple)',  trend:null },
+  ];
+
+  const g = document.getElementById('kpiGrid');
+  g.innerHTML = cards.map((c,i) => `
+    <div class="kpi-card" style="--accent-color:${c.accent};animation-delay:${(i+1)*0.04}s">
+      <div class="kpi-icon">${c.icon}</div>
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-value ${c.value.length>5?'small':''}">${c.value}</div>
+      <div class="kpi-sub">
+        <span>${c.sub}</span>
+        ${c.trend ? `<span class="kpi-trend ${c.trend}">${c.trend==='up'?'▲ Bom':c.trend==='down'?'▼ Atenção':'— Regular'}</span>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHART: OCI TYPE DONUT
+═══════════════════════════════════════════════════════ */
+function renderOciType(data) {
+  const counts = {};
+  data.forEach(r => { counts[r.ociType] = (counts[r.ociType]||0)+1; });
+  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+  const labels  = sorted.map(e=>e[0]);
+  const values  = sorted.map(e=>e[1]);
+  const colors  = labels.map(getOCIColor);
+
+  document.getElementById('badgeOciType').textContent = labels.length + ' tipos';
+  document.getElementById('donutTotal').textContent   = data.length;
+
+  destroyChart('chartOciType');
+  const ctx = document.getElementById('chartOciType').getContext('2d');
+  charts['chartOciType'] = new Chart(ctx, {
+    type:'doughnut',
+    data:{labels, datasets:[{data:values, backgroundColor:colors, borderWidth:2, borderColor:getVar('--s1'), hoverOffset:6}]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      cutout:'68%',
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            label: ctx => ` ${ctx.label}: ${ctx.raw} (${(ctx.raw/data.length*100).toFixed(1)}%)`
+          }
+        }
+      }
+    }
+  });
+
+  // custom legend
+  document.getElementById('legendOciType').innerHTML = sorted.map(([name,cnt]) => `
+    <div class="legend-item">
+      <span class="legend-dot" style="background:${getOCIColor(name)}"></span>
+      <span>${name} <strong style="color:var(--t1)">${cnt}</strong></span>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHART: DESFECHO BAR
+═══════════════════════════════════════════════════════ */
+function renderDesfecho(data) {
+  const counts = {};
+  data.forEach(r => { counts[r.outcome] = (counts[r.outcome]||0)+1; });
+  const entries = OUTCOME_ORDER
+    .map(k => [k, counts[k]||0])
+    .filter(e => e[1] > 0)
+    .sort((a,b) => b[1]-a[1]);
+
+  document.getElementById('badgeDesfecho').textContent = entries.length + ' categorias';
+
+  destroyChart('chartDesfecho');
+  const ctx = document.getElementById('chartDesfecho').getContext('2d');
+  charts['chartDesfecho'] = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: entries.map(e=>e[0]),
+      datasets:[{
+        data: entries.map(e=>e[1]),
+        backgroundColor: entries.map(e => OUTCOME_COLORS[e[0]] || '#8E8E93'),
+        borderRadius:6, borderSkipped:false
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.raw} pacientes`}}},
+      scales:{
+        x:{grid:{color:getVar('--grid')}, ticks:{color:getVar('--t2'),font:{size:11}}},
+        y:{grid:{display:false}, ticks:{color:getVar('--t2'),font:{size:11}}}
+      }
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHART: EVOLUÇÃO MENSAL
+═══════════════════════════════════════════════════════ */
+function renderMensal(data) {
+  const months = {};
+  data.forEach(r => {
+    if (!r.mesAno) return;
+    if (!months[r.mesAno]) months[r.mesAno] = {total:0,metro:0,hm:0};
+    months[r.mesAno].total++;
+    if (r.hospital === 'Metropolitano') months[r.mesAno].metro++;
+    else months[r.mesAno].hm++;
+  });
+
+  const sorted = Object.keys(months).sort();
+  const labels = sorted.map(m => {
+    const [y,mo] = m.split('-');
+    const names=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    return `${names[parseInt(mo)-1]}/${y.slice(2)}`;
+  });
+
+  document.getElementById('badgeMensal').textContent = sorted.length + ' meses';
+
+  destroyChart('chartMensal');
+  const ctx = document.getElementById('chartMensal').getContext('2d');
+  charts['chartMensal'] = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {
+          label:'Total',
+          data: sorted.map(m=>months[m].total),
+          borderColor:'#0A84FF', backgroundColor:'rgba(10,132,255,.15)',
+          borderWidth:2.5, pointRadius:4, pointHoverRadius:6,
+          fill:true, tension:.4
+        },
+        {
+          label:'Metropolitano',
+          data: sorted.map(m=>months[m].metro),
+          borderColor:'#30D158', backgroundColor:'rgba(48,209,88,.08)',
+          borderWidth:1.5, pointRadius:3, pointHoverRadius:5,
+          fill:false, tension:.4, borderDash:[4,3]
+        },
+        {
+          label:'Hospital da Mulher',
+          data: sorted.map(m=>months[m].hm),
+          borderColor:'#FF375F', backgroundColor:'rgba(255,55,95,.08)',
+          borderWidth:1.5, pointRadius:3, pointHoverRadius:5,
+          fill:false, tension:.4, borderDash:[4,3]
+        }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{
+          display:true,
+          labels:{color:getVar('--t2'), font:{size:11}, boxWidth:12, padding:16, usePointStyle:true}
+        }
+      },
+      scales:{
+        x:{grid:{color:getVar('--grid')}, ticks:{color:getVar('--t2'),font:{size:11}}},
+        y:{grid:{color:getVar('--grid')}, ticks:{color:getVar('--t2'),font:{size:11}}, beginAtZero:true}
+      }
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHART: COMPARECIMENTO POR TIPO
+═══════════════════════════════════════════════════════ */
+function renderComparecimento(data) {
+  const map = {};
+  data.forEach(r => {
+    const t = r.ociType;
+    if (!map[t]) map[t] = {sim:0,nao:0};
+    if (r.compareceu === 'SIM') map[t].sim++;
+    else if (r.compareceu === 'NÃO') map[t].nao++;
+  });
+
+  const types  = Object.keys(map);
+  const simPct = types.map(t => {
+    const total = map[t].sim + map[t].nao;
+    return total > 0 ? +(map[t].sim/total*100).toFixed(1) : 0;
+  });
+  const naoPct = types.map(t => {
+    const total = map[t].sim + map[t].nao;
+    return total > 0 ? +(map[t].nao/total*100).toFixed(1) : 0;
+  });
+
+  destroyChart('chartComp');
+  const ctx = document.getElementById('chartComp').getContext('2d');
+  charts['chartComp'] = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: types,
+      datasets:[
+        {label:'Compareceu (%)', data:simPct, backgroundColor:'rgba(48,209,88,.8)', borderRadius:4, borderSkipped:false},
+        {label:'Não compareceu (%)', data:naoPct, backgroundColor:'rgba(255,69,58,.5)', borderRadius:4, borderSkipped:false},
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true, labels:{color:getVar('--t2'),font:{size:11},boxWidth:10,usePointStyle:true}}
+      },
+      scales:{
+        x:{grid:{display:false}, ticks:{color:getVar('--t2'),font:{size:10},maxRotation:35}},
+        y:{
+          grid:{color:getVar('--grid')},
+          ticks:{color:getVar('--t2'),font:{size:11}, callback:v=>v+'%'},
+          max:100, stacked:false
+        }
+      }
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHART: TEMPO DE REALIZAÇÃO DONUT
+═══════════════════════════════════════════════════════ */
+function renderTempo(data) {
+  const counts = {};
+  data.forEach(r => { counts[r.tempo] = (counts[r.tempo]||0)+1; });
+  const order = ['1–10 dias','11–20 dias','21–30 dias','+30 dias','Não informado'];
+  const entries = order.filter(k=>counts[k]).map(k=>[k,counts[k]]);
+
+  destroyChart('chartTempo');
+  const ctx = document.getElementById('chartTempo').getContext('2d');
+  charts['chartTempo'] = new Chart(ctx, {
+    type:'doughnut',
+    data:{
+      labels: entries.map(e=>e[0]),
+      datasets:[{
+        data: entries.map(e=>e[1]),
+        backgroundColor: TEMPO_COLORS.slice(0,entries.length),
+        borderWidth:2, borderColor:getVar('--s1'), hoverOffset:5
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      cutout:'62%',
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw}`}}
+      }
+    }
+  });
+
+  document.getElementById('legendTempo').innerHTML = entries.map(([k,v],i) => `
+    <div class="legend-item">
+      <span class="legend-dot" style="background:${TEMPO_COLORS[i]}"></span>
+      <span>${k} — <strong style="color:var(--t1)">${v}</strong></span>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   REGIÕES: Progress bars
+═══════════════════════════════════════════════════════ */
+function renderRegioes(data) {
+  const map = {};
+  data.forEach(r => {
+    const reg = r.regiao || 'Não informada';
+    map[reg] = (map[reg]||0)+1;
+  });
+  const sorted = Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const max    = sorted[0]?.[1] || 1;
+
+  const regionColors = [
+    '#0A84FF','#30D158','#FF9F0A','#FF453A','#BF5AF2',
+    '#FF375F','#5AC8FA','#FFD60A','#5E5CE6','#64D2FF'
+  ];
+
+  document.getElementById('regionList').innerHTML = sorted.map(([name,cnt],i) => `
+    <div class="region-item">
+      <div class="region-header">
+        <span class="region-name">${name || 'Não informada'}</span>
+        <span class="region-count">${cnt} OCIs</span>
+      </div>
+      <div class="region-bar-bg">
+        <div class="region-bar-fill" style="width:${(cnt/max*100).toFixed(1)}%;background:${regionColors[i%regionColors.length]}"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   FUNIL
+═══════════════════════════════════════════════════════ */
+function renderFunil(data) {
+  const total      = data.length;
+  const attended   = data.filter(r => r.compareceu === 'SIM').length;
+  const confirmed  = data.filter(r => r.outcome === 'CA Confirmado').length;
+  const treated    = data.filter(r => ['CA Confirmado','Indicação Cirúrgica','Encaminhado Oncologia'].includes(r.outcome)).length;
+  const resolved   = data.filter(r => r.outcome === 'CA Descartado').length;
+
+  const steps = [
+    {label:'Pacientes Encaminhados', val:total,    color:'#0A84FF'},
+    {label:'Compareceram',           val:attended, color:'#30D158'},
+    {label:'Encaminhados para Tratamento', val:treated, color:'#FF9F0A'},
+    {label:'Cânceres Confirmados',   val:confirmed,color:'#FF453A'},
+    {label:'CA Descartado / Alta',   val:resolved, color:'#5AC8FA'},
+  ];
+
+  document.getElementById('funnelList').innerHTML = steps.map(s => `
+    <div class="funnel-step">
+      <div class="funnel-label">${s.label}</div>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:${total>0?(s.val/total*100).toFixed(0)+'%':'0%'};min-width:4px;background:${s.color}"></div>
+      </div>
+      <div class="funnel-val">${s.val}</div>
+      <div class="funnel-pct">${total>0?(s.val/total*100).toFixed(0):'0'}%</div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHART: TOP MUNICÍPIOS
+═══════════════════════════════════════════════════════ */
+function renderMunicipios(data) {
+  const map = {};
+  data.forEach(r => {
+    if (!r.municipio) return;
+    const m = r.municipio.trim();
+    if (!m) return;
+    map[m] = (map[m]||0)+1;
+  });
+
+  const top = Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  document.getElementById('badgeMuni').textContent = Object.keys(map).length + ' municípios';
+
+  destroyChart('chartMuni');
+  const ctx = document.getElementById('chartMuni').getContext('2d');
+  charts['chartMuni'] = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: top.map(e=>e[0]),
+      datasets:[{
+        data: top.map(e=>e[1]),
+        backgroundColor: top.map((_,i) => {
+          const palette=['#0A84FF','#30D158','#FF9F0A','#FF453A','#BF5AF2',
+                         '#FF375F','#5AC8FA','#FFD60A','#5E5CE6','#64D2FF',
+                         '#34C759','#FF6961','#FFADAD','#ADB5BD','#748FAB'];
+          return palette[i%palette.length]+'BB';
+        }),
+        borderRadius:5, borderSkipped:false
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.raw} pacientes`}}},
+      scales:{
+        x:{grid:{display:false}, ticks:{color:getVar('--t2'),font:{size:10},maxRotation:40}},
+        y:{grid:{color:getVar('--grid')}, ticks:{color:getVar('--t2'),font:{size:11}}, beginAtZero:true}
+      }
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHART: TAXA CA POR TIPO
+═══════════════════════════════════════════════════════ */
+function renderCARate(data) {
+  const map = {};
+  data.forEach(r => {
+    const t = r.ociType;
+    if (!map[t]) map[t] = {att:0, ca:0};
+    if (r.compareceu === 'SIM') map[t].att++;
+    if (r.outcome === 'CA Confirmado') map[t].ca++;
+  });
+
+  const entries = Object.entries(map)
+    .map(([t,v]) => [t, v.att>0 ? +(v.ca/v.att*100).toFixed(1) : 0])
+    .sort((a,b)=>b[1]-a[1]);
+
+  destroyChart('chartCARate');
+  const ctx = document.getElementById('chartCARate').getContext('2d');
+  charts['chartCARate'] = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: entries.map(e=>e[0]),
+      datasets:[{
+        label:'Taxa de CA (%)',
+        data: entries.map(e=>e[1]),
+        backgroundColor: entries.map(e => getOCIColor(e[0])+'CC'),
+        borderRadius:6, borderSkipped:false
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>` ${c.raw}% de cânceres confirmados entre atendidos`}}
+      },
+      scales:{
+        x:{
+          grid:{color:getVar('--grid')},
+          ticks:{color:getVar('--t2'),font:{size:11},callback:v=>v+'%'},
+          max:100
+        },
+        y:{grid:{display:false}, ticks:{color:getVar('--t2'),font:{size:11}}}
+      }
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHART: ENCERRAMENTO DONUT
+═══════════════════════════════════════════════════════ */
+function renderEncerramento(data) {
+  const enclosed = data.filter(r => ['OCI Encerrada','Desistência','Não Localizado'].includes(r.outcome));
+  const map = {};
+  enclosed.forEach(r => { map[r.outcome] = (map[r.outcome]||0)+1; });
+
+  // também pegar sub-razões do desfecho
+  const reasons = {
+    'Falta de Interesse':0, 'Não Localizado':0,
+    'Transporte / Distância':0, 'Prazo Ultrapassado':0, 'Outros':0
+  };
+  enclosed.forEach(r => {
+    const u = (r.desfecho||'').toUpperCase();
+    if (/INTERESSE|DESISTÊNCI/.test(u))          reasons['Falta de Interesse']++;
+    else if (/NÃO LOCALIZADO|NAO LOCALIZADO/.test(u)) reasons['Não Localizado']++;
+    else if (/TRANSPORTE|DISTÂNCIA|DISTANCIA/.test(u))reasons['Transporte / Distância']++;
+    else if (/PRAZO|ULTRAPASSOU/.test(u))          reasons['Prazo Ultrapassado']++;
+    else                                            reasons['Outros']++;
+  });
+
+  const entries = Object.entries(reasons).filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1]);
+
+  destroyChart('chartEncerramento');
+  const ctx = document.getElementById('chartEncerramento').getContext('2d');
+  charts['chartEncerramento'] = new Chart(ctx, {
+    type:'doughnut',
+    data:{
+      labels: entries.map(e=>e[0]),
+      datasets:[{
+        data: entries.map(e=>e[1]),
+        backgroundColor: ENCERRAMENTO_COLORS.slice(0,entries.length),
+        borderWidth:2, borderColor:getVar('--s1'), hoverOffset:5
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      cutout:'58%',
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw}`}}
+      }
+    }
+  });
+
+  document.getElementById('legendEncerramento').innerHTML = entries.map(([k,v],i) => `
+    <div class="legend-item">
+      <span class="legend-dot" style="background:${ENCERRAMENTO_COLORS[i]}"></span>
+      <span>${k} — <strong style="color:var(--t1)">${v}</strong></span>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════ */
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+function getVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function toggleTheme() {
+  const html  = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('btnTheme').textContent = isDark ? '🌙' : '☀️';
+
+  // Redraw all charts with new theme colors
+  if (allData.length) renderAll();
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT — wait for Chart.js + PapaParse
+═══════════════════════════════════════════════════════ */
+window.onLibsReady(function(){
+  if(typeof Chart === 'undefined'){
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    document.getElementById('errorBanner').classList.add('visible');
+    document.getElementById('errorBanner').innerHTML =
+      '⚠️ <strong>Erro:</strong> Não foi possível carregar a biblioteca de gráficos (Chart.js). Verifique sua conexão com a internet e recarregue a página.';
+    return;
+  }
+
+  // Chart.js global defaults
+  Chart.defaults.color       = 'rgba(235,235,245,0.6)';
+  Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+  Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif";
+  Chart.defaults.font.size   = 11;
+
+  loadData();
+  setInterval(loadData, 5 * 60 * 1000);
+});
+</script>
+</body>
+</html>

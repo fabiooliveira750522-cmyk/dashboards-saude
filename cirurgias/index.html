@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saúde Até Você — Cirurgias</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f2f2f7;--bg2:#fff;--bg3:#e5e5ea;--bg4:#d1d1d6;
+  --text1:#1c1c1e;--text2:#3a3a3c;--text3:#636366;--text4:#8e8e93;
+  --sep:rgba(60,60,67,.12);
+  --blue:#007aff;--blue-bg:rgba(0,122,255,.1);
+  --green:#34c759;--green-bg:rgba(52,199,89,.1);
+  --red:#ff3b30;--red-bg:rgba(255,59,48,.1);
+  --orange:#ff9500;--orange-bg:rgba(255,149,0,.1);
+  --purple:#af52de;--purple-bg:rgba(175,82,222,.1);
+  --teal:#5ac8fa;--yellow:#ffcc00;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --r-sm:10px;--r-md:14px;--r-lg:20px;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#000;--bg2:#1c1c1e;--bg3:#2c2c2e;--bg4:#3a3a3c;
+  --text1:#fff;--text2:#ebebf5;--text3:rgba(235,235,245,.6);--text4:#8e8e93;
+  --sep:rgba(255,255,255,.08);
+  --blue:#0a84ff;--blue-bg:rgba(10,132,255,.15);
+  --green:#30d158;--green-bg:rgba(48,209,88,.12);
+  --red:#ff453a;--red-bg:rgba(255,69,58,.12);
+  --orange:#ff9f0a;--orange-bg:rgba(255,159,10,.12);
+  --purple:#bf5af2;--purple-bg:rgba(191,90,242,.12);
+  --shadow:0 1px 3px rgba(0,0,0,.3);
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text1);min-height:100vh;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased}
+
+/* Header */
+.header{position:sticky;top:0;z-index:100;background:rgba(242,242,247,.85);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--sep);padding:12px 0 8px;transition:background .3s}
+[data-theme="dark"] .header{background:rgba(0,0,0,.85)}
+.header-inner{max-width:1100px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.header-title{flex:1;min-width:180px}
+.header-title h1{font-size:17px;font-weight:600;letter-spacing:-.3px}
+.header-title p{font-size:11px;color:var(--text4);margin-top:1px}
+.header-actions{display:flex;gap:8px;align-items:center}
+
+/* Btn icon */
+.btn-icon{width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--bg3);color:var(--text2);font-size:15px;transition:background .15s,transform .1s}
+.btn-icon:hover{background:var(--bg4)}
+.btn-icon:active{transform:scale(.93)}
+.btn-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.refresh-btn{position:relative}
+.refresh-btn svg{transition:transform .4s}
+.refresh-btn.spinning svg{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sync-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--green);border:1.5px solid var(--bg3);transition:background .3s}
+.sync-dot.stale{background:var(--orange)}
+.sync-dot.syncing{background:var(--blue);animation:pulse 1s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* Status bar */
+.status-bar{max-width:1100px;margin:0 auto;padding:6px 16px 0;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text4)}
+
+/* Team tabs */
+.team-tabs-wrap{max-width:1100px;margin:0 auto;padding:14px 16px 0}
+.team-tabs{display:flex;gap:0;background:var(--bg3);border-radius:var(--r-md);padding:3px;width:fit-content;position:relative}
+.team-tab{padding:7px 20px;border-radius:11px;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:500;color:var(--text3);background:transparent;transition:color .2s;white-space:nowrap;display:flex;align-items:center;gap:7px;position:relative;z-index:1}
+.team-tab.active{color:var(--text1)}
+.team-tab-indicator{position:absolute;top:3px;bottom:3px;border-radius:10px;background:var(--bg2);box-shadow:0 1px 4px rgba(0,0,0,.12);transition:left .25s cubic-bezier(.4,0,.2,1),width .25s cubic-bezier(.4,0,.2,1);z-index:0}
+[data-theme="dark"] .team-tab-indicator{box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.team-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tab-add{opacity:.5;font-size:18px;line-height:1;padding:7px 14px}
+.tab-add:hover{opacity:.8}
+
+/* Container */
+.container{max-width:1100px;margin:0 auto;padding:0 16px 48px}
+.main{padding-top:16px}
+
+/* Filters */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;align-items:center}
+.filters-label{font-size:13px;color:var(--text4);font-weight:500}
+select{font-family:var(--font);font-size:13px;padding:6px 28px 6px 12px;border-radius:var(--r-sm);border:.5px solid var(--sep);background:var(--bg2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238e8e93'/%3E%3C/svg%3E") no-repeat right 10px center;color:var(--text1);appearance:none;cursor:pointer;box-shadow:var(--shadow);transition:border-color .15s}
+select:focus{outline:none;border-color:var(--blue)}
+
+/* Context note */
+.context-note{background:var(--blue-bg);border-radius:var(--r-sm);padding:10px 14px;font-size:12px;color:var(--blue);margin-bottom:16px;display:flex;align-items:flex-start;gap:8px;border:.5px solid rgba(0,122,255,.2)}
+[data-theme="dark"] .context-note{border-color:rgba(10,132,255,.25)}
+.context-note svg{width:14px;height:14px;flex-shrink:0;margin-top:1px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:18px}
+.metric-card{background:var(--bg2);border-radius:var(--r-md);padding:14px 16px;box-shadow:var(--shadow);border:.5px solid var(--sep);transition:background .3s}
+.metric-label{font-size:10px;font-weight:600;color:var(--text4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.metric-value{font-size:26px;font-weight:600;letter-spacing:-.5px;line-height:1}
+.mv-blue{color:var(--blue)}.mv-green{color:var(--green)}.mv-red{color:var(--red)}.mv-orange{color:var(--orange)}.mv-purple{color:var(--purple)}
+.metric-sub{font-size:10px;color:var(--text4);margin-top:3px}
+
+/* Section title */
+.section-title{font-size:11px;font-weight:600;color:var(--text4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+
+/* Charts */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.chart-card{background:var(--bg2);border-radius:var(--r-md);padding:16px;box-shadow:var(--shadow);border:.5px solid var(--sep);transition:background .3s}
+.chart-card.full{grid-column:1/-1}
+.chart-wrap{position:relative}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3)}
+.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* Table */
+.table-card{background:var(--bg2);border-radius:var(--r-md);box-shadow:var(--shadow);border:.5px solid var(--sep);overflow:hidden;margin-bottom:18px;transition:background .3s}
+.table-header{padding:13px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;border-bottom:.5px solid var(--sep)}
+.table-header-title{font-size:15px;font-weight:600}
+.table-count{font-size:11px;color:var(--text4)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px 13px;font-size:10px;font-weight:600;color:var(--text4);text-transform:uppercase;letter-spacing:.06em;background:var(--bg);border-bottom:.5px solid var(--sep);white-space:nowrap}
+td{padding:9px 13px;border-bottom:.5px solid var(--sep);color:var(--text1);vertical-align:middle;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg)}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap}
+.b-sim{background:var(--green-bg);color:var(--green)}
+.b-nao{background:var(--red-bg);color:var(--red)}
+.b-triado{background:var(--blue-bg);color:var(--blue)}
+.b-aguardando{background:var(--orange-bg);color:var(--orange)}
+.b-municipio{background:var(--purple-bg);color:var(--purple)}
+.b-outra{background:var(--sep);color:var(--text3)}
+
+/* Pagination */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:.5px solid var(--sep);flex-wrap:wrap;gap:6px}
+.pagination-info{font-size:11px;color:var(--text4)}
+.pagination-btns{display:flex;gap:5px}
+.page-btn{min-width:32px;height:28px;border-radius:7px;border:.5px solid var(--sep);background:var(--bg2);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 9px;transition:background .15s;font-family:var(--font)}
+.page-btn:hover{background:var(--bg3)}
+.page-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.page-btn:disabled{opacity:.3;cursor:not-allowed}
+.page-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Loader */
+.loader-overlay{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .4s}
+.loader-overlay.hidden{opacity:0;pointer-events:none}
+.loader-ring{width:34px;height:34px;border-radius:50%;border:3px solid var(--bg3);border-top-color:var(--blue);animation:spin .7s linear infinite;margin-bottom:10px}
+.loader-text{font-size:13px;color:var(--text4)}
+
+/* Footer */
+.footer{text-align:center;font-size:11px;color:var(--text4);padding:14px;border-top:.5px solid var(--sep);max-width:1100px;margin:0 auto}
+
+/* Responsive */
+@media(max-width:640px){
+  .charts-grid{grid-template-columns:1fr}
+  .charts-grid .chart-card.full{grid-column:1}
+  .metrics{grid-template-columns:repeat(3,1fr)}
+  .team-tab span.tab-label{display:none}
+}
+@media(max-width:400px){.metrics{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body data-theme="light">
+
+<div class="loader-overlay" id="loader">
+  <div class="loader-ring"></div>
+  <p class="loader-text">Carregando dados…</p>
+</div>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-title">
+      <h1>Saúde Até Você — Cirurgias</h1>
+      <p>Acompanhamento de procedimentos cirúrgicos</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon refresh-btn" id="refreshBtn" title="Atualizar" onclick="refreshData()">
+        <span class="sync-dot" id="syncDot"></span>
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      </button>
+      <button class="btn-icon" id="themeBtn" title="Tema" onclick="toggleTheme()">
+        <svg id="themeIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="status-bar">
+  <span id="statusText"></span>
+</div>
+
+<div class="team-tabs-wrap">
+  <div class="team-tabs" id="teamTabs">
+    <div class="team-tab-indicator" id="tabIndicator"></div>
+    <button class="team-tab active" data-team="0" onclick="switchTeam(0)">
+      <span class="team-dot" style="background:#007aff"></span>
+      <span class="tab-label">Equipe 1</span>
+      <span style="font-size:10px;color:var(--text4);font-weight:400" id="tab0count"></span>
+    </button>
+    <button class="team-tab" data-team="1" onclick="switchTeam(1)">
+      <span class="team-dot" style="background:#34c759"></span>
+      <span class="tab-label">Equipe 2</span>
+      <span style="font-size:10px;color:var(--text4);font-weight:400" id="tab1count"></span>
+    </button>
+    <button class="team-tab tab-add" title="Em breve: adicionar nova equipe" onclick="showAddTeam()">+</button>
+  </div>
+</div>
+
+<div class="container">
+<div class="main">
+  <div class="context-note" id="contextNote">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span id="contextText"></span>
+  </div>
+
+  <div class="filters">
+    <span class="filters-label">Filtrar:</span>
+    <select id="filterCidade" onchange="applyFilters()"><option value="">Todas as cidades</option></select>
+    <select id="filterCirurgia" onchange="applyFilters()"><option value="">Todos os procedimentos</option></select>
+    <select id="filterStatus" onchange="applyFilters()"><option value="">Todos os status</option></select>
+  </div>
+
+  <div class="metrics" id="metrics"></div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="section-title">Cirurgias por cidade</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="chartCidade" role="img" aria-label="Cirurgias por cidade"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="section-title">Distribuição por tipo</div>
+      <div class="legend" id="legendTipo"></div>
+      <div class="chart-wrap" style="height:170px"><canvas id="chartTipo" role="img" aria-label="Tipos de procedimento"></canvas></div>
+    </div>
+    <div class="chart-card full" id="chart3Card">
+      <div class="section-title" id="chart3Title"></div>
+      <div class="chart-wrap" style="height:150px"><canvas id="chartExtra" role="img" aria-label="Gráfico adicional"></canvas></div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <span class="table-header-title" id="tableTitle">Lista de pacientes</span>
+      <span class="table-count" id="tableCount"></span>
+    </div>
+    <div class="table-wrap"><table><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table></div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+</div>
+</div>
+<div class="footer">Saúde Até Você · Secretaria de Saúde de Alagoas · Sincronização automática a cada hora</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   DADOS — Equipe 1 (pós-agendamento / procedimentos realizados)
+   Campos: [ação, paciente, data_agendamento, procedimento, realizada]
+═══════════════════════════════════════════════════════════════ */
+const DADOS1 = [
+  ["SÃO LUIZ","LUCIA MARIA SILVA DOS SANTOS","18/03/2026","COLECISTECTOMIA POR VIDEO + HERNIOPLASTIA EPIGASTRICA","SIM"],
+  ["SÃO LUIZ","JOILMA MARIA DA SILVA","18/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["SÃO LUIZ","MARIA LUCIA DOS SANTOS SARMENTO","18/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["SÃO LUIZ","IVANILDO DA SILVA","18/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["MATRIZ","MARIA EDITE DA SILVA","18/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["SÃO LUIZ","EMILLY DEISE SANTOS LINS","18/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["SÃO LUIZ","RAUL MARKS MENDONÇA DA SILVA","18/03/2026","HERNIOPLASTIA UMBILICAL","SIM"],
+  ["MATRIZ","DILLIENY NATANA DOS SANTOS","21/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["MATRIZ","SAMYRA KAWANE ANGELO DA VEIGA","21/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["MATRIZ","MARIA APARECIDA BARBOSA GOMES","21/03/2026","COLECISTECTOMIA POR VIDEO + HERNIOPLASTIA EPIGASTRICA E UMBILICAL","SIM"],
+  ["SÃO MIGUEL DOS CAMPOS","ANICELIA MARIA DIAS","21/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["MATRIZ","EDILSA MARIA SANTOS SILVA","21/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["MATRIZ","CLARICE CATARINA ALENCAR","21/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["MATRIZ","ROSIVALDO BENEDITO DOS SANTOS","21/03/2026","HERNIOPLASTIA INGUINAL","SIM"],
+  ["OUTUBRO ROSA 25","VALERIA MARIA SILVA","21/03/2026","HISTERECTOMIA CONVENCIONAL","SIM"],
+  ["OUTROS","ALUISIO OLINDA SANTOS","21/03/2026","HERNIOPLASTIA UMBILICAL","NÃO"],
+  ["OUTROS","THAYNAN FERREIRA BARBOSA DE CAMPOS","25/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","ROSANGELA MARIA GAUDENCIO ALVES","25/03/2026","COLECISTECTOMIA POR VIDEO + HISTERECTOMIA CONVENCIONAL","SIM"],
+  ["MARECHAL","LEONARDO DOS SANTOS DA SILVA","25/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","MARIA FERNANDA FERREIRA ALCANTARA","25/03/2026","HISTERECTOMIA CONVENCIONAL","SIM"],
+  ["MARECHAL","ANDREA LAURINDO DA SILVA","25/03/2026","BARTOLINECTOMIA","SIM"],
+  ["OUTROS","JOSE RUFINO DE JESUS","26/03/2026","HERNIOPLASTIA INGUINAL ESQUERDA","SIM"],
+  ["FEIRA GRANDE","ITAMAR SILVA DE ABREU","26/03/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO","SIM"],
+  ["FEIRA GRANDE","GERALDO ANTONIO DOS SANTOS","26/03/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO","SIM"],
+  ["FEIRA GRANDE","ANDREIA FERREIRA DOS SANTOS","26/03/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO","SIM"],
+  ["MARECHAL","ALESSANDRA SILVA DE SANTANA","22/03/2026","HERNIOPLASTIA","SIM"],
+  ["OUTROS","ALESSANDRA SILVA DE SANTANA","22/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","LUANA RAFAELA DA SILVA","22/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","CAROLYNE ROBERTA SILVA DO NASCIMENTO","22/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","LUCAS MATHEUS MELO BATISTA","22/03/2026","HERNIOPLASTIA INGUINAL BILATERAL","SIM"],
+  ["OUTROS","AQUILA PRISCILA SANTOS SILVA","22/03/2026","HERNIOPLASTIA UMBILICAL","SIM"],
+  ["OUTROS","JACQUELINE DO ROSARIO DA SILVA","29/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["FEIRA GRANDE","JOSE PETRUCIO DOS SANTOS","29/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["FEIRA GRANDE","ALEXANDER JOSE DA FONSECA","29/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["FEIRA GRANDE","ELIANE SILVA DE LIMA BARROS","29/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["FEIRA GRANDE","JARDILINA ROSA NETO SOARES","29/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["FEIRA GRANDE","VALMIR DE FREITAS","29/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["FEIRA GRANDE","MACIELA DA SILVA SANTOS","29/03/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["SÃO LUIZ","JOSE BISMARC SANTOS DA SILVA","29/03/2026","HERNIOPLASTIA UMBILICAL","SIM"],
+  ["MARAVILHA","JOSE RUFINO DE JESUS","29/03/2026","HERNIOPLASTIA INGUINAL A ESQUERDA","SIM"],
+  ["OUTROS","CAMILA LAIZA BULHOES DOS SANTOS","29/03/2026","COLECISTECTOMIA POR VIDEO","NÃO"],
+  ["FEIRA GRANDE","NIRALDO DOS SANTOS","30/03/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO","SIM"],
+  ["FEIRA GRANDE","IRAIR ROSENDO DOS SANTOS","30/03/2026","HERNIOPLASTIA INGUINAL A DIREITA","SIM"],
+  ["FEIRA GRANDE","EDMILSON ROCHA LIMA","08/04/2026","HERNIOPLASTIA UMBILICAL + INGUINAL A DIREITA","SIM"],
+  ["FEIRA GRANDE","TAIS DA ROCHA DE LIMA","08/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["JACUIPE","MARIA ALANE GARCEZ DE VASCONCELOS","08/04/2026","LAQUEADURA TUBARIA","SIM"],
+  ["JACUIPE","BEATRIZ MORGANA DA SILVA","08/04/2026","LAQUEADURA TUBARIA","SIM"],
+  ["JACUIPE","ADRIANA MARIA DA SILVA","08/04/2026","LAQUEADURA TUBARIA","SIM"],
+  ["JACUIPE","MAGDA MARIA DA SILVA","08/04/2026","LAQUEADURA TUBARIA","SIM"],
+  ["OUTROS","ESMERALDA LOURANE PORTO SANTOS DA SILVA","08/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["GROTA DAS PIABAS","ANGELA MARIA MARTINS DOS SANTOS","08/04/2026","OOFORECTOMIA A ESQUERDA","SIM"],
+  ["OUTROS","NATALIA FERREIRA DA SILVA","08/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","SIMONE GONÇALVES DE OLIVEIRA","08/04/2026","EXERESE DE LESAO DE PELE","SIM"],
+  ["OUTROS","LUZINETE MARIA DOS SANTOS","18/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","DAVYSSON MENDES DE LIMA","18/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["JACUIPE","CLAUDIA ROBERTA SOUZA DA SILVA","18/04/2026","LAQUEADURA TUBARIA","SIM"],
+  ["JACUIPE","ELIELSA MARIA DOS SANTOS","18/04/2026","LAQUEADURA TUBARIA","SIM"],
+  ["OUTROS","SANDRA ALCANTARA MELO","18/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","WALHELLYTA ERICA ALBUQUERQUE TENORIO ALMEIDA","18/04/2026","COLECISTECTOMIA POR VIDEO + HERNIOPLASTIA EPIGASTRICA","SIM"],
+  ["OUTROS","SERGIO VALENÇA DE MELO","18/04/2026","HERNIORRAFIA UMBILICAL","SIM"],
+  ["MATRIZ","JOSE ANTONIO DA SILVA LINS","18/04/2026","HERNIORRAFIA UMBILICAL","SIM"],
+  ["SÃO MIGUEL DOS MILAGRES","JOSE CARLOS DA SILVA","18/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO","SIM"],
+  ["SÃO MIGUEL DOS MILAGRES","JULIANA COSTA NOLASCO DE LIMA","18/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO","SIM"],
+  ["CARNEIROS","MARIA CICERA DIA SANTOS","19/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["CARNEIROS","KATIANE DA SILVA ALVES","19/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["CARNEIROS","VERA LUCIA DA PAZ","19/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["CARNEIROS","ALINE DOS SANTOS GAMA","19/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","CRISTIANE SOUZA","19/04/2026","COLPOPERINEOPLASTIA POSTERIOR","SIM"],
+  ["OUTROS","GEANE FRANCISCA DOS SANTOS","19/04/2026","COLPOPERINEOPLASTIA POSTERIOR","SIM"],
+  ["CARNEIROS","GIRLEIDE DA SILVA ROSENDO","19/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["CARNEIROS","SÔNIA MARIA CHARGAS","19/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","KECIA KAMYLA SOARES DE ALCÂNTARA","19/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO DE PELE","SIM"],
+  ["CARNEIROS","DJALMA ANTÔNIO DA SILVA","19/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO DE PELE","SIM"],
+  ["CARNEIROS","DANUBIO DA SILVA","19/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO DE PELE","SIM"],
+  ["CARNEIROS","ANA MARIA GAMA DE SANTANA","22/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO DE PELE","SIM"],
+  ["CARNEIROS","KARICIELY TORRES SILVA","22/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO DE PELE","SIM"],
+  ["CARNEIROS","RAFAELA RAMOS DOS SANTOS","22/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO DE PELE","SIM"],
+  ["CARNEIROS","MARIA ANUBIA ALENCAR DE LIMA","22/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO DE PELE","SIM"],
+  ["CARNEIROS","JOSE RODRIGUES DOS SANTOS","22/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO DE PELE","SIM"],
+  ["CARNEIROS","DIEGO MARADONA VIEIRA DE AMORIM","22/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO DE PELE","SIM"],
+  ["SÃO MIGUEL DOS MILAGRES","MARIA DE FATIMA FERREIRA DOS SANTOS","22/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO DE PELE","SIM"],
+  ["SÃO MIGUEL DOS MILAGRES","ROSICLER OLIVEIRA DA ROCHA","22/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO DE PELE","SIM"],
+  ["SÃO MIGUEL DOS MILAGRES","IDALINO ALVES SARMENTO","22/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO DE PELE","SIM"],
+  ["SÃO MIGUEL DOS MILAGRES","EDMA DUARTE BORBOREMA","22/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO DE PELE","SIM"],
+  ["SÃO MIGUEL DOS MILAGRES","JOSE CICERO DA SILVA","22/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO DE PELE","SIM"],
+  ["CARNEIROS","MARIA APARECIDA DE CARVALHO","22/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO DE PELE","SIM"],
+  ["CARNEIROS","MICAELE SILVA ALVES","22/04/2026","EXTIRPAÇÃO E SUPRESSÃO DE LESÃO DE PELE","SIM"],
+  ["CARNEIROS","MARIA LUCIA DA PAZ","25/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["CARNEIROS","MARIANA SLORIANITA BEZERRA PAZ","25/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["CARNEIROS","KELLY MACOA TAVARES DON SANTON","25/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","JOSE SEVERINO RAMOS","25/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","WEMERSON MICHAEL PEREIRA DOS SANTOS","25/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","IONISE FERREIRA DE AQUINO","25/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","PAULA ZUZI CARVALHO COSTA","25/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["CARNEIROS","LUIZ ANTONIO DOS SANTOS","25/04/2026","HERNIOPLASTIA INGUINAL","SIM"],
+  ["CARNEIROS","JOSE NETO DE ALCANTARA","25/04/2026","HERNIOPLASTIA INGUINAL","SIM"],
+  ["CARNEIROS","DANIEL NUNES DA SILVA","25/04/2026","HERNIOPLASTIA UMBILICAL","SIM"],
+  ["OUTROS","MARIA JOSE RAMOS DE OLIVEIRA","26/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["SÃO LUIZ","JOSEFA MARIA DA CONCEIÇÃO","26/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","ANGELA MARIA DOS SANTOS","26/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["MATRIZ","JOSIANE DA SILVA CHAGAS","26/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","ELAINE RODRIGUES DA SILVA","26/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","MARIA APARECIDA DOS SANTOS PIMENTEL","26/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["JACUIPE","JOSILENE MARIA DA CONCEIÇÃO","26/04/2026","HISTERECTOMIA CONVENCIONAL","SIM"],
+  ["MATRIZ","MARIA JOSE TAVARES BALBINO","26/04/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["OUTROS","MARIA SANIELY SANDES DA SILVA","26/04/2026","HISTERECTOMIA CONVENCIONAL","SIM"],
+  ["OUTROS","NIVALDO NASCIMENTO DE SOUZA","26/04/2026","HERNIOPLASTIA INGUINAL","SIM"],
+  ["OLHO D'ÁGUA DAS FLORES","CARLA KESSIA SOARES DOS SANTOS DUARTE","13/05/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["SÃO MIGUEL DOS CAMPOS","VALERIA MORAIS DOS SANTOS","13/05/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["PALESTINA","TAWANE SILVA MELO","13/05/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["MATRIZ","JACQUELINE MARIA DOS SANTOS SILVA","13/05/2026","LAQUEADURA TUBARIA","SIM"],
+  ["SÃO MIGUEL DOS CAMPOS","MARIA TEREZA DOS SANTOS","13/05/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["SÃO LUIZ","FLAVIA MARIA DA CONCEICAO CANDIDO","13/05/2026","LAQUEADURA TUBARIA","SIM"],
+  ["PALESTINA","FELIPE RODRIGUES ALCANTARA","13/05/2026","COLECISTECTOMIA POR VIDEO","SIM"],
+  ["SÃO LUIZ","NILVANIA MARIA DA SILVA MATIAS","13/05/2026","LAQUEADURA TUBARIA","SIM"],
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   DADOS — Equipe 2 (fila de triagem / aguardando agendamento)
+   Campos: [ação, paciente, cirurgia_indicada, situacao_triagem, obs_triagem]
+   Situações: TRIADO APTO | AGUARDANDO EXAMES | REALIZAR NO MUNICÍPIO | NÃO | OUTRA ESPECIALIDADE | SEM FICHA
+═══════════════════════════════════════════════════════════════ */
+const DADOS2 = [
+  ["IGREJA NOVA","ADRIANA DOS SANTOS","CISTO PILONIDAL","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","ADRYAN LAZARO DOS SANTOS","HERNIA UMBILICAL - PEDIATRA","TRIADO_APTO",""],
+  ["IGREJA NOVA","ADRYEL OLIVEIRA DOS SANTOS","HERNIA UMBILICAL - PEDIATRA","NAO",""],
+  ["IGREJA NOVA","AGENOR DOS SANTOS","HERNIA INGUINAL DIREITA/UMBILICAL","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","ANA CLAUDIA DOS SANTOS","COLECISTECTOMIA","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","ANA NELZA LIMA SILVA","","MUNICIPIO",""],
+  ["IGREJA NOVA","ANA PAULA CARVALHO DOS SANTOS","HERNIA","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","ANDERSON HONORATO","HERNIA INGUINAL ESQUERDA","AGUARDANDO","LABORATÓRIO E USG"],
+  ["IGREJA NOVA","ANDREA DOS SANTOS","HISTERECTOMIA","NAO",""],
+  ["IGREJA NOVA","ANTONIO LIMA","LIPOMA","MUNICIPIO",""],
+  ["IGREJA NOVA","ANTONIO MUNIZ DOS SANTOS","HERNIA INGUINAL ESQUERDA","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","ASTRIANE DOS SANTOS","COLECISTECTOMIA","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","CAMILLY VITORIA DA CONCEIÇÃO SANTOS","HERNIA INGUINAL DIREITA","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","CASSIANA VIEIRA DANTAS","COLECISTECTOMIA","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","CLAUDIA DOS SANTOS","VESICULA","AGUARDANDO","AVALIAÇÃO CARDIOLÓGICA E PERDA DE PESO"],
+  ["IGREJA NOVA","EDILSON DOS SANTOS","HERNIA UMBILICAL","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","EDITE DOS SANTOS","CISTO OVÁRIO","AGUARDANDO","LABORATÓRIO E ECG"],
+  ["IGREJA NOVA","EDIVALDO DOS SANTOS","HERNIA INGUINAL ESQUERDA","AGUARDANDO","AVALIAÇÃO CARDIOLÓGICA"],
+  ["IGREJA NOVA","EDIVAN ALVES","COLECISTECTOMIA","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","EDNALDO DOS SANTOS","HERNIA INGUINAL BILATERAL","AGUARDANDO","-"],
+  ["IGREJA NOVA","EDNALDO TOMAZ DOS SANTOS","HERNIA EPIGASTRICA UMBILICAL","TRIADO_APTO","NAO_REALIZADA"],
+  ["IGREJA NOVA","EDSON SOARES DA SILVA","HERNIA UMBILICAL","TRIADO_APTO",""],
+  ["IGREJA NOVA","EDVALDO SIMOLICIO DOS SANTOS","HERNIA UMBILICAL","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","ELIO FERNADES HENRIQUE DOS SANTOS","HERNIA INGUINAL DIREITA","AGUARDANDO","AVALIAÇÃO CARDIOLÓGICA"],
+  ["IGREJA NOVA","ERIVALDO CORREIA","HERNIA","AGUARDANDO","LABORATÓRIO E AVALIAÇÃO CARDIOLÓGICA"],
+  ["IGREJA NOVA","ESTER RAISSA DOS SANTOS SOUZA","HERNIA","MUNICIPIO",""],
+  ["IGREJA NOVA","FABRICIO DOS SANTOS","PEDIATRICA","OUTRA_ESP","CIPE"],
+  ["IGREJA NOVA","FLAVIANE DA SILVA","HERNIA INCISIONAL","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","FRANCISCO FERREIRA DA SILVA","HERNIA INGUINAL ESQUERDA","AGUARDANDO","ECG, ECO E AVALIAÇÃO CARDIOLÓGICA"],
+  ["IGREJA NOVA","FRANCISCO ROMILDO DA SILVA","HERNIA","AGUARDANDO","ECG E AVALIAÇÃO CARDIOLÓGICO"],
+  ["IGREJA NOVA","GILCIANO SABINO DOS SANTOS","COLECISTECTOMIA","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","HELIO LEANDRO DA SILVA","HERNIA INGUINAL DIREITA","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","JADSON DOS SANTOS","HERNIA UMBILICAL","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","JAIRO NUNES DOS SANTOS","HERNIA","MUNICIPIO","-"],
+  ["IGREJA NOVA","JOSE AUMI ALVES DAS CHAGAS","HERNIA","AGUARDANDO","AVALIAÇÃO CARDIOLÓGICA"],
+  ["IGREJA NOVA","JOSE BENILTON SANTOS","HERNIA","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","JOSE DOMINGOS DOS SANTOS","RETIRADA DE SINAL","MUNICIPIO",""],
+  ["IGREJA NOVA","JOSE MATIAS","HERNIA INGUINAL A ESQUERDA","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","JOSE RAIMUNDO SILVA","HERNIA INGUINAL/UMBILICAL","TRIADO_APTO","SIM"],
+  ["IGREJA NOVA","JOSE ROBERTO DOS SANTOS","COLECISTECTOMIA","TRIADO_APTO",""],
+  ["IGREJA NOVA","JOSE TEOFILO PEREIRA","HERNIA UMBILICAL","TRIADO_APTO",""],
+  ["IGREJA NOVA","JUAREZ DE OLIVEIRA PIMENTA","HERNIA UMBILICAL","TRIADO_APTO",""],
+  ["IGREJA NOVA","LICINHO CORDEIRO","CISTO EPIDERMICO","NAO",""],
+  ["IGREJA NOVA","LIDIANE QUERINO SANTOS","RETIRADA DE SINAL","MUNICIPIO",""],
+  ["IGREJA NOVA","LUAN RAVI DE SOUZA MENDES","HERNIA UMBILICAL","TRIADO_APTO",""],
+  ["IGREJA NOVA","LUANA DOS SANTOS","COLECISTECTOMIA","TRIADO_APTO",""],
+  ["IGREJA NOVA","LUCAS LEVI DOS SANTOS","HERNIA UMBILICAL - PEDIATRA","TRIADO_APTO",""],
+  ["IGREJA NOVA","LUCIANA FERREIRA DA SILVA","COLECISTECTOMIA","TRIADO_APTO",""],
+  ["IGREJA NOVA","LUCIVANIA RODRIGUES DOS SANTOS","COLECISTECTOMIA","TRIADO_APTO",""],
+  ["IGREJA NOVA","LUIZ CARLOS DOS SANTOS","HERNIA INGUINAL DIREITA","TRIADO_APTO",""],
+  ["IGREJA NOVA","MANOEL DOMINGOS DOS SANTOS","EXERESE","MUNICIPIO","-"],
+  ["IGREJA NOVA","MANOEL FIRMINO","HERNIA","SEM_FICHA","SIM"],
+  ["IGREJA NOVA","MANOEL MESSIAS VERIDIANO","HERNIA INGUINAL DIREITA","TRIADO_APTO",""],
+  ["IGREJA NOVA","MARIA APARECIDA BISPO DOS SANTOS","HERNIA INCISIONAL","AGUARDANDO","AVALIAÇÃO CARDIOLÓGICA"],
+  ["IGREJA NOVA","MARIA CICERA MATIAS DA SILVA","COLECISTECTOMIA","TRIADO_APTO",""],
+  ["IGREJA NOVA","MARIA DE FATIMA FEITOSA FRANCELINO","HERNIA","AGUARDANDO","AVALIAÇÃO CARDIOLÓGICA"],
+  ["IGREJA NOVA","MARIA DE FATIMA METODIO DOS SANTOS","EXERESE","OUTRA_ESP","ORTOPEDICA"],
+  ["IGREJA NOVA","MARIA DO SOCORRO SANTOS","COLECISTECTOMIA","TRIADO_APTO",""],
+  ["IGREJA NOVA","MARIA EDILENE SILVA FERREIRA","VESICULA","AGUARDANDO","LABORATÓRIO E USG"],
+  ["IGREJA NOVA","MARIA ELISA SANTOS","COLECISTECTOMIA","TRIADO_APTO",""],
+  ["IGREJA NOVA","MARIA ELOAH SOUZA","HERNIA INGUINAL ESQUERDA - PEDIATRIA","TRIADO_APTO",""],
+  ["IGREJA NOVA","MARIA HELENA SANTOS","DERMATOLOGICA","MUNICIPIO",""],
+  ["IGREJA NOVA","MARIA JACIANE DOS SANTOS","COLECISTECTOMIA","NAO","-"],
+  ["IGREJA NOVA","MARIA JOANA DOS SANTOS ALMEIDA","HERNIA","AGUARDANDO","LABORATÓRIO E AVALIAÇÃO CARDIOLÓGICA"],
+  ["IGREJA NOVA","MARIA JOSE DOS SANTOS","COLECISTECTOMIA","AGUARDANDO","USG"],
+  ["IGREJA NOVA","MARIA JOSE DOS SANTOS","COLECISTECTOMIA","TRIADO_APTO",""],
+  ["IGREJA NOVA","MARIA JOSE DOS SANTOS","","MUNICIPIO",""],
+  ["IGREJA NOVA","MARIA JOSE TAVARES DOS SANTOS","HISTERECTOMIA","AGUARDANDO",""],
+  ["IGREJA NOVA","MARIA JOSIETE FERREIRA","MIOMA","AGUARDANDO","USG E CITOLOGIA"],
+  ["IGREJA NOVA","MARIA LUCIA MARTINS VIEIRA","HISTERECTOMIA","TRIADO_APTO",""],
+  ["IGREJA NOVA","MARLENE FELIMIANO SANTOS DE AQUINO","","AGUARDANDO","AVALIAÇÃO CARDIOLÓGICA"],
+  ["IGREJA NOVA","MATHEUS VITAL PEREIRA","HERNIA UMBILICAL - PEDIATRA","TRIADO_APTO",""],
+  ["IGREJA NOVA","MELISSA GABRIELI VASCONCELOS DA SILVA","HERNIA UMBILICAL","TRIADO_APTO",""],
+  ["IGREJA NOVA","NELSON ANTONIO DA SILVA","HERNIA INGUINAL ESQUERDA","TRIADO_APTO",""],
+  ["IGREJA NOVA","RAQUEL DOS SANTOS LOURENCO","HERNIA UMBILICAL","TRIADO_APTO",""],
+  ["IGREJA NOVA","REGINALDO MARIA DA CONCEIÇÃO","HERNIA","TRIADO_APTO",""],
+  ["IGREJA NOVA","RENATA DE OLIVEIRA","COLECISTECTOMIA","TRIADO_APTO",""],
+  ["IGREJA NOVA","ROBERTA SANTOS","HERNIA UMBILICAL","TRIADO_APTO",""],
+  ["IGREJA NOVA","SANDRA DOS SANTOS","HISTERECTOMIA","AGUARDANDO","LABORATÓRIO, ECG E CITOLOGIA"],
+  ["IGREJA NOVA","TALES BRUNO DOS SANTOS","HERNIA INGUINAL ESQUERDA","TRIADO_APTO",""],
+  ["IGREJA NOVA","TANIA MARIA PEREIRA DSE SANTANA","COLECISTECTOMIA","AGUARDANDO","LABORATÓRIO, ECG, USG E AVALIAÇÃO CARDIOLÓGICA"],
+  ["IGREJA NOVA","TEREZINHA SANTOS","COLECISTECTOMIA","AGUARDANDO","ECO E AVALIAÇÃO CARDIOLÓGICO"],
+  ["IGREJA NOVA","ZENAURA SANTOS","","MUNICIPIO",""],
+];
+
+/* ═══════════════ CONFIG POR EQUIPE ═══════════════ */
+const TEAMS = [
+  {
+    id:0, label:"Equipe 1", color:"#007aff",
+    note:"Pós-agendamento — cirurgias já marcadas e acompanhamento de realização.",
+    statusOptions:[
+      {value:"",label:"Todos os status"},
+      {value:"SIM",label:"Realizada"},
+      {value:"NÃO",label:"Não realizada"}
+    ],
+    data: DADOS1,
+    catStatus(r){ return r[4]; },
+    badgeStatus(s){
+      if(s==="SIM") return `<span class="badge b-sim">✓ Realizada</span>`;
+      if(s==="NÃO") return `<span class="badge b-nao">✕ Não realizada</span>`;
+      return `<span class="badge b-outra">—</span>`;
+    },
+    tableHeads:["Paciente","Cidade / Ação","Procedimento","Data","Status"],
+    tableRow(r){ return [
+      `<td title="${r[1]}">${r[1].split(" ").slice(0,3).join(" ")}</td>`,
+      `<td>${r[0]||"—"}</td>`,
+      `<td title="${r[3]}" style="font-size:11px;max-width:220px">${r[3]}</td>`,
+      `<td style="white-space:nowrap">${r[2]}</td>`,
+      `<td>${this.badgeStatus(r[4])}</td>`
+    ].join(""); },
+    metrics(d){
+      const total=d.length, sim=d.filter(r=>r[4]==="SIM").length, nao=d.filter(r=>r[4]==="NÃO").length;
+      const taxa=total>0?Math.round(sim/total*100):0;
+      const tipos=new Set(d.map(r=>catCirurgia(r[3]))).size;
+      const cids=new Set(d.map(r=>r[0]).filter(Boolean)).size;
+      return [
+        {label:"Pacientes",value:total,cls:"mv-blue"},
+        {label:"Realizadas",value:sim,cls:"mv-green"},
+        {label:"Não realizadas",value:nao,cls:"mv-red"},
+        {label:"Taxa",value:taxa+"%",cls:""},
+        {label:"Procedimentos",value:tipos,cls:"mv-purple"},
+        {label:"Municípios",value:cids,cls:""},
+      ];
+    },
+    chart3Title:"Cirurgias por data de agendamento",
+    chart3(d){
+      const datas={};
+      d.forEach(r=>{
+        const dt=parseDate(r[2]);
+        const k=dt.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"});
+        datas[k]=(datas[k]||0)+1;
+      });
+      const sorted=Object.entries(datas).sort((a,b)=>{
+        const[da,ma]=a[0].split("/");const[db,mb]=b[0].split("/");
+        return new Date(2026,+ma-1,+da)-new Date(2026,+mb-1,+db);
+      });
+      return {type:"line",labels:sorted.map(e=>e[0]),data:sorted.map(e=>e[1])};
+    },
+    filterStatus(r,val){ return !val||(r[4]===val); },
+  },
+  {
+    id:1, label:"Equipe 2", color:"#34c759",
+    note:"Fila de triagem — pacientes aguardando agendamento. Status: Triado/Apto, Aguardando exames, Encaminhar ao município, Não elegível.",
+    statusOptions:[
+      {value:"",label:"Todos os status"},
+      {value:"TRIADO_APTO",label:"Triado / Apto"},
+      {value:"AGUARDANDO",label:"Aguardando exames"},
+      {value:"MUNICIPIO",label:"Realizar no município"},
+      {value:"NAO",label:"Não elegível"},
+      {value:"OUTRA_ESP",label:"Outra especialidade"},
+    ],
+    data: DADOS2,
+    catStatus(r){ return r[3]; },
+    badgeStatus(s){
+      const m={
+        "TRIADO_APTO":`<span class="badge b-triado">✓ Triado/Apto</span>`,
+        "AGUARDANDO":`<span class="badge b-aguardando">⏳ Aguardando</span>`,
+        "MUNICIPIO":`<span class="badge b-municipio">→ Município</span>`,
+        "NAO":`<span class="badge b-nao">✕ Não elegível</span>`,
+        "OUTRA_ESP":`<span class="badge b-outra">↗ Outra esp.</span>`,
+        "SEM_FICHA":`<span class="badge b-outra">Sem ficha</span>`,
+      };
+      return m[s]||`<span class="badge b-outra">${s||"—"}</span>`;
+    },
+    tableHeads:["Paciente","Cidade / Ação","Cirurgia indicada","Status triagem","Obs."],
+    tableRow(r){ return [
+      `<td title="${r[1]}">${r[1].split(" ").slice(0,3).join(" ")}</td>`,
+      `<td>${r[0]||"—"}</td>`,
+      `<td title="${r[2]}" style="font-size:11px">${r[2]||"—"}</td>`,
+      `<td>${this.badgeStatus(r[3])}</td>`,
+      `<td title="${r[4]}" style="font-size:11px;color:var(--text3)">${r[4]||"—"}</td>`
+    ].join(""); },
+    metrics(d){
+      const total=d.length;
+      const triado=d.filter(r=>r[3]==="TRIADO_APTO").length;
+      const aguard=d.filter(r=>r[3]==="AGUARDANDO").length;
+      const municipio=d.filter(r=>r[3]==="MUNICIPIO").length;
+      const nao=d.filter(r=>r[3]==="NAO").length;
+      const tipos=new Set(d.map(r=>r[2]).filter(Boolean)).size;
+      return [
+        {label:"Na fila",value:total,cls:"mv-blue"},
+        {label:"Triados / Aptos",value:triado,cls:"mv-green"},
+        {label:"Aguardando",value:aguard,cls:"mv-orange"},
+        {label:"Para município",value:municipio,cls:"mv-purple"},
+        {label:"Não elegível",value:nao,cls:"mv-red"},
+        {label:"Cirurgias distintas",value:tipos,cls:""},
+      ];
+    },
+    chart3Title:"Distribuição por status de triagem",
+    chart3(d){
+      const counts={"TRIADO_APTO":0,"AGUARDANDO":0,"MUNICIPIO":0,"NAO":0,"OUTRA_ESP":0,"SEM_FICHA":0};
+      d.forEach(r=>{ if(counts[r[3]]!==undefined) counts[r[3]]++; });
+      const labels={"TRIADO_APTO":"Triado/Apto","AGUARDANDO":"Aguardando","MUNICIPIO":"Município","NAO":"Não elegível","OUTRA_ESP":"Outra esp.","SEM_FICHA":"Sem ficha"};
+      const entries=Object.entries(counts).filter(e=>e[1]>0);
+      return {type:"bar",labels:entries.map(e=>labels[e[0]]),data:entries.map(e=>e[1])};
+    },
+    filterStatus(r,val){ return !val||(r[3]===val); },
+  }
+];
+
+/* ═══════════════ UTILS ═══════════════ */
+const COLORS=["#007aff","#34c759","#ff9500","#af52de","#ff3b30","#5ac8fa","#ffcc00","#64d2ff","#30d158","#ff375f","#bf5af2","#ff6961"];
+
+function catCirurgia(n){
+  const u=n.toUpperCase();
+  if(u.includes("COLECISTECTOMIA")||u.includes("COLESCISTECTOMIA")||u.includes("VESICULA")) return "Colecistectomia";
+  if(u.includes("HERNIOPLASTIA")||u.includes("HERNIORRAFIA")||u.includes("HERMIOPLASTIA")||u.includes("HERNIA")) return "Hernioplastia / Hérnia";
+  if(u.includes("EXTIRPAÇÃO")||u.includes("EXERESE")||u.includes("EXTIRPACAO")||u.includes("LIPOMA")||u.includes("SINAL")||u.includes("LESAO")||u.includes("LESÃO")) return "Extirpação de lesão";
+  if(u.includes("LAQUEADURA")) return "Laqueadura tubária";
+  if(u.includes("HISTERECTOMIA")||u.includes("MIOMA")) return "Histerectomia / Mioma";
+  if(u.includes("COLPOPERINEOPLASTIA")) return "Colpoperineoplastia";
+  if(u.includes("BARTOLINECTOMIA")) return "Bartolinectomia";
+  if(u.includes("OOFORECTOMIA")||u.includes("OVÁRIO")||u.includes("CISTO")) return "Ooforectomia / Ovário";
+  if(u.includes("PEDIATR")) return "Pediatria";
+  return n?n.charAt(0)+n.slice(1).toLowerCase():"—";
+}
+
+function parseDate(s){if(!s)return new Date(2026,0,1);const[d,m,y]=s.split("/");return new Date(+y,+m-1,+d)}
+function isDark(){return document.body.getAttribute("data-theme")==="dark"}
+function textClr(){return isDark()?"rgba(235,235,245,.55)":"#8e8e93"}
+function gridClr(){return isDark()?"rgba(255,255,255,.05)":"rgba(0,0,0,.05)"}
+
+/* ═══════════════ STATE ═══════════════ */
+const PAGE=20;
+let currentTeam=0, currentPage=1, filteredData=[], syncTimer=null;
+let cC,cT,cE;
+
+/* ═══════════════ THEME ═══════════════ */
+function toggleTheme(){
+  const d=document.body.getAttribute("data-theme")==="dark";
+  document.body.setAttribute("data-theme",d?"light":"dark");
+  localStorage.setItem("theme",d?"light":"dark");
+  updateThemeIcon(!d);
+  renderCharts();
+}
+function updateThemeIcon(dark){
+  document.getElementById("themeIcon").innerHTML=dark
+    ?`<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`
+    :`<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>`;
+}
+
+/* ═══════════════ SYNC ═══════════════ */
+function setStatus(state){
+  const dot=document.getElementById("syncDot");
+  const text=document.getElementById("statusText");
+  const btn=document.getElementById("refreshBtn");
+  dot.className="sync-dot "+(state==="ok"?"":state);
+  if(state==="syncing"){
+    btn.classList.add("spinning");
+    text.innerHTML=`<svg width="9" height="9" viewBox="0 0 10 10" style="display:inline-block"><circle cx="5" cy="5" r="4" fill="var(--blue)"/></svg> Atualizando…`;
+  } else {
+    btn.classList.remove("spinning");
+    const t=new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+    text.innerHTML=`<svg width="9" height="9" viewBox="0 0 10 10" style="display:inline-block"><circle cx="5" cy="5" r="4" fill="var(--green)"/></svg> Atualizado às ${t}`;
+  }
+}
+function refreshData(){
+  setStatus("syncing");
+  clearTimeout(syncTimer);
+  setTimeout(()=>{ setStatus("ok"); scheduleSync(); },900);
+}
+function scheduleSync(){
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(()=>{ document.getElementById("syncDot").className="sync-dot stale"; refreshData(); },3600000);
+}
+
+/* ═══════════════ TABS ═══════════════ */
+function switchTeam(idx){
+  currentTeam=idx;
+  currentPage=1;
+  document.querySelectorAll(".team-tab[data-team]").forEach(t=>{
+    t.classList.toggle("active",+t.dataset.team===idx);
+  });
+  positionIndicator();
+  resetFilters();
+  applyFilters();
+  updateContextNote();
+}
+
+function positionIndicator(){
+  const tabs=document.querySelectorAll(".team-tab[data-team]");
+  const wrap=document.getElementById("teamTabs");
+  const ind=document.getElementById("tabIndicator");
+  const activeTab=tabs[currentTeam];
+  if(!activeTab) return;
+  const wRect=wrap.getBoundingClientRect();
+  const tRect=activeTab.getBoundingClientRect();
+  ind.style.left=(tRect.left-wRect.left)+"px";
+  ind.style.width=tRect.width+"px";
+}
+
+function showAddTeam(){
+  alert("Em breve: configure uma terceira equipe com sua própria planilha de dados.");
+}
+
+function updateContextNote(){
+  document.getElementById("contextText").textContent=TEAMS[currentTeam].note;
+}
+
+/* ═══════════════ FILTERS ═══════════════ */
+function resetFilters(){
+  const team=TEAMS[currentTeam];
+  // cidade
+  const selC=document.getElementById("filterCidade");
+  selC.innerHTML=`<option value="">Todas as cidades</option>`;
+  const cidades=[...new Set(team.data.map(r=>r[0]).filter(Boolean))].sort();
+  cidades.forEach(c=>{ const o=document.createElement("option");o.value=c;o.textContent=c;selC.appendChild(o); });
+  // cirurgia
+  const selCi=document.getElementById("filterCirurgia");
+  selCi.innerHTML=`<option value="">Todos os procedimentos</option>`;
+  const tipos=[...new Set(team.data.map(r=>catCirurgia(r[2]||r[3]||"")).filter(t=>t&&t!=="—"))].sort();
+  tipos.forEach(t=>{ const o=document.createElement("option");o.value=t;o.textContent=t;selCi.appendChild(o); });
+  // status
+  const selS=document.getElementById("filterStatus");
+  selS.innerHTML="";
+  team.statusOptions.forEach(opt=>{ const o=document.createElement("option");o.value=opt.value;o.textContent=opt.label;selS.appendChild(o); });
+}
+
+function applyFilters(){
+  const team=TEAMS[currentTeam];
+  const cidade=document.getElementById("filterCidade").value;
+  const tipo=document.getElementById("filterCirurgia").value;
+  const status=document.getElementById("filterStatus").value;
+  filteredData=team.data.filter(r=>{
+    if(cidade&&r[0]!==cidade) return false;
+    if(tipo&&catCirurgia(r[2]||"")!==tipo&&catCirurgia(r[3]||"")!==tipo) return false;
+    if(!team.filterStatus(r,status)) return false;
+    return true;
+  });
+  currentPage=1;
+  renderMetrics();
+  renderCharts();
+  renderTable();
+}
+
+/* ═══════════════ METRICS ═══════════════ */
+function renderMetrics(){
+  const mets=TEAMS[currentTeam].metrics(filteredData);
+  document.getElementById("metrics").innerHTML=mets.map(m=>
+    `<div class="metric-card"><div class="metric-label">${m.label}</div><div class="metric-value ${m.cls}">${m.value}</div></div>`
+  ).join("");
+}
+
+/* ═══════════════ CHARTS ═══════════════ */
+function renderCharts(){
+  const team=TEAMS[currentTeam];
+  const d=filteredData;
+  const co={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}};
+
+  // cidade
+  const cidades={};
+  d.forEach(r=>{ if(r[0]) cidades[r[0]]=(cidades[r[0]]||0)+1; });
+  const cSorted=Object.entries(cidades).sort((a,b)=>b[1]-a[1]);
+  if(cC) cC.destroy();
+  cC=new Chart(document.getElementById("chartCidade"),{
+    type:"bar",
+    data:{labels:cSorted.map(e=>e[0]),datasets:[{data:cSorted.map(e=>e[1]),backgroundColor:COLORS.slice(0,cSorted.length),borderRadius:5,borderSkipped:false}]},
+    options:{...co,indexAxis:"y",scales:{x:{grid:{color:gridClr()},ticks:{color:textClr(),font:{size:11}}},y:{grid:{display:false},ticks:{color:textClr(),font:{size:10}}}}}
+  });
+
+  // tipo
+  const tipos={};
+  const colField=currentTeam===0?3:2;
+  d.forEach(r=>{ const c=catCirurgia(r[colField]||""); if(c&&c!=="—") tipos[c]=(tipos[c]||0)+1; });
+  const tSorted=Object.entries(tipos).sort((a,b)=>b[1]-a[1]);
+  if(cT) cT.destroy();
+  cT=new Chart(document.getElementById("chartTipo"),{
+    type:"doughnut",
+    data:{labels:tSorted.map(e=>e[0]),datasets:[{data:tSorted.map(e=>e[1]),backgroundColor:COLORS.slice(0,tSorted.length),borderWidth:0,hoverOffset:4}]},
+    options:{...co,cutout:"62%"}
+  });
+  document.getElementById("legendTipo").innerHTML=tSorted.map((e,i)=>
+    `<span class="legend-item"><span class="legend-dot" style="background:${COLORS[i%COLORS.length]}"></span>${e[0]} (${e[1]})</span>`
+  ).join("");
+
+  // chart 3
+  document.getElementById("chart3Title").textContent=team.chart3Title;
+  const c3=team.chart3(d);
+  if(cE) cE.destroy();
+  if(c3.type==="line"){
+    cE=new Chart(document.getElementById("chartExtra"),{
+      type:"line",
+      data:{labels:c3.labels,datasets:[{data:c3.data,borderColor:team.color,backgroundColor:team.color+"22",fill:true,tension:.35,pointRadius:4,pointBackgroundColor:team.color,borderWidth:2}]},
+      options:{...co,scales:{x:{grid:{color:gridClr()},ticks:{color:textClr(),font:{size:10},maxRotation:45,autoSkip:false}},y:{grid:{color:gridClr()},ticks:{color:textClr(),font:{size:10},stepSize:1},beginAtZero:true}}}
+    });
+  } else {
+    const barColors=c3.labels.map((_,i)=>COLORS[i%COLORS.length]);
+    cE=new Chart(document.getElementById("chartExtra"),{
+      type:"bar",
+      data:{labels:c3.labels,datasets:[{data:c3.data,backgroundColor:barColors,borderRadius:6,borderSkipped:false}]},
+      options:{...co,scales:{x:{grid:{display:false},ticks:{color:textClr(),font:{size:11}}},y:{grid:{color:gridClr()},ticks:{color:textClr(),font:{size:10},stepSize:1},beginAtZero:true}}}
+    });
+  }
+}
+
+/* ═══════════════ TABLE ═══════════════ */
+function renderTable(){
+  const team=TEAMS[currentTeam];
+  const total=filteredData.length;
+  const pages=Math.max(1,Math.ceil(total/PAGE));
+  if(currentPage>pages) currentPage=1;
+  const start=(currentPage-1)*PAGE;
+  const slice=filteredData.slice(start,start+PAGE);
+
+  document.getElementById("tableCount").textContent=`${total} paciente${total!==1?"s":""}`;
+  document.getElementById("tableHead").innerHTML=`<tr>${team.tableHeads.map(h=>`<th>${h}</th>`).join("")}</tr>`;
+  document.getElementById("tableBody").innerHTML=slice.map(r=>`<tr>${team.tableRow(r)}</tr>`).join("");
+
+  // pagination
+  const pg=document.getElementById("pagination");
+  const s=start+1, e=Math.min(currentPage*PAGE,total);
+  let btns=`<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?"disabled":""}><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>`;
+  const range=[];
+  for(let i=1;i<=pages;i++){
+    if(i===1||i===pages||Math.abs(i-currentPage)<=1) range.push(i);
+    else if(range[range.length-1]!=="…") range.push("…");
+  }
+  range.forEach(p=>{
+    btns+=p==="…"
+      ?`<button class="page-btn" disabled>…</button>`
+      :`<button class="page-btn ${p===currentPage?"active":""}" onclick="goPage(${p})">${p}</button>`;
+  });
+  btns+=`<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?"disabled":""}><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>`;
+  pg.innerHTML=`<span class="pagination-info">${s}–${e} de ${total}</span><div class="pagination-btns">${btns}</div>`;
+}
+
+function goPage(p){
+  const pages=Math.ceil(filteredData.length/PAGE);
+  if(p<1||p>pages) return;
+  currentPage=p;
+  renderTable();
+  document.querySelector(".table-card").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+/* ═══════════════ TAB COUNTS ═══════════════ */
+function updateTabCounts(){
+  document.getElementById("tab0count").textContent=DADOS1.length;
+  document.getElementById("tab1count").textContent=DADOS2.length;
+}
+
+/* ═══════════════ INIT ═══════════════ */
+(function init(){
+  const saved=localStorage.getItem("theme")||"light";
+  document.body.setAttribute("data-theme",saved);
+  updateThemeIcon(saved==="dark");
+  updateTabCounts();
+  updateContextNote();
+  resetFilters();
+  filteredData=[...DADOS1];
+
+  setTimeout(()=>{
+    positionIndicator();
+    renderMetrics();
+    renderCharts();
+    renderTable();
+    document.getElementById("loader").classList.add("hidden");
+    setStatus("ok");
+    scheduleSync();
+  },600);
+
+  window.addEventListener("resize", positionIndicator);
+})();
+</script>
+</body>
+</html>
