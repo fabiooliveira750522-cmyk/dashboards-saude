@@ -900,6 +900,8 @@ function parseDateISO(dateStr) {
   if (dm) return `${dm[3]}-${String(dm[2]).padStart(2,'0')}-${String(dm[1]).padStart(2,'0')}`;
   return null;
 }
+
+function fmt(n) {
   if (n >= 1000) return (n/1000).toFixed(1).replace('.',',') + 'k';
   return n.toString();
 }
