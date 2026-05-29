@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboards · Saúde Alagoas</title>
+<link rel="icon" type="image/jpeg" href="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCACAAIADASIAAhEBAxEB/8QAHAABAAIDAQEBAAAAAAAAAAAAAAUHBAYIAwEC/8QAPxAAAQMDAwIEBAIGCAcBAAAAAQIDBAAFEQYSIQcxE0FRYSIycYEIFBUWI0KRoSQ2cnSTsbLBFzNDUmKCwvD/2Q==">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --tr:all .3s cubic-bezier(.4,0,.2,1);
+}
+
+[data-theme="dark"]{
+  --bg:#060608;
+  --surface:#111114;
+  --surface2:#1a1a1f;
+  --surface3:#242429;
+  --border:rgba(255,255,255,.07);
+  --t1:#f0f0f5;
+  --t2:rgba(240,240,245,.5);
+  --t3:rgba(240,240,245,.25);
+  --blue:#2979ff;
+  --blue-glow:rgba(41,121,255,.25);
+  --green:#00e676;
+  --red:#ff5252;
+  --amber:#ffab40;
+  --teal:#40c4ff;
+}
+
+[data-theme="light"]{
+  --bg:#f0f0f5;
+  --surface:#ffffff;
+  --surface2:#f5f5fa;
+  --surface3:#e8e8ef;
+  --border:rgba(0,0,0,.08);
+  --t1:#0a0a12;
+  --t2:rgba(10,10,18,.5);
+  --t3:rgba(10,10,18,.25);
+  --blue:#1565c0;
+  --blue-glow:rgba(21,101,192,.15);
+  --green:#2e7d32;
+  --red:#c62828;
+  --amber:#e65100;
+  --teal:#0277bd;
+}
+
+html{font-size:16px}
+
+body{
+  font-family:'DM Sans',-apple-system,sans-serif;
+  background:var(--bg);
+  color:var(--t1);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  transition:background .3s,color .3s;
+  overflow-x:hidden;
+}
+
+/* ── BACKGROUND TEXTURE ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(41,121,255,.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(64,196,255,.05) 0%, transparent 50%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:50;
+  background:rgba(6,6,8,.8);
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border-bottom:1px solid var(--border);
+}
+[data-theme="light"] nav{background:rgba(240,240,245,.85)}
+
+.nav-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  max-width:1200px;margin:0 auto;
+  padding:0 clamp(16px,4vw,40px);
+  height:56px;
+}
+.nav-brand{
+  display:flex;align-items:center;gap:10px;
+  text-decoration:none;
+}
+.nav-logo{
+  width:30px;height:30px;border-radius:7px;
+  overflow:hidden;flex-shrink:0;
+}
+.nav-logo img{width:100%;height:100%;object-fit:cover}
+.nav-name{
+  font-family:'DM Serif Display',serif;
+  font-size:15px;color:var(--t1);
+  letter-spacing:.2px;
+}
+.nav-name span{color:var(--t2);font-style:italic}
+
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-tag{
+  font-size:10px;font-weight:600;
+  letter-spacing:.6px;text-transform:uppercase;
+  color:var(--t3);padding:3px 8px;
+  border:1px solid var(--border);
+  border-radius:20px;
+}
+.btn-theme{
+  width:30px;height:30px;border-radius:8px;
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--t2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;transition:var(--tr);
+}
+.btn-theme:hover{color:var(--t1);background:var(--surface3)}
+
+/* ── HERO ── */
+.hero{
+  position:relative;z-index:1;
+  max-width:1200px;margin:0 auto;
+  padding:clamp(48px,8vw,96px) clamp(16px,4vw,40px) clamp(32px,5vw,60px);
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:600;letter-spacing:.8px;
+  text-transform:uppercase;color:var(--blue);
+  margin-bottom:20px;
+}
+.hero-eyebrow::before{
+  content:'';
+  width:20px;height:2px;
+  background:var(--blue);border-radius:2px;
+}
+.hero-title{
+  font-family:'DM Serif Display',serif;
+  font-size:clamp(36px,6vw,64px);
+  line-height:1.1;
+  letter-spacing:-.5px;
+  color:var(--t1);
+  margin-bottom:16px;
+}
+.hero-title em{
+  font-style:italic;
+  color:var(--t2);
+}
+.hero-sub{
+  font-size:clamp(14px,2vw,17px);
+  color:var(--t2);
+  max-width:520px;
+  line-height:1.65;
+  font-weight:300;
+  margin-bottom:40px;
+}
+.hero-stats{
+  display:flex;gap:32px;flex-wrap:wrap;
+}
+.hero-stat{}
+.hero-stat-val{
+  font-family:'DM Serif Display',serif;
+  font-size:28px;color:var(--t1);
+  letter-spacing:-.5px;
+}
+.hero-stat-lbl{
+  font-size:11px;color:var(--t3);
+  letter-spacing:.3px;margin-top:1px;
+}
+
+/* ── DIVIDER ── */
+.section-divider{
+  max-width:1200px;margin:0 auto;
+  padding:0 clamp(16px,4vw,40px);
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:24px;
+  position:relative;z-index:1;
+}
+.section-divider span{
+  font-size:10px;font-weight:600;letter-spacing:.8px;
+  text-transform:uppercase;color:var(--t3);
+  white-space:nowrap;
+}
+.section-divider::after{
+  content:'';flex:1;
+  height:1px;background:var(--border);
+}
+
+/* ── CARDS GRID ── */
+.cards-grid{
+  position:relative;z-index:1;
+  max-width:1200px;margin:0 auto;
+  padding:0 clamp(16px,4vw,40px) clamp(48px,6vw,80px);
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:16px;
+}
+
+.dash-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:28px;
+  text-decoration:none;
+  display:block;
+  transition:var(--tr);
+  position:relative;
+  overflow:hidden;
+  animation:fadeUp .5s ease both;
+}
+.dash-card:nth-child(1){animation-delay:.1s}
+.dash-card:nth-child(2){animation-delay:.18s}
+.dash-card:nth-child(3){animation-delay:.26s}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.dash-card::before{
+  content:'';
+  position:absolute;inset:0;
+  background:radial-gradient(circle at 0% 0%, var(--card-glow,rgba(41,121,255,.06)) 0%, transparent 60%);
+  transition:opacity .3s;
+  opacity:0;
+}
+.dash-card:hover{
+  border-color:var(--card-accent,var(--blue));
+  transform:translateY(-4px);
+  box-shadow:0 20px 48px rgba(0,0,0,.3), 0 0 0 1px var(--card-accent,var(--blue));
+}
+.dash-card:hover::before{opacity:1}
+
+/* card accent bar */
+.dash-card::after{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg, var(--card-accent,var(--blue)), transparent);
+  border-radius:20px 20px 0 0;
+}
+
+.card-icon{
+  width:48px;height:48px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;margin-bottom:20px;
+  background:var(--card-icon-bg, rgba(41,121,255,.12));
+  flex-shrink:0;
+}
+.card-tag{
+  display:inline-block;
+  font-size:9px;font-weight:700;letter-spacing:.8px;
+  text-transform:uppercase;
+  color:var(--card-accent,var(--blue));
+  background:var(--card-icon-bg, rgba(41,121,255,.12));
+  padding:3px 8px;border-radius:6px;
+  margin-bottom:10px;
+}
+.card-title{
+  font-family:'DM Serif Display',serif;
+  font-size:22px;color:var(--t1);
+  line-height:1.2;letter-spacing:-.3px;
+  margin-bottom:8px;
+}
+.card-desc{
+  font-size:13px;color:var(--t2);
+  line-height:1.6;font-weight:300;
+  margin-bottom:20px;
+}
+.card-chips{
+  display:flex;flex-wrap:wrap;gap:6px;
+  margin-bottom:24px;
+}
+.chip{
+  font-size:10px;font-weight:500;
+  color:var(--t3);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  padding:3px 8px;border-radius:6px;
+}
+.card-cta{
+  display:flex;align-items:center;justify-content:space-between;
+}
+.cta-text{
+  font-size:12px;font-weight:600;
+  letter-spacing:.2px;
+  color:var(--card-accent,var(--blue));
+}
+.cta-arrow{
+  width:32px;height:32px;border-radius:10px;
+  background:var(--card-icon-bg, rgba(41,121,255,.12));
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;
+  transition:transform .25s ease;
+  color:var(--card-accent,var(--blue));
+}
+.dash-card:hover .cta-arrow{
+  transform:translate(3px,-3px);
+}
+
+/* card color variants */
+.card-oci{
+  --card-accent:#2979ff;
+  --card-glow:rgba(41,121,255,.08);
+  --card-icon-bg:rgba(41,121,255,.1);
+}
+.card-upas{
+  --card-accent:#ff5252;
+  --card-glow:rgba(255,82,82,.08);
+  --card-icon-bg:rgba(255,82,82,.1);
+}
+.card-cirurgias{
+  --card-accent:#00e676;
+  --card-glow:rgba(0,230,118,.08);
+  --card-icon-bg:rgba(0,230,118,.1);
+}
+
+/* ── COMING SOON CARD ── */
+.card-soon{
+  --card-accent:#ffab40;
+  --card-glow:rgba(255,171,64,.06);
+  --card-icon-bg:rgba(255,171,64,.1);
+  opacity:.65;
+  pointer-events:none;
+}
+.soon-badge{
+  position:absolute;top:20px;right:20px;
+  font-size:9px;font-weight:700;letter-spacing:.6px;
+  text-transform:uppercase;
+  background:rgba(255,171,64,.15);
+  color:#ffab40;border:1px solid rgba(255,171,64,.3);
+  padding:3px 8px;border-radius:6px;
+}
+
+/* ── FOOTER ── */
+footer{
+  position:relative;z-index:1;
+  border-top:1px solid var(--border);
+  padding:24px clamp(16px,4vw,40px);
+}
+.footer-inner{
+  max-width:1200px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;
+}
+.footer-copy{
+  font-size:11px;color:var(--t3);
+}
+.footer-dots{
+  display:flex;gap:6px;
+}
+.dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--border);
+}
+.dot.active{background:var(--blue)}
+
+/* ── LIGHT MODE ADJUSTMENTS ── */
+[data-theme="light"] body::before{
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(21,101,192,.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(2,119,189,.04) 0%, transparent 50%);
+}
+[data-theme="light"] .dash-card:hover{
+  box-shadow:0 12px 32px rgba(0,0,0,.12), 0 0 0 1px var(--card-accent,var(--blue));
+}
+[data-theme="light"] .card-upas{--card-accent:#c62828;--card-icon-bg:rgba(198,40,40,.08)}
+[data-theme="light"] .card-cirurgias{--card-accent:#2e7d32;--card-icon-bg:rgba(46,125,50,.08)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand">
+      <div class="nav-logo">
+        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCACAAIADASIAAhEBAxEB/8QAHAABAAIDAQEBAAAAAAAAAAAAAAUHBAYIAwEC/8QAPxAAAQMDAwIEBAIGCAcBAAAAAQIDBAAFEQYSIQcxE0FRYSIycYEIFBUWI0KRoSQ2cnSTsbLBFzNDUmKCwvD/2Q==" alt="Alagoas">
+      </div>
+      <div class="nav-name">Saúde Alagoas <em>· Painéis</em></div>
+    </a>
+    <div class="nav-right">
+      <span class="nav-tag">Gov · AL</span>
+      <button class="btn-theme" onclick="toggleTheme()" id="btnTheme" title="Alternar tema">🌙</button>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-eyebrow">Inteligência em Saúde</div>
+  <h1 class="hero-title">
+    Painéis de<br>
+    <em>Gestão</em> em Saúde
+  </h1>
+  <p class="hero-sub">
+    Monitoramento em tempo real dos principais indicadores da rede de saúde do Estado de Alagoas. Dados atualizados automaticamente.
+  </p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-val">3</div>
+      <div class="hero-stat-lbl">Painéis ativos</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-val">10</div>
+      <div class="hero-stat-lbl">Regiões de saúde</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-val">102</div>
+      <div class="hero-stat-lbl">Municípios</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider">
+  <span>Painéis disponíveis</span>
+</div>
+
+<div class="cards-grid">
+
+  <!-- OCI Oncologia -->
+  <a href="/OCI" class="dash-card card-oci">
+    <div class="card-icon">🎗️</div>
+    <span class="card-tag">Oncologia</span>
+    <h2 class="card-title">Dashboard OCI</h2>
+    <p class="card-desc">Monitoramento das Organizações de Cuidado Integrado oncológicas — acompanhamento diagnóstico de câncer de próstata, colorretal, gástrico, mama e colo do útero.</p>
+    <div class="card-chips">
+      <span class="chip">Próstata</span>
+      <span class="chip">Colorretal</span>
+      <span class="chip">Gástrico</span>
+      <span class="chip">Mama</span>
+      <span class="chip">Colo do Útero</span>
+    </div>
+    <div class="card-cta">
+      <span class="cta-text">Acessar painel</span>
+      <div class="cta-arrow">↗</div>
+    </div>
+  </a>
+
+  <!-- UPAs -->
+  <a href="/upas" class="dash-card card-upas">
+    <div class="card-icon">🏥</div>
+    <span class="card-tag">Urgência</span>
+    <h2 class="card-title">Dashboard UPAs</h2>
+    <p class="card-desc">Acompanhamento das Unidades de Pronto Atendimento — fluxo de pacientes, tempo de espera, ocupação e indicadores de atendimento de urgência e emergência.</p>
+    <div class="card-chips">
+      <span class="chip">Atendimentos</span>
+      <span class="chip">Ocupação</span>
+      <span class="chip">Tempo espera</span>
+      <span class="chip">Regiões</span>
+    </div>
+    <div class="card-cta">
+      <span class="cta-text">Acessar painel</span>
+      <div class="cta-arrow">↗</div>
+    </div>
+  </a>
+
+  <!-- Cirurgias -->
+  <a href="/cirurgias" class="dash-card card-cirurgias">
+    <div class="card-icon">🩺</div>
+    <span class="card-tag">Cirurgias</span>
+    <h2 class="card-title">Dashboard Cirurgias</h2>
+    <p class="card-desc">Gestão da fila cirúrgica do Estado — volume de procedimentos, especialidades, hospitais, tempos de espera e produtividade da rede cirúrgica pública.</p>
+    <div class="card-chips">
+      <span class="chip">Procedimentos</span>
+      <span class="chip">Especialidades</span>
+      <span class="chip">Fila</span>
+      <span class="chip">Hospitais</span>
+    </div>
+    <div class="card-cta">
+      <span class="cta-text">Acessar painel</span>
+      <div class="cta-arrow">↗</div>
+    </div>
+  </a>
+
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-copy">© 2026 · Secretaria de Estado da Saúde de Alagoas · Dados atualizados em tempo real via Google Sheets</span>
+    <div class="footer-dots">
+      <div class="dot active"></div>
+      <div class="dot active"></div>
+      <div class="dot active"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+function toggleTheme(){
+  const html = document.documentElement;
+  const dark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', dark ? 'light' : 'dark');
+  document.getElementById('btnTheme').textContent = dark ? '🌙' : '☀️';
+}
+// Restore saved theme
+const saved = localStorage.getItem('theme');
+if(saved){ document.documentElement.setAttribute('data-theme', saved); document.getElementById('btnTheme').textContent = saved === 'dark' ? '🌙' : '☀️'; }
+document.getElementById('btnTheme').addEventListener('click', () => {
+  const t = document.documentElement.getAttribute('data-theme');
+  localStorage.setItem('theme', t === 'dark' ? 'light' : 'dark');
+});
+</script>
+</body>
+</html>
