@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard de Indicadores — Alagoas</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy:   #0B1F5C;
+    --blue:   #1252A3;
+    --lblue:  #2979D9;
+    --sky:    #5BAAFF;
+    --coral:  #E84040;
+    --coral2: #FF6B6B;
+    --mint:   #00C9A7;
+    --amber:  #F7A600;
+    --bg:     #F0F4FA;
+    --card:   #FFFFFF;
+    --border: #DDE5F5;
+    --text:   #0B1F5C;
+    --muted:  #6B7FA3;
+    --mono:   'JetBrains Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ─────────────────────────────────────────────── */
+  header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 60%, var(--lblue) 100%);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 24px rgba(11,31,92,.35);
+  }
+  header .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  header .logo-ring {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.15);
+    border: 2px solid rgba(255,255,255,.35);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  header h1 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: .02em;
+    line-height: 1.2;
+  }
+  header h1 span {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    color: rgba(255,255,255,.65);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  header .badge {
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 11px;
+    color: rgba(255,255,255,.85);
+    font-weight: 500;
+    letter-spacing: .05em;
+  }
+
+  /* ── MONTH TABS ──────────────────────────────────────────── */
+  .month-bar {
+    background: var(--navy);
+    padding: 0 40px;
+    display: flex;
+    gap: 4px;
+    align-items: flex-end;
+  }
+  .month-tab {
+    padding: 10px 22px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,.45);
+    border-bottom: 3px solid transparent;
+    transition: all .2s;
+    font-family: 'Sora', sans-serif;
+  }
+  .month-tab:hover { color: rgba(255,255,255,.8); }
+  .month-tab.active {
+    color: #fff;
+    border-bottom-color: var(--sky);
+    background: rgba(255,255,255,.06);
+    border-radius: 6px 6px 0 0;
+  }
+  .month-tab .days-badge {
+    margin-left: 6px;
+    background: rgba(255,255,255,.12);
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 10px;
+    font-weight: 400;
+  }
+
+  /* ── MAIN LAYOUT ─────────────────────────────────────────── */
+  main { padding: 28px 40px 48px; }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  /* ── KPI CARDS ───────────────────────────────────────────── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 20px 18px 16px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: transform .18s, box-shadow .18s;
+  }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(11,31,92,.1); }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .kpi-card.accent-coral::before { background: linear-gradient(90deg, var(--coral), var(--coral2)); }
+  .kpi-card.accent-blue::before  { background: linear-gradient(90deg, var(--lblue), var(--sky)); }
+  .kpi-card.accent-mint::before  { background: linear-gradient(90deg, var(--mint), #7BEAD4); }
+  .kpi-card.accent-amber::before { background: linear-gradient(90deg, var(--amber), #FFD166); }
+
+  .kpi-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .kpi-value {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+    font-family: var(--mono);
+    letter-spacing: -.02em;
+  }
+  .kpi-card.accent-coral .kpi-value { color: var(--coral); }
+  .kpi-card.accent-blue  .kpi-value { color: var(--lblue); }
+  .kpi-card.accent-mint  .kpi-value { color: #00A88E; }
+  .kpi-card.accent-amber .kpi-value { color: #D48C00; }
+  .kpi-delta {
+    margin-top: 8px;
+    font-size: 10px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .kpi-delta .up   { color: var(--coral); }
+  .kpi-delta .down { color: var(--mint); }
+
+  /* ── TWO-COL LAYOUT ──────────────────────────────────────── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+  .full-col { margin-bottom: 28px; }
+
+  /* ── CHART CARD ──────────────────────────────────────────── */
+  .chart-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 24px;
+    border: 1px solid var(--border);
+  }
+  .chart-card h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 18px;
+    letter-spacing: .01em;
+  }
+  .chart-card h3 span {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 6px;
+  }
+  .chart-wrap { position: relative; }
+
+  /* ── HOSPITAL GRID ───────────────────────────────────────── */
+  .hosp-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .hosp-card {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 12px 10px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .hosp-card .h-name {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .hosp-card .h-taxa {
+    font-size: 20px;
+    font-weight: 800;
+    font-family: var(--mono);
+    letter-spacing: -.02em;
+    margin-bottom: 4px;
+  }
+  .h-taxa.high  { color: var(--coral); }
+  .h-taxa.mid   { color: var(--amber); }
+  .h-taxa.low   { color: var(--mint); }
+  .hosp-card .h-saidas {
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .hosp-card .h-saidas strong {
+    color: var(--text);
+    font-family: var(--mono);
+  }
+
+  /* ── UPA CARDS ───────────────────────────────────────────── */
+  .upa-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  .upa-card {
+    flex: 1;
+    min-width: 100px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .upa-card .u-name {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .upa-card .u-val {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: var(--mono);
+    color: var(--lblue);
+  }
+  .upa-total-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .upa-total {
+    flex: 1;
+    background: var(--navy);
+    color: #fff;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .upa-total .ut-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: rgba(255,255,255,.6);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .upa-total .ut-val {
+    font-size: 26px;
+    font-weight: 800;
+    font-family: var(--mono);
+    color: var(--sky);
+  }
+
+  /* ── EVOLUTION ───────────────────────────────────────────── */
+  .evo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .evo-mini {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 18px;
+    border: 1px solid var(--border);
+  }
+  .evo-mini h4 {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  /* ── DIVIDER ─────────────────────────────────────────────── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 6px 0 22px;
+  }
+
+  /* ── FOOTER ──────────────────────────────────────────────── */
+  footer {
+    background: var(--navy);
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: rgba(255,255,255,.4);
+  }
+  footer strong { color: rgba(255,255,255,.7); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo-ring">★</div>
+    <h1>Dashboard de Indicadores<span>Governo de Alagoas · Regulação Hospitalar</span></h1>
+  </div>
+  <div class="badge" id="lastUpdate">2026</div>
+</header>
+
+<div class="month-bar">
+  <button class="month-tab" data-month="0" onclick="setMonth(0)">Fev/26 <span class="days-badge">28d</span></button>
+  <button class="month-tab" data-month="1" onclick="setMonth(1)">Mar/26 <span class="days-badge">31d</span></button>
+  <button class="month-tab" data-month="2" onclick="setMonth(2)">Abr/26 <span class="days-badge">30d</span></button>
+  <button class="month-tab active" data-month="3" onclick="setMonth(3)">Mai/26 <span class="days-badge">31d</span></button>
+</div>
+
+<main>
+  <!-- KPIs -->
+  <div class="section-label">Indicadores Principais</div>
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- Evolution + Hospitals -->
+  <div class="two-col">
+    <div class="chart-card">
+      <h3>Evolução Mensal <span>Taxa UTI & Fila</span></h3>
+      <div class="chart-wrap" style="height:220px"><canvas id="evoChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Evolução Mensal <span>Regulações & Solicitações</span></h3>
+      <div class="chart-wrap" style="height:220px"><canvas id="evoChart2"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Hospitais -->
+  <div class="chart-card full-col">
+    <h3 id="hospTitle">Taxa de Ocupação por Hospital</h3>
+    <div class="chart-wrap" style="height:200px"><canvas id="hospChart"></canvas></div>
+    <div class="divider"></div>
+    <div class="section-label">Saídas Média/Dia por Unidade</div>
+    <div id="hospCards" class="hosp-grid"></div>
+  </div>
+
+  <!-- UPAs + Retaguarda -->
+  <div class="two-col">
+    <div class="chart-card">
+      <h3 id="upaTitle">Situação nas UPAs <span>Média/Dia</span></h3>
+      <div id="upaCards" class="upa-row"></div>
+      <div class="upa-total-row" id="upaTotais"></div>
+    </div>
+    <div class="chart-card">
+      <h3>Retaguarda por Unidade <span>Média/Dia</span></h3>
+      <div class="chart-wrap" style="height:220px"><canvas id="retChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Evolução ENF/UTI -->
+  <div class="chart-card full-col">
+    <h3>Evolução Completa dos Indicadores <span>Fev → Mai 2026</span></h3>
+    <div class="evo-grid" id="evoGrid"></div>
+  </div>
+</main>
+
+<footer>
+  <span>Dashboard de Indicadores · <strong>Governo de Alagoas</strong></span>
+  <span>Dados extraídos dos Relatórios Mensais · Fev–Mai 2026</span>
+</footer>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const MONTHS = ['Fev/26','Mar/26','Abr/26','Mai/26'];
+
+const DATA = [
+  { // FEV
+    label: 'Fev/26', dias: 28,
+    taxa_uti: 81.1, fila_uti: 17.9, regulacoes: 103.1, enf_adulto: 77.0, uti_adulto: 10.5, solicitacoes: 266.5,
+    upas_estado: 53.3, upas_pronto: 40.1,
+    upas: {Jaraguá:14.5, Tabuleiro:6.2, Jacintinho:8.7, Jaqueira:12.9, 'Cid. Univ.':11.0},
+    hosp_taxa: null,
+    hosp_saidas: {HGE:22.6,'HR Alto Sertão':9.6,'HR Norte':10.4,HEDH:7.8,'H Metropolitano':9.0,'H Coração':4.3,'HR Mata':12.8,HEHA:3.0,'H Mulher':14.5,'HR Palmeira':4.8},
+    retaguarda: {HGE:1.1,'HR Norte':3.3,'H Metropolitano':4.8,'HR Mata':2.6,'H Mulher':2.4,'HR Alto Sertão':1.7,HEDH:0.7,'H Coração':0.9,HEHA:0.1,'HR Palmeira':2.1},
+  },
+  { // MAR
+    label: 'Mar/26', dias: 31,
+    taxa_uti: 80.4, fila_uti: 15.5, regulacoes: 107.8, enf_adulto: 79.4, uti_adulto: 12.6, solicitacoes: 227.0,
+    upas_estado: 53.9, upas_pronto: 38.2,
+    upas: {Jaraguá:16.4, Tabuleiro:6.7, Jacintinho:7.2, Jaqueira:12.2, 'Cid. Univ.':11.4},
+    hosp_taxa: {HGE:90,'HR Norte':65,'H Metropolitano':86,'HR Mata':82,'H Mulher':85,'HR Alto Sertão':71,HEDH:86,'H Coração':93,HEHA:85,'HR Palmeira':66},
+    hosp_saidas: {HGE:22.7,'HR Alto Sertão':9.8,'HR Norte':13.8,HEDH:8.7,'H Metropolitano':8.9,'H Coração':4.5,'HR Mata':12.2,HEHA:3.7,'H Mulher':16.5,'HR Palmeira':2.0},
+    retaguarda: {HGE:1.2,'HR Norte':3.0,'H Metropolitano':4.7,'HR Mata':2.7,'H Mulher':2.9,'HR Alto Sertão':1.4,HEDH:1.5,'H Coração':0.6,HEHA:0.8,'HR Palmeira':3.9},
+  },
+  { // ABR
+    label: 'Abr/26', dias: 30,
+    taxa_uti: 83.6, fila_uti: 14.4, regulacoes: 108.6, enf_adulto: 81.5, uti_adulto: 12.3, solicitacoes: 226.7,
+    upas_estado: 54.5, upas_pronto: 34.7,
+    upas: {Jaraguá:14.6, Tabuleiro:8.0, Jacintinho:7.5, Jaqueira:13.5, 'Cid. Univ.':10.8},
+    hosp_taxa: {HGE:86,'HR Norte':74,'H Metropolitano':88,'HR Mata':82,'H Mulher':86,'HR Alto Sertão':74,HEDH:91,'H Coração':85,HEHA:80,'HR Palmeira':78},
+    hosp_saidas: {HGE:24.8,'HR Alto Sertão':9.8,'HR Norte':13.2,HEDH:8.9,'H Metropolitano':8.6,'H Coração':3.9,'HR Mata':13.3,HEHA:3.9,'H Mulher':17.3,'HR Palmeira':2.0},
+    retaguarda: {HGE:1.1,'HR Norte':2.5,'H Metropolitano':3.8,'HR Mata':1.2,'H Mulher':2.5,'HR Alto Sertão':0.5,HEDH:0.9,'H Coração':1.5,HEHA:1.1,'HR Palmeira':2.8},
+  },
+  { // MAI
+    label: 'Mai/26', dias: 31,
+    taxa_uti: 86.2, fila_uti: 12.3, regulacoes: 105.9, enf_adulto: 79.2, uti_adulto: 11.8, solicitacoes: 212.8,
+    upas_estado: 38.9, upas_pronto: 29.8,
+    upas: {Jaraguá:10.7, Tabuleiro:5.8, Jacintinho:6.8, Jaqueira:8.6, 'Cid. Univ.':7.0},
+    hosp_taxa: {HGE:86,'HR Norte':72,'H Metropolitano':91,'HR Mata':91,'H Mulher':90,'HR Alto Sertão':79,HEDH:88,'H Coração':95,HEHA:89,'HR Palmeira':85},
+    hosp_saidas: {HGE:29.6,'HR Alto Sertão':10.4,'HR Norte':13.1,HEDH:15.7,'H Metropolitano':10.8,'H Coração':1.8,'HR Mata':14.8,HEHA:4.6,'H Mulher':15.1,'HR Palmeira':8.2},
+    retaguarda: {HGE:1.3,'HR Norte':2.5,'H Metropolitano':2.6,'HR Mata':1.6,'H Mulher':1.7,'HR Alto Sertão':0.4,HEDH:1.3,'H Coração':0.5,HEHA:0.8,'HR Palmeira':1.8},
+  },
+];
+
+const HOSP_ORDER = ['HGE','HR Norte','H Metropolitano','HR Mata','H Mulher','HR Alto Sertão','HEDH','H Coração','HEHA','HR Palmeira'];
+const CHART_COLORS = {
+  blue:  '#2979D9', sky: '#5BAAFF', coral: '#E84040', mint: '#00C9A7',
+  amber: '#F7A600', navy: '#0B1F5C', purple: '#8B5CF6', teal: '#14B8A6'
+};
+
+let currentMonth = 3;
+let charts = {};
+
+// ── DELTA ─────────────────────────────────────────────────────────────────────
+function delta(cur, prev, invertGood = false) {
+  if (prev === null || prev === undefined) return '';
+  const d = cur - prev;
+  const pct = ((Math.abs(d) / prev) * 100).toFixed(1);
+  const isGood = invertGood ? d < 0 : d > 0;
+  const arrow = d > 0 ? '▲' : '▼';
+  const cls = d === 0 ? '' : (isGood ? 'down' : 'up');
+  const sign = d > 0 ? '+' : '';
+  return `<span class="${cls}">${arrow} ${sign}${d.toFixed(1)} (${pct}%)</span> vs mês anterior`;
+}
+
+// ── RENDER KPIs ───────────────────────────────────────────────────────────────
+function renderKPIs(mi) {
+  const d = DATA[mi];
+  const p = mi > 0 ? DATA[mi-1] : null;
+  const grid = document.getElementById('kpiGrid');
+  const kpis = [
+    { label: 'Taxa de Ocupação\nUTI', value: d.taxa_uti.toFixed(1)+'%', accent: 'coral', prev: p?.taxa_uti, invert: false },
+    { label: 'Fila de UTI\nMédia/Dia', value: d.fila_uti.toFixed(1), accent: 'coral', prev: p?.fila_uti, invert: true },
+    { label: 'Regulações\n/ Dia', value: d.regulacoes.toFixed(1), accent: 'blue', prev: p?.regulacoes, invert: false },
+    { label: 'Média Mês\nENF/Adulto', value: d.enf_adulto.toFixed(1), accent: 'blue', prev: p?.enf_adulto, invert: false },
+    { label: 'Média Mês\nUTI/Adulto', value: d.uti_adulto.toFixed(1), accent: 'mint', prev: p?.uti_adulto, invert: false },
+    { label: 'Solicitações\nMédia/Dia', value: d.solicitacoes.toFixed(1), accent: 'amber', prev: p?.solicitacoes, invert: false },
+  ];
+  grid.innerHTML = kpis.map(k => `
+    <div class="kpi-card accent-${k.accent}">
+      <div class="kpi-label">${k.label.replace('\n','<br>')}</div>
+      <div class="kpi-value">${k.value}</div>
+      <div class="kpi-delta">${k.prev !== null && k.prev !== undefined ? delta(parseFloat(k.value), k.prev, k.invert) : '<span style="color:var(--border)">—</span>'}</div>
+    </div>`).join('');
+}
+
+// ── RENDER EVOLUTION CHARTS ───────────────────────────────────────────────────
+function renderEvoCharts() {
+  const labels = MONTHS;
+  const defOpts = (yLabel) => ({
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { font: { family: 'Sora', size: 11 }, boxWidth: 10, padding: 14 } } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 11 } } },
+      y: { grid: { color: '#EEF2FF' }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } }
+    }
+  });
+
+  // Chart 1: Taxa UTI + Fila
+  if (charts.evo) charts.evo.destroy();
+  charts.evo = new Chart(document.getElementById('evoChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Taxa UTI (%)', data: DATA.map(d=>d.taxa_uti),
+          backgroundColor: DATA.map((_,i)=> i===currentMonth ? CHART_COLORS.coral : 'rgba(232,64,64,.35)'),
+          borderRadius: 6, yAxisID: 'y',
+        },
+        {
+          label: 'Fila UTI', data: DATA.map(d=>d.fila_uti),
+          type: 'line', borderColor: CHART_COLORS.navy, backgroundColor: 'transparent',
+          pointBackgroundColor: DATA.map((_,i)=> i===currentMonth ? CHART_COLORS.navy : 'rgba(11,31,92,.5)'),
+          pointRadius: 5, tension: .3, yAxisID: 'y2',
+        }
+      ]
+    },
+    options: { ...defOpts(), scales: {
+      x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 11 } } },
+      y: { grid: { color: '#EEF2FF' }, ticks: { font: { family: 'JetBrains Mono', size: 10 } }, title: { display: true, text: '%', font: { size: 10 } } },
+      y2: { position: 'right', grid: { display: false }, ticks: { font: { family: 'JetBrains Mono', size: 10 } }, title: { display: true, text: 'fila', font: { size: 10 } } }
+    }, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Sora', size: 11 }, boxWidth: 10, padding: 14 } } }, responsive: true, maintainAspectRatio: false }
+  });
+
+  // Chart 2: Regulações + Solicitações
+  if (charts.evo2) charts.evo2.destroy();
+  charts.evo2 = new Chart(document.getElementById('evoChart2'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Regulações/Dia', data: DATA.map(d=>d.regulacoes),
+          backgroundColor: DATA.map((_,i)=> i===currentMonth ? CHART_COLORS.blue : 'rgba(41,121,217,.35)'),
+          borderRadius: 6, yAxisID: 'y',
+        },
+        {
+          label: 'Solicitações/Dia', data: DATA.map(d=>d.solicitacoes),
+          type: 'line', borderColor: CHART_COLORS.amber, backgroundColor: 'transparent',
+          pointBackgroundColor: DATA.map((_,i)=> i===currentMonth ? CHART_COLORS.amber : 'rgba(247,166,0,.5)'),
+          pointRadius: 5, tension: .3, yAxisID: 'y2',
+        }
+      ]
+    },
+    options: { ...defOpts(), scales: {
+      x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 11 } } },
+      y: { grid: { color: '#EEF2FF' }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } },
+      y2: { position: 'right', grid: { display: false }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } }
+    }, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Sora', size: 11 }, boxWidth: 10, padding: 14 } } }, responsive: true, maintainAspectRatio: false }
+  });
+}
+
+// ── RENDER HOSPITAL CHART ─────────────────────────────────────────────────────
+function renderHospChart(mi) {
+  const d = DATA[mi];
+  document.getElementById('hospTitle').innerHTML =
+    `Taxa de Ocupação por Hospital <span>${d.label}</span>`;
+
+  // bar chart
+  if (charts.hosp) charts.hosp.destroy();
+  const hasTaxa = d.hosp_taxa !== null;
+  if (hasTaxa) {
+    const vals = HOSP_ORDER.map(h => d.hosp_taxa[h] ?? null);
+    charts.hosp = new Chart(document.getElementById('hospChart'), {
+      type: 'bar',
+      data: {
+        labels: HOSP_ORDER,
+        datasets: [{
+          label: 'Taxa de Ocupação (%)',
+          data: vals,
+          backgroundColor: vals.map(v => v >= 90 ? 'rgba(232,64,64,.8)' : v >= 80 ? 'rgba(247,166,0,.8)' : 'rgba(0,201,167,.8)'),
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, indexAxis: 'x',
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 10 }, maxRotation: 30 } },
+          y: { min: 0, max: 110, grid: { color: '#EEF2FF' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, callback: v => v+'%' } }
+        }
+      }
+    });
+  } else {
+    document.getElementById('hospChart').getContext('2d').clearRect(0,0,1000,300);
+    if (charts.hosp) { charts.hosp.destroy(); charts.hosp = null; }
+    const ctx = document.getElementById('hospChart').getContext('2d');
+    ctx.fillStyle = '#6B7FA3';
+    ctx.font = '13px Sora';
+    ctx.textAlign = 'center';
+    ctx.fillText('Dados por hospital não disponíveis para este mês', 400, 100);
+  }
+
+  // hospital cards (saídas)
+  const cards = document.getElementById('hospCards');
+  cards.innerHTML = HOSP_ORDER.map(h => {
+    const saida = d.hosp_saidas[h];
+    const taxa  = d.hosp_taxa ? d.hosp_taxa[h] : null;
+    const cls   = taxa !== null ? (taxa >= 90 ? 'high' : taxa >= 80 ? 'mid' : 'low') : '';
+    return `<div class="hosp-card">
+      <div class="h-name">${h}</div>
+      ${taxa !== null ? `<div class="h-taxa ${cls}">${taxa}%</div>` : ''}
+      <div class="h-saidas">saídas: <strong>${saida?.toFixed(1) ?? '—'}</strong>/dia</div>
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER UPAs ───────────────────────────────────────────────────────────────
+function renderUpas(mi) {
+  const d = DATA[mi];
+  document.getElementById('upaTitle').innerHTML =
+    `Situação nas UPAs <span>${d.label} — Média/Dia</span>`;
+
+  const upaCards = document.getElementById('upaCards');
+  upaCards.innerHTML = Object.entries(d.upas).map(([name,val]) =>
+    `<div class="upa-card"><div class="u-name">${name}</div><div class="u-val">${val.toFixed(1)}</div></div>`
+  ).join('');
+
+  document.getElementById('upaTotais').innerHTML = `
+    <div class="upa-total"><div class="ut-label">UPAs Estado</div><div class="ut-val">${d.upas_estado.toFixed(1)}</div></div>
+    <div class="upa-total"><div class="ut-label">UPAs Pronto</div><div class="ut-val">${d.upas_pronto.toFixed(1)}</div></div>
+  `;
+}
+
+// ── RENDER RETAGUARDA CHART ───────────────────────────────────────────────────
+function renderRetChart(mi) {
+  const d = DATA[mi];
+  const keys = Object.keys(d.retaguarda);
+  const vals = keys.map(k => d.retaguarda[k]);
+  const sorted = keys.map((k,i) => ({k, v: vals[i]})).sort((a,b)=>b.v-a.v);
+
+  if (charts.ret) charts.ret.destroy();
+  charts.ret = new Chart(document.getElementById('retChart'), {
+    type: 'bar',
+    data: {
+      labels: sorted.map(s=>s.k),
+      datasets: [{
+        label: 'Retaguarda Média/Dia',
+        data: sorted.map(s=>s.v),
+        backgroundColor: 'rgba(41,121,217,.75)',
+        borderRadius: 5,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 10 } } },
+        x: { grid: { color: '#EEF2FF' }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } }
+      }
+    }
+  });
+}
+
+// ── RENDER EVO MINI CHARTS ────────────────────────────────────────────────────
+function renderEvoMinis() {
+  const configs = [
+    { key: 'taxa_uti',    label: 'Taxa de Ocupação UTI (%)', color: CHART_COLORS.coral,  fmt: v=>v.toFixed(1)+'%' },
+    { key: 'fila_uti',   label: 'Fila de UTI — Média/Dia',  color: CHART_COLORS.navy,   fmt: v=>v.toFixed(1) },
+    { key: 'regulacoes', label: 'Regulações / Dia',          color: CHART_COLORS.blue,   fmt: v=>v.toFixed(1) },
+    { key: 'solicitacoes',label:'Solicitações Média/Dia',    color: CHART_COLORS.amber,  fmt: v=>v.toFixed(1) },
+    { key: 'enf_adulto', label: 'Média Mês ENF/Adulto',      color: CHART_COLORS.mint,   fmt: v=>v.toFixed(1) },
+    { key: 'uti_adulto', label: 'Média Mês UTI/Adulto',      color: CHART_COLORS.purple, fmt: v=>v.toFixed(1) },
+  ];
+
+  const grid = document.getElementById('evoGrid');
+  grid.innerHTML = configs.map((_,i) => `<div class="evo-mini"><h4>${configs[i].label}</h4><div style="height:130px"><canvas id="evo_mini_${i}"></canvas></div></div>`).join('');
+
+  configs.forEach((cfg, i) => {
+    const vals = DATA.map(d => d[cfg.key]);
+    new Chart(document.getElementById(`evo_mini_${i}`), {
+      type: 'bar',
+      data: {
+        labels: MONTHS,
+        datasets: [
+          {
+            label: cfg.label,
+            data: vals,
+            backgroundColor: MONTHS.map((_,mi) => mi===currentMonth ? cfg.color : cfg.color+'55'),
+            borderRadius: 5,
+          },
+          {
+            type: 'line', data: vals,
+            borderColor: cfg.color, backgroundColor: 'transparent',
+            pointBackgroundColor: MONTHS.map((_,mi) => mi===currentMonth ? cfg.color : cfg.color+'99'),
+            pointRadius: 4, tension: .35, borderWidth: 1.5,
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false },
+          tooltip: { callbacks: { label: ctx => cfg.fmt(ctx.raw) } }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 9 } } },
+          y: { display: false }
+        }
+      }
+    });
+  });
+}
+
+// ── SET MONTH ─────────────────────────────────────────────────────────────────
+function setMonth(mi) {
+  currentMonth = mi;
+  document.querySelectorAll('.month-tab').forEach((t,i) =>
+    t.classList.toggle('active', i===mi));
+  renderKPIs(mi);
+  renderEvoCharts();
+  renderHospChart(mi);
+  renderUpas(mi);
+  renderRetChart(mi);
+  renderEvoMinis();
+  document.getElementById('lastUpdate').textContent = DATA[mi].label + ' · ' + DATA[mi].dias + ' dias';
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+Chart.defaults.font.family = 'Sora';
+setMonth(3);
+</script>
+</body>
+</html>
