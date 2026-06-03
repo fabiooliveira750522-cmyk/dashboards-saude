@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -369,6 +369,13 @@ footer{
 }
 [data-theme="light"] .card-upas{--card-accent:#c62828;--card-icon-bg:rgba(198,40,40,.08)}
 [data-theme="light"] .card-cirurgias{--card-accent:#2e7d32;--card-icon-bg:rgba(46,125,50,.08)}
+
+.card-indicadores{
+  --card-accent:#40c4ff;
+  --card-glow:rgba(64,196,255,.08);
+  --card-icon-bg:rgba(64,196,255,.1);
+}
+[data-theme="light"] .card-indicadores{--card-accent:#0277bd;--card-icon-bg:rgba(2,119,189,.08)}
 </style>
 </head>
 <body>
@@ -376,9 +383,6 @@ footer{
 <nav>
   <div class="nav-inner">
     <a href="/" class="nav-brand">
-      <div class="nav-logo">
-        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCACAAIADASIAAhEBAxEB/8QAHAABAAIDAQEBAAAAAAAAAAAAAAUHBAYIAwEC/8QAPxAAAQMDAwIEBAIGCAcBAAAAAQIDBAAFEQYSIQcxE0FRYSIycYEIFBUWI0KRoSQ2cnSTsbLBFzNDUmKCwvD/2Q==" alt="Alagoas">
-      </div>
       <div class="nav-name">Saúde Alagoas <em>· Painéis</em></div>
     </a>
     <div class="nav-right">
@@ -399,7 +403,7 @@ footer{
   </p>
   <div class="hero-stats">
     <div class="hero-stat">
-      <div class="hero-stat-val">3</div>
+      <div class="hero-stat-val">4</div>
       <div class="hero-stat-lbl">Painéis ativos</div>
     </div>
     <div class="hero-stat">
@@ -419,18 +423,18 @@ footer{
 
 <div class="cards-grid">
 
-  <!-- OCI Oncologia -->
-  <a href="/OCI" class="dash-card card-oci">
-    <div class="card-icon">🎗️</div>
-    <span class="card-tag">Oncologia</span>
-    <h2 class="card-title">Dashboard OCI</h2>
-    <p class="card-desc">Monitoramento das Organizações de Cuidado Integrado oncológicas — acompanhamento diagnóstico de câncer de próstata, colorretal, gástrico, mama e colo do útero.</p>
+  <!-- Indicadores Hospitalares -->
+  <a href="/Indicadores" class="dash-card card-indicadores">
+    <div class="card-icon">🏨</div>
+    <span class="card-tag">Hospitalar</span>
+    <h2 class="card-title">Indicadores Hospitalares</h2>
+    <p class="card-desc">Monitoramento de UTIs e UPAs — ocupação, regulações, solicitações, retaguarda por unidade e evolução mensal dos principais indicadores da rede hospitalar.</p>
     <div class="card-chips">
-      <span class="chip">Próstata</span>
-      <span class="chip">Colorretal</span>
-      <span class="chip">Gástrico</span>
-      <span class="chip">Mama</span>
-      <span class="chip">Colo do Útero</span>
+      <span class="chip">UTI</span>
+      <span class="chip">UPAs</span>
+      <span class="chip">Ocupação</span>
+      <span class="chip">Regulação</span>
+      <span class="chip">Retaguarda</span>
     </div>
     <div class="card-cta">
       <span class="cta-text">Acessar painel</span>
@@ -474,6 +478,25 @@ footer{
     </div>
   </a>
 
+  <!-- OCI Oncologia -->
+  <a href="/OCI" class="dash-card card-oci">
+    <div class="card-icon">🎗️</div>
+    <span class="card-tag">Oncologia</span>
+    <h2 class="card-title">Dashboard OCI</h2>
+    <p class="card-desc">Monitoramento das Organizações de Cuidado Integrado oncológicas — acompanhamento diagnóstico de câncer de próstata, colorretal, gástrico, mama e colo do útero.</p>
+    <div class="card-chips">
+      <span class="chip">Próstata</span>
+      <span class="chip">Colorretal</span>
+      <span class="chip">Gástrico</span>
+      <span class="chip">Mama</span>
+      <span class="chip">Colo do Útero</span>
+    </div>
+    <div class="card-cta">
+      <span class="cta-text">Acessar painel</span>
+      <div class="cta-arrow">↗</div>
+    </div>
+  </a>
+
 </div>
 
 <footer>
@@ -483,7 +506,7 @@ footer{
       <div class="dot active"></div>
       <div class="dot active"></div>
       <div class="dot active"></div>
-      <div class="dot"></div>
+      <div class="dot active"></div>
     </div>
   </div>
 </footer>
@@ -491,17 +514,18 @@ footer{
 <script>
 function toggleTheme(){
   const html = document.documentElement;
-  const dark = html.getAttribute('data-theme') === 'dark';
-  html.setAttribute('data-theme', dark ? 'light' : 'dark');
-  document.getElementById('btnTheme').textContent = dark ? '🌙' : '☀️';
+  const isLight = html.getAttribute('data-theme') === 'light';
+  const next = isLight ? 'dark' : 'light';
+  html.setAttribute('data-theme', next);
+  document.getElementById('btnTheme').textContent = next === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem('theme', next);
 }
 // Restore saved theme
 const saved = localStorage.getItem('theme');
-if(saved){ document.documentElement.setAttribute('data-theme', saved); document.getElementById('btnTheme').textContent = saved === 'dark' ? '🌙' : '☀️'; }
-document.getElementById('btnTheme').addEventListener('click', () => {
-  const t = document.documentElement.getAttribute('data-theme');
-  localStorage.setItem('theme', t === 'dark' ? 'light' : 'dark');
-});
+if(saved){
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('btnTheme').textContent = saved === 'dark' ? '☀️' : '🌙';
+}
 </script>
 </body>
 </html>
