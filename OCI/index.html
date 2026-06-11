@@ -576,6 +576,9 @@ footer{
     <button class="tab-btn" data-hospital="hm" onclick="setHospital('hm',this)">
       Hospital da Mulher <span class="tab-badge" id="tabBadgeHM">—</span>
     </button>
+    <button class="tab-btn" data-hospital="hras" onclick="setHospital('hras',this)">
+      HRAS <span class="tab-badge" id="tabBadgeHRAS">—</span>
+    </button>
   </div>
 </div>
 
@@ -805,6 +808,7 @@ const OCI_MAP = {
   '010-3': {name:'Mama II',      color:'#BF5AF2'},
   '005-7': {name:'Colo do Útero',color:'#5AC8FA'},
   '012-0': {name:'Colo do Útero II',color:'#0A84FF'},
+  '003-1': {name:'Nasofaringe/Orofaringe', color:'#FFD60A'},
 };
 
 const OUTCOME_ORDER = [
@@ -917,19 +921,22 @@ async function loadData() {
   document.getElementById('loadingOverlay').classList.remove('hidden');
 
   try {
-    const [metroRaw, hmRaw] = await Promise.all([
+    const [metroRaw, hmRaw, hrasRaw] = await Promise.all([
       fetchSheetJSONP('metropolitano'),
-      fetchSheetJSONP('hm')
+      fetchSheetJSONP('hm'),
+      fetchSheetJSONP('hras')
     ]);
 
     const metro = parseRows(metroRaw, 'Metropolitano');
     const hm    = parseRows(hmRaw,   'Hospital da Mulher');
-    allData = [...metro, ...hm];
+    const hras  = parseRows(hrasRaw, 'HRAS');
+    allData = [...metro, ...hm, ...hras];
     populateFilterOptions();
 
     document.getElementById('tabBadgeAll').textContent   = allData.length;
     document.getElementById('tabBadgeMetro').textContent = metro.length;
     document.getElementById('tabBadgeHM').textContent    = hm.length;
+    document.getElementById('tabBadgeHRAS').textContent  = hras.length;
 
     const now = new Date();
     const lu  = document.getElementById('lastUpdated');
@@ -1020,7 +1027,7 @@ function parseRows(rows, hospital) {
     })
     .map(r => ({
       hospital,
-      data:        r['DATA'] || '',
+      data:        r['DATA'] || r['DATA ENTRADA'] || '',
       nome:        r['NOME DO PACIENTE'] || '',
       municipio:   (r['MUNICIPIO DE RESIDÊNCIA'] || r['MUNICÍPIO DE RESIDÊNCIA'] || '').trim(),
       regiao:      (r['REGIÃO DE SAÚDE'] || '').trim(),
@@ -1033,8 +1040,8 @@ function parseRows(rows, hospital) {
       desfecho:    r['DESFECHO'] || '',
       outcome:     classifyOutcome(r['DESFECHO'] || ''),
       idade:       parseInt(r['IDADE']) || 0,
-      mesAno:      parseMonth(r['DATA'] || ''),
-      dataISO:     parseDateISO(r['DATA'] || ''),
+      mesAno:      parseMonth(r['DATA'] || r['DATA ENTRADA'] || ''),
+      dataISO:     parseDateISO(r['DATA'] || r['DATA ENTRADA'] || ''),
     }));
 }
 
@@ -1047,6 +1054,7 @@ function getFiltered() {
   // Hospital tab
   if (currentHospital === 'metro') data = data.filter(r => r.hospital === 'Metropolitano');
   if (currentHospital === 'hm')    data = data.filter(r => r.hospital === 'Hospital da Mulher');
+  if (currentHospital === 'hras')  data = data.filter(r => r.hospital === 'HRAS');
 
   // Período início
   if (filters.dataInicio)
@@ -1304,10 +1312,11 @@ function renderMensal(data) {
   const months = {};
   data.forEach(r => {
     if (!r.mesAno) return;
-    if (!months[r.mesAno]) months[r.mesAno] = {total:0,metro:0,hm:0};
+    if (!months[r.mesAno]) months[r.mesAno] = {total:0,metro:0,hm:0,hras:0};
     months[r.mesAno].total++;
     if (r.hospital === 'Metropolitano') months[r.mesAno].metro++;
-    else months[r.mesAno].hm++;
+    else if (r.hospital === 'Hospital da Mulher') months[r.mesAno].hm++;
+    else if (r.hospital === 'HRAS') months[r.mesAno].hras++;
   });
 
   const sorted = Object.keys(months).sort();
@@ -1344,6 +1353,13 @@ function renderMensal(data) {
           label:'Hospital da Mulher',
           data: sorted.map(m=>months[m].hm),
           borderColor:'#FF375F', backgroundColor:'rgba(255,55,95,.08)',
+          borderWidth:1.5, pointRadius:3, pointHoverRadius:5,
+          fill:false, tension:.4, borderDash:[4,3]
+        },
+        {
+          label:'HRAS',
+          data: sorted.map(m=>months[m].hras),
+          borderColor:'#FFD60A', backgroundColor:'rgba(255,214,10,.08)',
           borderWidth:1.5, pointRadius:3, pointHoverRadius:5,
           fill:false, tension:.4, borderDash:[4,3]
         }
