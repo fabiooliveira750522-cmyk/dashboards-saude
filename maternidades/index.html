@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rede Materno-Infantil — Alagoas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#ffffff; --card-soft:#f8f9fb; --line:#e6e8ec; --line-soft:#eef0f3;
+    --ink:#1a1d21; --ink-2:#5b6570; --ink-3:#9aa4b0;
+    --accent:#3b82f6;
+    --nu:#3b82f6; --pu:#37c26e; --ur:#f5a623; --mu:#e8574c; --em:#a855d6;
+    --ok:#37c26e; --ok-bg:#e7f7ee; --ok-tx:#1f8a4c;
+    --warn:#f5a623; --warn-bg:#fdf1dc; --warn-tx:#9c6410;
+    --crit:#e8574c; --crit-bg:#fdeae8; --crit-tx:#b23127;
+    --none-bg:#eef0f3; --none-tx:#8a94a0;
+    --shadow:0 1px 2px rgba(16,24,40,.04),0 4px 16px rgba(16,24,40,.05);
+    --radius:16px;
+  }
+  [data-theme="dark"]{
+    --bg:#0f1520; --card:#18202c; --card-soft:#141b25; --line:#28323f; --line-soft:#222b37;
+    --ink:#e8eef5; --ink-2:#9fb0c3; --ink-3:#66768a;
+    --ok-bg:#12281d; --ok-tx:#4fd08a; --warn-bg:#2b2412; --warn-tx:#e6b45a;
+    --crit-bg:#2e1614; --crit-tx:#f0837a; --none-bg:#1e2733; --none-tx:#66768a;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    padding:22px;min-height:100vh;transition:background .3s,color .3s}
+  .wrap{max-width:1360px;margin:0 auto}
+  .mono{font-family:'JetBrains Mono',monospace}
+
+  /* cabeçalho */
+  header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:20px}
+  .h-title h1{font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .h-title .sub{color:var(--ink-2);font-size:14px;margin-top:3px}
+  .h-tools{display:flex;align-items:center;gap:10px}
+  .pill{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:7px 14px;
+    font-size:13px;color:var(--ink-2);display:inline-flex;align-items:center;gap:7px;box-shadow:var(--shadow)}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+  .pill .dot.stale{background:var(--warn)}
+  .iconbtn{width:38px;height:38px;border-radius:50%;background:var(--card);border:1px solid var(--line);
+    cursor:pointer;font-size:16px;color:var(--ink-2);display:inline-flex;align-items:center;justify-content:center;
+    box-shadow:var(--shadow);transition:.2s}
+  .iconbtn:hover{color:var(--ink);border-color:var(--ink-3)}
+  .iconbtn.spin{animation:sp .7s linear}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  /* card genérico */
+  .box{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+  /* faixa última atualização */
+  .updrow{display:flex;justify-content:space-between;align-items:center;gap:20px;
+    padding:20px 24px;margin-bottom:18px;flex-wrap:wrap}
+  .upd-left{display:flex;align-items:center;gap:16px}
+  .upd-ic{width:46px;height:46px;border-radius:12px;background:var(--card-soft);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:20px}
+  .upd-lab{font-size:11px;letter-spacing:.09em;color:var(--ink-3);font-weight:600;text-transform:uppercase}
+  .upd-date{font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.05;margin-top:1px}
+  .upd-note{font-size:12.5px;color:var(--ink-3);margin-top:3px}
+  .upd-right{text-align:right;font-size:13px;color:var(--ink-3);line-height:1.6}
+
+  /* filtro visualizar por */
+  .filterrow{padding:18px 24px;margin-bottom:22px}
+  .filter-in{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .filter-lab{font-size:14px;color:var(--ink-2);font-weight:500}
+  .seg{display:inline-flex;background:var(--card-soft);border:1px solid var(--line);border-radius:11px;padding:3px}
+  .seg button{border:0;background:transparent;color:var(--ink-2);font-family:inherit;font-size:13.5px;
+    font-weight:500;padding:7px 18px;border-radius:8px;cursor:pointer;transition:.15s}
+  .seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(16,24,40,.12);font-weight:600}
+  .divider{width:1px;height:26px;background:var(--line)}
+  .filter-hint{font-size:12.5px;color:var(--ink-3);margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft)}
+
+  .sec{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:0 0 14px 2px}
+
+  /* KPIs */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:26px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;
+    box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .kpi .cap{height:3px;border-radius:3px;width:38px;position:absolute;top:0;left:18px}
+  .kpi .lab{font-size:12px;color:var(--ink-2);font-weight:500;margin-top:4px}
+  .kpi .val{font-size:32px;font-weight:700;letter-spacing:-.02em;margin-top:6px;line-height:1}
+  .kpi .val small{font-size:15px;color:var(--ink-3);font-weight:600}
+  .kpi .leg{font-size:11.5px;color:var(--ink-3);margin-top:8px;display:flex;align-items:center;gap:6px}
+  .kpi .leg .b{width:8px;height:8px;border-radius:50%}
+
+  /* cards de unidade */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px;margin-bottom:30px}
+  .u{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+    overflow:hidden;display:flex;flex-direction:column;opacity:0;transform:translateY(8px);animation:rise .5s ease forwards}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .envbar{display:flex;align-items:center;gap:8px;padding:9px 18px;font-size:12.5px;font-weight:600;letter-spacing:.01em}
+.envbar .envic{width:17px;height:17px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0}
+.env-enviado{background:var(--ok-bg);color:var(--ok-tx)}
+.env-enviado .envic{background:var(--ok);color:#fff}
+.env-pendente{background:var(--warn-bg);color:var(--warn-tx)}
+.env-pendente .envic{background:var(--warn);color:#fff}
+.env-atrasado{background:var(--crit-bg);color:var(--crit-tx);animation:pulse 2.2s ease-in-out infinite}
+.env-atrasado .envic{background:var(--crit);color:#fff}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.72}}
+.u.e-atrasado{border-color:var(--crit)}
+.u .top{padding:16px 18px 14px;position:relative;border-bottom:1px solid var(--line-soft)}
+  .u .top::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:4px;border-radius:0 3px 3px 0}
+  .u.s-ok .top::before{background:var(--ok)} .u.s-warn .top::before{background:var(--warn)}
+  .u.s-crit .top::before{background:var(--crit)} .u.s-none .top::before{background:var(--ink-3)}
+  .u h3{font-size:15.5px;font-weight:700;padding-left:8px}
+  .badge{display:inline-block;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;margin:8px 0 0 8px}
+  .b-ok{background:var(--ok-bg);color:var(--ok-tx)} .b-warn{background:var(--warn-bg);color:var(--warn-tx)}
+  .b-crit{background:var(--crit-bg);color:var(--crit-tx)} .b-none{background:var(--none-bg);color:var(--none-tx)}
+  .occ{padding:14px 18px 6px}
+  .occ .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .occ .n{font-size:13px;color:var(--ink-2)} .occ .pct{font-size:22px;font-weight:700}
+  .u.s-ok .occ .pct{color:var(--ok-tx)} .u.s-warn .occ .pct{color:var(--warn-tx)} .u.s-crit .occ .pct{color:var(--crit-tx)}
+  .bar{height:8px;background:var(--card-soft);border-radius:6px;overflow:hidden}
+  .bar span{display:block;height:100%;border-radius:6px;transition:width .8s cubic-bezier(.2,.7,.2,1)}
+  .u.s-ok .bar span{background:var(--ok)} .u.s-warn .bar span{background:var(--warn)} .u.s-crit .bar span{background:var(--crit)}
+  .beds{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-soft);
+    border-top:1px solid var(--line-soft);margin-top:12px}
+  .bed{background:var(--card);padding:10px 8px;text-align:center}
+  .bed .bl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:600}
+  .bed .bv{font-size:16px;font-weight:600;margin-top:3px}.bed .bv.dim{color:var(--ink-3)}
+  .flow{display:flex;gap:14px;padding:11px 18px;flex-wrap:wrap;font-size:12px;color:var(--ink-2)}
+  .flow b{color:var(--ink)}
+  .note{padding:12px 18px 16px;font-size:12.5px;color:var(--ink-2);border-top:1px solid var(--line-soft);
+    margin-top:auto;line-height:1.5}
+  .note .nl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:700;display:block;margin-bottom:4px}
+  .note.empty{color:var(--ink-3);font-style:italic}
+
+  /* tabela detalhamento */
+  .tbl-wrap{padding:6px 8px 8px;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
+  thead th{text-align:right;padding:14px 16px;color:var(--ink-3);font-weight:600;font-size:11.5px;
+    text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--line)}
+  thead th:first-child{text-align:left}
+  tbody td{padding:14px 16px;text-align:right;border-bottom:1px solid var(--line-soft)}
+  tbody td:first-child{text-align:left;font-weight:600}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover td{background:var(--card-soft)}
+  .tb{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;min-width:46px}
+  .cap-title{padding:18px 22px 4px}
+
+  footer{margin-top:8px;color:var(--ink-3);font-size:11.5px;text-align:center;padding-top:18px;border-top:1px solid var(--line)}
+  @media(max-width:640px){body{padding:14px}.h-title h1{font-size:22px}.upd-date{font-size:24px}.kpi .val{font-size:26px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="h-title">
+      <h1>Rede Materno-Infantil · Alagoas</h1>
+      <div class="sub">Monitoramento diário de ocupação e produção assistencial</div>
+    </div>
+    <div class="h-tools">
+      <span class="pill"><span class="dot" id="dot"></span><span id="refpill">Referência: —</span></span>
+      <button class="iconbtn" id="btnRefresh" title="Atualizar da planilha">↻</button>
+      <button class="iconbtn" id="btnTheme" title="Alternar tema">🌙</button>
+    </div>
+  </header>
+
+  <div class="box updrow">
+    <div class="upd-left">
+      <div class="upd-ic">📋</div>
+      <div>
+        <div class="upd-lab">Última atualização</div>
+        <div class="upd-date" id="updDate">—</div>
+        <div class="upd-note" id="updNote">aguardando dados</div>
+      </div>
+    </div>
+    <div class="upd-right" id="updRight"></div>
+  </div>
+
+  <div class="box filterrow">
+    <div class="filter-in">
+      <span class="filter-lab">Visualizar por</span>
+      <div class="seg" id="seg">
+        <button class="on" data-v="dia">Dia</button>
+        <button data-v="periodo">Período</button>
+        <button data-v="mes">Mês</button>
+      </div>
+      <div class="divider"></div>
+      <span class="filter-lab" style="color:var(--ink-3)" id="segHint">Situação do dia mais recente</span>
+    </div>
+    <div class="filter-hint">Os dados vêm do preenchimento diário das maternidades na planilha. Use o botão ↻ para recarregar.</div>
+  </div>
+
+  <div class="sec">Principais indicadores</div>
+  <div class="kpis" id="kpis"></div>
+
+  <div class="sec">Unidades — ordenadas por criticidade</div>
+  <div class="grid" id="grid"></div>
+
+  <div class="sec">Detalhamento por unidade</div>
+  <div class="box" style="margin-bottom:24px">
+    <div class="cap-title"><div style="font-weight:700;font-size:15px">Ocupação e produção — situação atual</div>
+      <div style="font-size:12.5px;color:var(--ink-3);margin-top:2px">Valores do último registro de cada unidade</div></div>
+    <div class="tbl-wrap"><table id="tbl"></table></div>
+  </div>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+// ===== CONFIG =====
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSGjW5mxXLYlSGmF4Zv3OQyduhm2k_9OSfu6M-gcpW1V2TlNxpH6Fg0aGeE3BgTNY-CuV3SIw5qLS-v/pub?gid=1384320780&single=true&output=csv";
+const PRAZO_HORA = 12;              // prazo diário de envio (12h) — status calculado com o relógio do navegador
+const REFRESH_MS = 5*60*1000;       // recarrega a cada 5 min (dentro do mínimo de 15 min pedido)
+const T_WARN = 0.75, T_CRIT = 0.90;
+
+// Dados de exemplo — as datas são geradas relativas a "hoje" para o protótipo
+// já nascer mostrando Enviado/Pendente/Atrasado de forma realista.
+function fallbackCSV(){
+  const hoje=new Date(); const iso=d=>d.toISOString().slice(0,10);
+  const hojeStr=iso(hoje);
+  const ontem=new Date(hoje); ontem.setDate(ontem.getDate()-1);
+  const ontemStr=iso(ontem);
+  return `Unidade,Obst. Func.,Obst. Ocup.,Obst. Livres,Taxa Obst.,Gest. Aguard.,Internações,Altas,Permanec.,Total Partos,Ocorrências / Necessidades,Data Registro
+Hospital da Mulher,48,48,0,1,15,,,,,Contratação de técnicos de enfermagem; reposição de insumos da farmácia; enfermeira obstétrica para os 10 leitos de contingência (pacientes da Sta Mônica).,${hojeStr}
+Maternidade Escola Santa Mônica,114,,,,10,,,,,"Superlotação; déficit de insumos básicos (papel-toalha, gaze, compressas); falta de bombas de seringa; carrinho de anestesia, poltronas e colchões para sala de parto.",${hojeStr}
+Maternidade Santo Antônio,45,30,15,0.6667,3,,15,,,"Demora nos repasses financeiros, causando atraso em pagamentos, compra de insumos e salários.",${ontemStr}
+Hospital Regional da Mata,,,,,,,,,,,
+Hospital Regional do Norte,,,,,,,,,,,
+Hospital Regional Alto do Sertão,,,,,,,,,,,
+Hospital Regional de Arapiraca,,,,,,,,,,,
+Hospital Santa Rita,,,,,,,,,,,`;
+}
+
+function parseCSV(t){const rows=[];let row=[],c="",q=false;
+  for(let i=0;i<t.length;i++){const ch=t[i];
+    if(q){if(ch==='"'){if(t[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}
+    else{if(ch==='"')q=true;else if(ch===','){row.push(c);c=""}
+      else if(ch==='\n'){row.push(c);rows.push(row);row=[];c=""}
+      else if(ch==='\r'){}else c+=ch}}
+  if(c!==""||row.length){row.push(c);rows.push(row)}
+  return rows.filter(r=>r.some(x=>x!==""));}
+const num=v=>{const n=parseFloat(String(v).replace(",","."));return isFinite(n)?n:null};
+function classify(t){if(t===null)return"none";if(t>=T_CRIT)return"crit";if(t>=T_WARN)return"warn";return"ok"}
+const RANK={crit:0,warn:1,ok:2,none:3},LAB={crit:"Crítico",warn:"Atenção",ok:"Normal",none:"Sem dados"};
+
+// Aceita "2026-07-04", serial do Excel/Sheets, ou "04/07/2026" e devolve "yyyy-mm-dd" local.
+function parseDateFlexible(v){
+  if(!v) return null;
+  v=String(v).trim(); if(!v) return null;
+  let m=v.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m) return `${m[1]}-${m[2]}-${m[3]}`;
+  m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(m) return `${m[3]}-${String(m[2]).padStart(2,"0")}-${String(m[1]).padStart(2,"0")}`;
+  const n=Number(v);
+  if(isFinite(n)&&n>20000){ // serial de data do Excel/Sheets (dias desde 1899-12-30)
+    const d=new Date(Date.UTC(1899,11,30)+n*86400000);
+    return d.toISOString().slice(0,10);
+  }
+  return null;
+}
+
+// Status calculado com o relógio REAL do navegador do gestor — não depende de
+// cache do CSV publicado nem de fórmula recalculada na planilha.
+function computeEnvio(dataRegStr){
+  const now=new Date();
+  const hojeISO=now.toISOString().slice(0,10);
+  const iso=parseDateFlexible(dataRegStr);
+  if(iso===hojeISO) return "Enviado";
+  const passouPrazo = now.getHours()>PRAZO_HORA || (now.getHours()===PRAZO_HORA && now.getMinutes()>0);
+  return passouPrazo ? "Atrasado" : "Pendente";
+}
+
+function toUnits(rows){return rows.slice(1).map(r=>{
+  const func=num(r[1]),ocup=num(r[2]);let taxa=num(r[4]);
+  if(taxa===null&&func&&ocup!==null)taxa=ocup/func;
+  const livres=(func!==null&&ocup!==null)?func-ocup:null;
+  const dataRegRaw=(r[11]||"").trim();
+  const envio=computeEnvio(dataRegRaw);
+  return{nome:r[0]||"—",func,ocup,livres,taxa,gest:num(r[5]),intern:num(r[6]),
+    altas:num(r[7]),perm:num(r[8]),partos:num(r[9]),nota:(r[10]||"").trim(),
+    dataReg:dataRegRaw,envio,status:classify(taxa)};
+}).filter(u=>u.nome&&u.nome!=="—")}
+const ENVIO={Enviado:{bg:"var(--ok-bg)",tx:"var(--ok-tx)"},Pendente:{bg:"var(--warn-bg)",tx:"var(--warn-tx)"},Atrasado:{bg:"var(--crit-bg)",tx:"var(--crit-tx)"}};
+
+function renderKPIs(u){
+  const totF=u.reduce((s,x)=>s+(x.func||0),0),totO=u.reduce((s,x)=>s+(x.ocup||0),0);
+  const totG=u.reduce((s,x)=>s+(x.gest||0),0),crit=u.filter(x=>x.status==="crit").length;
+  const enviaram=u.filter(x=>x.envio==="Enviado").length;
+  const aguardando=u.filter(x=>x.envio==="Pendente").length;
+  const atrasadas=u.filter(x=>x.envio==="Atrasado").length;
+  const taxa=totF?totO/totF:null;
+  const K=[
+    {c:"var(--ok)",lab:"Enviaram hoje",val:`${enviaram}<small>/${u.length}</small>`,leg:"dentro do prazo"},
+    {c:"var(--warn)",lab:"Aguardando envio",val:`${aguardando}`,leg:"prazo até 12h"},
+    {c:"var(--crit)",lab:"Atrasadas",val:`${atrasadas}`,leg:"prazo perdido hoje",alert:atrasadas>0},
+    {c:"var(--nu)",lab:"Ocupação da rede",val:taxa!==null?`${Math.round(taxa*100)}<small>%</small>`:"—",leg:"leitos obstétricos"},
+    {c:"var(--ur)",lab:"Leitos obst. livres",val:totF?`${totF-totO}`:"—",leg:"disponíveis agora"},
+    {c:"var(--em)",lab:"Gestantes aguardando",val:`${totG}`,leg:"na recepção da rede"},
+    {c:"var(--mu)",lab:"Unidades críticas",val:`${crit}`,leg:"ocupação ≥ 90%"},
+  ];
+  kpis.innerHTML=K.map(k=>`<div class="kpi"><div class="cap" style="background:${k.c}"></div>
+    <div class="lab">${k.lab}</div><div class="val"${k.alert?' style="color:var(--crit-tx)"':''}>${k.val}</div>
+    <div class="leg"><span class="b" style="background:${k.c}"></span>${k.leg}</div></div>`).join("");
+}
+
+function bed(l,v){const d=(v===null||v==="")?" dim":"";return`<div class="bed"><div class="bl">${l}</div><div class="bv${d}">${(v===null||v==="")?"—":v}</div></div>`}
+
+function fmtDataReg(iso){
+  const d=parseDateFlexible(iso); if(!d) return null;
+  const [y,m,day]=d.split("-"); return `${day}/${m}`;
+}
+
+const ENVIO_RANK={Atrasado:0,Pendente:1,Enviado:2};
+const ENVIO_TXT={
+  Enviado:{ic:"✓",txt:"Enviado hoje"},
+  Pendente:{ic:"○",txt:"Aguardando envio — prazo até 12h"},
+  Atrasado:{ic:"!",txt:"Atrasado — sem envio hoje"},
+};
+
+function renderCards(u){
+  // Prioridade 1: quem não preencheu hoje (Atrasado primeiro, depois Pendente).
+  // Prioridade 2, dentro de cada grupo: criticidade de ocupação.
+  u.sort((a,b)=> ENVIO_RANK[a.envio]-ENVIO_RANK[b.envio] || RANK[a.status]-RANK[b.status] || (b.taxa||0)-(a.taxa||0));
+  grid.innerHTML=u.map((x,i)=>{
+    const pct=x.taxa!==null?Math.round(x.taxa*100)+"%":"—";
+    const w=x.taxa!==null?Math.min(x.taxa*100,100):0;
+    const occ=x.taxa!==null?`<div class="occ"><div class="head"><span class="n">${x.ocup} / ${x.func} leitos obst.</span><span class="pct">${pct}</span></div><div class="bar"><span style="width:${w}%"></span></div></div>`
+      :`<div class="occ"><div class="head"><span class="n" style="color:var(--ink-3)">ocupação obstétrica não informada</span></div></div>`;
+    const fl=[x.intern!==null?`Intern <b>${x.intern}</b>`:"",x.altas!==null?`Altas <b>${x.altas}</b>`:"",
+      x.partos!==null?`Partos <b>${x.partos}</b>`:"",x.perm!==null?`Internados <b>${x.perm}</b>`:""]
+      .filter(Boolean).map(s=>`<span>${s}</span>`).join("");
+    const note=x.nota?`<div class="note"><span class="nl">Ocorrências / Necessidades</span>${x.nota}</div>`
+      :`<div class="note empty">Sem ocorrências registradas.</div>`;
+    const env=ENVIO[x.envio]||ENVIO.Pendente;
+    const et=ENVIO_TXT[x.envio]||ENVIO_TXT.Pendente;
+    const dReg=fmtDataReg(x.dataReg);
+    const envSub = x.envio==="Enviado" ? "" : (dReg? ` · último registro ${dReg}` : " · nunca registrado");
+    const envBanner=`<div class="envbar env-${x.envio.toLowerCase()}"><span class="envic">${et.ic}</span>${et.txt}${envSub}</div>`;
+    return`<div class="u s-${x.status} e-${x.envio.toLowerCase()}" style="animation-delay:${i*55}ms">
+      ${envBanner}
+      <div class="top"><h3>${x.nome}</h3><span class="badge b-${x.status}">${LAB[x.status]}${x.gest?` · ${x.gest} na recepção`:""}</span></div>
+      ${occ}<div class="beds">${bed("Livres",x.livres)}${bed("Ocupados",x.ocup)}${bed("Funcion.",x.func)}</div>
+      ${fl?`<div class="flow">${fl}</div>`:""}${note}</div>`;
+  }).join("");
+}
+
+function tbadge(t){if(t===null)return`<span class="tb b-none">—</span>`;
+  const c=classify(t);return`<span class="tb b-${c}">${Math.round(t*100)}%</span>`}
+function renderTable(u){
+  const head=`<thead><tr><th>Unidade</th><th>Func.</th><th>Ocup.</th><th>Livres</th>
+    <th>Gest.</th><th>Altas</th><th>Partos</th><th>Taxa</th><th>Envio</th></tr></thead>`;
+  const rows=u.map(x=>{
+    const env=ENVIO[x.envio]||ENVIO.Pendente;
+    const dReg=fmtDataReg(x.dataReg);
+    const envLabel = x.envio==="Enviado" ? "Enviado" : `${x.envio}${dReg?` (${dReg})`:""}`;
+    return`<tr><td>${x.nome}</td>
+    <td class="mono">${x.func??"—"}</td><td class="mono">${x.ocup??"—"}</td>
+    <td class="mono">${x.livres??"—"}</td><td class="mono">${x.gest??"—"}</td>
+    <td class="mono">${x.altas??"—"}</td><td class="mono">${x.partos??"—"}</td>
+    <td>${tbadge(x.taxa)}</td>
+    <td><span class="tb" style="background:${env.bg};color:${env.tx}">${envLabel}</span></td></tr>`;
+  }).join("");
+  tbl.innerHTML=head+`<tbody>${rows}</tbody>`;
+}
+
+function stamp(label,stale){
+  const now=new Date();
+  const hojeFmt=now.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"});
+  refpill.textContent="Hoje: "+now.toLocaleDateString("pt-BR");
+  dot.className="dot"+(stale?" stale":"");
+  updDate.textContent=hojeFmt;
+  updNote.textContent=label+` · prazo diário ${String(PRAZO_HORA).padStart(2,"0")}:00`;
+  updRight.innerHTML=`Hoje: ${now.toLocaleDateString("pt-BR")}<br>Atualizado ${now.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}`;
+  foot.textContent="Rede Materno-Infantil de Alagoas · fonte: "+label+" · status calculado em tempo real (prazo diário até "+PRAZO_HORA+"h) · atualiza a cada "+Math.round(REFRESH_MS/60000)+" min";
+}
+
+async function load(){
+  let text=fallbackCSV(),label="dados de exemplo",stale=true;
+  if(CSV_URL){try{const res=await fetch(CSV_URL+(CSV_URL.includes("?")?"&":"?")+"t="+Date.now());
+    if(res.ok){text=await res.text();label="Google Sheets";stale=false}}catch(e){label="exemplo (falha ao ler Sheets)"}}
+  const u=toUnits(parseCSV(text));
+  renderKPIs(u);renderCards(u);renderTable(u);stamp(label,stale);
+}
+
+// tema
+function applyTheme(t){document.documentElement.setAttribute("data-theme",t);
+  btnTheme.textContent=t==="dark"?"☀️":"🌙"}
+let theme="light"; applyTheme(theme);
+btnTheme.onclick=()=>{theme=theme==="light"?"dark":"light";applyTheme(theme)};
+
+// refresh
+btnRefresh.onclick=()=>{btnRefresh.classList.add("spin");load().finally(()=>setTimeout(()=>btnRefresh.classList.remove("spin"),700))};
+
+// segmented (placeholder — hoje só "Dia"; Período/Mês exigem histórico multi-linha)
+const hints={dia:"Situação do dia mais recente",periodo:"Requer histórico (várias datas na planilha)",mes:"Consolidado mensal (requer histórico)"};
+document.querySelectorAll("#seg button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#seg button").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");segHint.textContent=hints[b.dataset.v];});
+
+load();
+setInterval(load,REFRESH_MS);
+</script>
+</body>
+</html>

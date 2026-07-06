@@ -317,6 +317,11 @@ nav{
   --card-glow:rgba(0,230,118,.08);
   --card-icon-bg:rgba(0,230,118,.1);
 }
+.card-maternidades{
+  --card-accent:#ec4899;
+  --card-glow:rgba(236,72,153,.08);
+  --card-icon-bg:rgba(236,72,153,.1);
+}
 
 /* ── COMING SOON CARD ── */
 .card-soon{
@@ -376,6 +381,7 @@ footer{
   --card-icon-bg:rgba(64,196,255,.1);
 }
 [data-theme="light"] .card-indicadores{--card-accent:#0277bd;--card-icon-bg:rgba(2,119,189,.08)}
+[data-theme="light"] .card-maternidades{--card-accent:#c2185b;--card-icon-bg:rgba(194,24,91,.08)}
 </style>
 </head>
 <body>
@@ -403,7 +409,7 @@ footer{
   </p>
   <div class="hero-stats">
     <div class="hero-stat">
-      <div class="hero-stat-val">4</div>
+      <div class="hero-stat-val">5</div>
       <div class="hero-stat-lbl">Painéis ativos</div>
     </div>
     <div class="hero-stat">
@@ -497,12 +503,32 @@ footer{
     </div>
   </a>
 
+  <!-- Maternidades -->
+  <a href="/maternidades" class="dash-card card-maternidades">
+    <div class="card-icon">🤱</div>
+    <span class="card-tag">Materno-Infantil</span>
+    <h2 class="card-title">Monitoramento de Maternidades</h2>
+    <p class="card-desc">Acompanhamento diário da rede materno-infantil — ocupação de leitos obstétricos, gestantes aguardando, partos, envio das unidades e criticidade por hospital.</p>
+    <div class="card-chips">
+      <span class="chip">Ocupação</span>
+      <span class="chip">Partos</span>
+      <span class="chip">Gestantes</span>
+      <span class="chip">Envio diário</span>
+      <span class="chip">Criticidade</span>
+    </div>
+    <div class="card-cta">
+      <span class="cta-text">Acessar painel</span>
+      <div class="cta-arrow">↗</div>
+    </div>
+  </a>
+
 </div>
 
 <footer>
   <div class="footer-inner">
     <span class="footer-copy">© 2026 · Secretaria de Estado da Saúde de Alagoas · Dados atualizados em tempo real via Google Sheets</span>
     <div class="footer-dots">
+      <div class="dot active"></div>
       <div class="dot active"></div>
       <div class="dot active"></div>
       <div class="dot active"></div>
