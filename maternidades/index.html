@@ -236,7 +236,13 @@ function parseCSV(t){const rows=[];let row=[],c="",q=false;
       else if(ch==='\r'){}else c+=ch}}
   if(c!==""||row.length){row.push(c);rows.push(row)}
   return rows.filter(r=>r.some(x=>x!==""));}
-const num=v=>{const n=parseFloat(String(v).replace(",","."));return isFinite(n)?n:null};
+const num=v=>{
+  const s=String(v).trim(); if(s==="") return null;
+  const isPct=s.includes("%");
+  const n=parseFloat(s.replace("%","").replace(",","."));
+  if(!isFinite(n)) return null;
+  return isPct? n/100 : n;  // "100%" (texto exportado pelo Sheets) -> 1 (fração)
+};
 function classify(t){if(t===null)return"none";if(t>=T_CRIT)return"crit";if(t>=T_WARN)return"warn";return"ok"}
 const RANK={crit:0,warn:1,ok:2,none:3},LAB={crit:"Crítico",warn:"Atenção",ok:"Normal",none:"Sem dados"};
 
@@ -267,7 +273,14 @@ function computeEnvio(dataRegStr){
   return passouPrazo ? "Atrasado" : "Pendente";
 }
 
-function toUnits(rows){return rows.slice(1).map(r=>{
+function toUnits(rows){
+  // A aba PAINEL tem linhas de título/data/prazo antes do cabeçalho real.
+  // Em vez de contar quantas linhas pular, acha a linha cujo 1º campo é
+  // literalmente "Unidade" e usa tudo que vem DEPOIS dela — resistente a
+  // qualquer linha extra que a planilha ganhe no futuro.
+  const headerIdx=rows.findIndex(r=>(r[0]||"").trim()==="Unidade");
+  const body=headerIdx>=0? rows.slice(headerIdx+1) : rows.slice(1);
+  return body.map(r=>{
   const func=num(r[1]),ocup=num(r[2]);let taxa=num(r[4]);
   if(taxa===null&&func&&ocup!==null)taxa=ocup/func;
   const livres=(func!==null&&ocup!==null)?func-ocup:null;
