@@ -292,15 +292,15 @@ function renderEvo(){
   const coral=cssVar('--coral'),navy=cssVar('--navy'),blue=cssVar('--blue'),amber=cssVar('--amber');
   if(C.e1)C.e1.destroy();
   C.e1=new Chart(document.getElementById('ec1'),{type:'bar',data:{labels:MONTHS,datasets:[
-    {label:'Taxa UTI (%)',data:DATA.map(d=>d.taxa_uti),backgroundColor:MONTHS.map((_,i)=>aHex(coral,i===cur?1:.28)),borderRadius:6,yAxisID:'y'},
+    {label:'Taxa UTI (%)',data:DATA.map(d=>d.taxa_uti),backgroundColor:MONTHS.map((_,i)=>aHex(coral,i===cur?1:.28)),borderRadius:6,yAxisID:'y',order:2},
     {type:'line',label:'Fila UTI/Dia',data:DATA.map(d=>d.fila_uti),borderColor:navy,backgroundColor:'transparent',
-     pointBackgroundColor:MONTHS.map((_,i)=>i===cur?navy:aHex(navy,.45)),pointRadius:5,tension:.35,yAxisID:'y2',borderWidth:2},
+     pointBackgroundColor:MONTHS.map((_,i)=>i===cur?navy:aHex(navy,.55)),pointBorderColor:cssVar('--surface'),pointBorderWidth:2,pointRadius:5,tension:.35,yAxisID:'y2',borderWidth:2,order:1},
   ]},options:eOpts('%','pac.')});
   if(C.e2)C.e2.destroy();
   C.e2=new Chart(document.getElementById('ec2'),{type:'bar',data:{labels:MONTHS,datasets:[
-    {label:'Regulações/Dia',data:DATA.map(d=>d.regulacoes),backgroundColor:MONTHS.map((_,i)=>aHex(blue,i===cur?1:.28)),borderRadius:6,yAxisID:'y'},
+    {label:'Regulações/Dia',data:DATA.map(d=>d.regulacoes),backgroundColor:MONTHS.map((_,i)=>aHex(blue,i===cur?1:.28)),borderRadius:6,yAxisID:'y',order:2},
     {type:'line',label:'Solicitações/Dia',data:DATA.map(d=>d.solicitacoes),borderColor:amber,backgroundColor:'transparent',
-     pointBackgroundColor:MONTHS.map((_,i)=>i===cur?amber:aHex(amber,.45)),pointRadius:5,tension:.35,yAxisID:'y2',borderWidth:2},
+     pointBackgroundColor:MONTHS.map((_,i)=>i===cur?amber:aHex(amber,.55)),pointBorderColor:cssVar('--surface'),pointBorderWidth:2,pointRadius:5,tension:.35,yAxisID:'y2',borderWidth:2,order:1},
   ]},options:eOpts('reg.','sol.')});
 }
 
