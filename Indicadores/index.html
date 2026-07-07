@@ -6,669 +6,394 @@
 <title>Dashboard de Indicadores — Alagoas</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  :root {
-    --bg:        #F2F2F7;
-    --bg2:       #FFFFFF;
-    --card:      rgba(255,255,255,0.82);
-    --card-solid:#FFFFFF;
-    --border:    rgba(0,0,0,0.08);
-    --navy:      #1D3461;
-    --blue:      #007AFF;
-    --blue-l:    #3395FF;
-    --coral:     #FF3B30;
-    --coral-l:   #FF6961;
-    --mint:      #34C759;
-    --amber:     #FF9500;
-    --purple:    #AF52DE;
-    --teal:      #5AC8FA;
-    --text-1:    #1C1C1E;
-    --text-2:    #3A3A3C;
-    --text-3:    #8E8E93;
-    --text-4:    #AEAEB2;
-    --shadow-s:  0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-    --shadow-m:  0 4px 16px rgba(0,0,0,.08), 0 1px 4px rgba(0,0,0,.04);
-    --shadow-l:  0 12px 40px rgba(0,0,0,.10), 0 2px 8px rgba(0,0,0,.06);
-    --radius-s:  10px;
-    --radius-m:  14px;
-    --radius-l:  20px;
-    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-    --mono: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace;
-  }
+:root{
+  --bg:#F5F6F8; --surface:#FFFFFF; --surface-2:#F0F2F5;
+  --border:#E6E8EC; --border-strong:#DADDE2;
+  --t1:#1A1D21; --t2:#5A6069; --t3:#8A909A; --t4:#AAB0BA;
+  --blue:#2F6BFF; --navy:#1D3461; --coral:#FF3B30; --mint:#12B76A; --amber:#F79009; --purple:#9E77ED; --teal:#12A4B4;
+  --blue-soft:#EAF1FF; --amber-soft:#FEF6E7; --mint-soft:#E7F7EF;
+  --sh-s:0 1px 2px rgba(16,24,40,.05); --sh-m:0 4px 14px rgba(16,24,40,.07);
+  --r-s:10px; --r-m:14px; --r-l:18px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  --mono:"SF Mono","Roboto Mono","Fira Mono",ui-monospace,monospace;
+  --grid:rgba(16,24,40,.06); --tick:#8A909A;
+}
+[data-theme="dark"]{
+  --bg:#0F1115; --surface:#171A21; --surface-2:#1E222B;
+  --border:#262B35; --border-strong:#333A46;
+  --t1:#F2F4F7; --t2:#B4BAC4; --t3:#858C99; --t4:#5C636F;
+  --blue-soft:#182338; --amber-soft:#2A2213; --mint-soft:#122A1F;
+  --sh-s:0 1px 2px rgba(0,0,0,.4); --sh-m:0 4px 16px rgba(0,0,0,.5);
+  --grid:rgba(255,255,255,.07); --tick:#858C99;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;transition:background .25s,color .25s;overflow-x:hidden}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* HEADER */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:18px 28px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.hd-title{font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--t1);display:flex;align-items:center;gap:10px}
+.hd-star{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-size:14px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.hd-sub{font-size:13px;color:var(--t2);margin-top:3px}
+.hd-actions{display:flex;align-items:center;gap:8px}
+.icobtn{width:38px;height:38px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border);color:var(--t2);font-size:16px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s,color .15s,transform .15s}
+.icobtn:hover{background:var(--border);color:var(--t1)}
+.icobtn:active{transform:scale(.93)}
+.icobtn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 
-  body {
-    font-family: var(--font);
-    background: var(--bg);
-    color: var(--text-1);
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-  }
+main{max-width:1360px;margin:0 auto;padding:20px 28px 48px}
 
-  /* ── HEADER ─────────────────────────────────── */
-  header {
-    background: rgba(29, 52, 97, 0.96);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    padding: 0 32px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 200;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-  .header-left { display: flex; align-items: center; gap: 12px; }
-  .header-icon {
-    width: 34px; height: 34px;
-    background: rgba(255,255,255,0.12);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-    border: 1px solid rgba(255,255,255,0.18);
-  }
-  .header-title { font-size: 15px; font-weight: 600; color: #fff; letter-spacing: -.01em; }
-  .header-sub   { font-size: 11px; font-weight: 400; color: rgba(255,255,255,.5); letter-spacing: .02em; margin-top: 1px; }
-  .header-pill {
-    background: rgba(255,255,255,0.10);
-    border: 1px solid rgba(255,255,255,0.18);
-    border-radius: 20px;
-    padding: 5px 14px;
-    font-size: 11px;
-    font-weight: 500;
-    color: rgba(255,255,255,.7);
-    letter-spacing: .04em;
-  }
+/* STATUS + TABS */
+.status{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--t2);margin-bottom:14px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 3px var(--mint-soft)}
+.tabbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.mtab{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--t2);background:transparent;border:1px solid transparent;border-radius:999px;cursor:pointer;transition:all .16s;font-family:var(--font)}
+.mtab:hover{color:var(--t1);background:var(--surface-2)}
+.mtab.active{background:var(--surface);color:var(--t1);border-color:var(--border);box-shadow:var(--sh-s)}
+.mtab .mdot{width:8px;height:8px;border-radius:50%;background:var(--t4)}
+.mtab.active .mdot{background:var(--blue)}
+.mtab .dtag{font-size:11px;font-weight:600;color:var(--t3)}
+.mtab:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 
-  /* ── MONTH TABS ──────────────────────────────── */
-  .month-bar {
-    background: rgba(29,52,97,0.88);
-    backdrop-filter: blur(20px);
-    padding: 0 32px;
-    display: flex;
-    gap: 2px;
-    border-bottom: 1px solid rgba(255,255,255,.07);
-  }
-  .month-tab {
-    padding: 10px 20px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    color: rgba(255,255,255,.38);
-    border-bottom: 2px solid transparent;
-    transition: all .18s ease;
-    font-family: var(--font);
-    -webkit-font-smoothing: antialiased;
-  }
-  .month-tab:hover { color: rgba(255,255,255,.72); }
-  .month-tab.active {
-    color: #fff;
-    border-bottom-color: #5BAAFF;
-  }
-  .days-tag {
-    margin-left: 5px;
-    background: rgba(255,255,255,0.10);
-    border-radius: 8px;
-    padding: 1px 6px;
-    font-size: 10px;
-    font-weight: 500;
-    color: rgba(255,255,255,.45);
-  }
+/* NOTICE */
+.notice{display:none;align-items:flex-start;gap:11px;background:var(--blue-soft);border:1px solid transparent;border-radius:var(--r-m);padding:13px 16px;margin-bottom:20px}
+.notice.show{display:flex}
+.notice-ico{flex:none;width:20px;height:20px;border-radius:50%;background:var(--blue);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.notice-tx{font-size:13px;line-height:1.55;color:var(--t2)}
+.notice-tx b{color:var(--t1);font-weight:600}
 
-  /* ── MAIN ────────────────────────────────────── */
-  main { padding: 24px 32px 52px; max-width: 1440px; margin: 0 auto; }
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:22px}
+.kc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-m);padding:16px 16px 14px;box-shadow:var(--sh-s);transition:box-shadow .15s,transform .15s}
+.kc:hover{box-shadow:var(--sh-m);transform:translateY(-2px)}
+.kl{font-size:11px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:var(--t3);margin-bottom:9px;line-height:1.4}
+.kv{font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1;font-family:var(--mono);overflow-wrap:break-word}
+.kc-coral .kv{color:var(--coral)} .kc-blue .kv{color:var(--blue)} .kc-mint .kv{color:var(--mint)} .kc-amber .kv{color:var(--amber)}
+.kd{margin-top:9px;font-size:11px;font-weight:500;color:var(--t4);display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.dup{color:var(--coral)} .ddown{color:var(--mint)}
 
-  .section-eyebrow {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--text-3);
-    margin-bottom: 12px;
-  }
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-l);box-shadow:var(--sh-s);padding:20px}
+.ct{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--t2);margin-bottom:16px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.ct small{font-size:11px;font-weight:500;color:var(--t3);text-transform:none;letter-spacing:0}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.r2>*{min-width:0}
+.rfull{margin-bottom:14px}
+.sep{height:1px;background:var(--border);margin:16px 0}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
 
-  /* ── KPI GRID ────────────────────────────────── */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-  }
+/* HOSPITAL STRIP */
+.hstrip{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.hc{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-s);padding:12px 8px 10px;text-align:center}
+.hn{font-size:9.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--t3);margin-bottom:7px;line-height:1.3}
+.ht{font-size:21px;font-weight:700;font-family:var(--mono);letter-spacing:-.03em;margin-bottom:3px}
+.ht.hi{color:var(--coral)} .ht.hm{color:var(--amber)} .ht.hl{color:var(--mint)}
+.hs{font-size:10px;color:var(--t3)} .hs b{color:var(--t2);font-weight:600;font-family:var(--mono)}
 
-  .kpi-card {
-    background: var(--card);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: var(--radius-m);
-    padding: 18px 18px 16px;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-s);
-    position: relative;
-    overflow: hidden;
-    transition: transform .15s ease, box-shadow .15s ease;
-    cursor: default;
-  }
-  .kpi-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-m);
-  }
-  .kpi-card::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    border-radius: var(--radius-m) var(--radius-m) 0 0;
-  }
-  .kpi-coral::after  { background: linear-gradient(90deg, var(--coral), var(--coral-l)); }
-  .kpi-blue::after   { background: linear-gradient(90deg, var(--navy), var(--blue)); }
-  .kpi-mint::after   { background: linear-gradient(90deg, #1E9641, var(--mint)); }
-  .kpi-amber::after  { background: linear-gradient(90deg, #CC7700, var(--amber)); }
+/* UPA */
+.ustrip{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}
+.uc{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-s);padding:14px 8px;text-align:center}
+.un{font-size:9.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
+.uv{font-size:23px;font-weight:700;font-family:var(--mono);letter-spacing:-.03em;color:var(--blue)}
+.utstrip{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.utc{background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:var(--r-s);padding:14px;text-align:center}
+.utl{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:4px}
+.utv{font-size:28px;font-weight:700;font-family:var(--mono);letter-spacing:-.03em;color:#fff}
 
-  .kpi-label {
-    font-size: 10.5px;
-    font-weight: 500;
-    color: var(--text-3);
-    letter-spacing: .01em;
-    margin-bottom: 10px;
-    line-height: 1.45;
-  }
-  .kpi-value {
-    font-size: 36px;
-    font-weight: 700;
-    letter-spacing: -.03em;
-    line-height: 1;
-    font-family: var(--mono);
-  }
-  .kpi-coral .kpi-value { color: var(--coral); }
-  .kpi-blue  .kpi-value { color: var(--blue); }
-  .kpi-mint  .kpi-value { color: #1E9641; }
-  .kpi-amber .kpi-value { color: #CC7700; }
+/* EVO MINI */
+.emgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.emcard{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-m);padding:15px}
+.emcard h4{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
 
-  .kpi-delta {
-    margin-top: 9px;
-    font-size: 10px;
-    font-weight: 500;
-    color: var(--text-4);
-    display: flex;
-    align-items: center;
-    gap: 3px;
-  }
-  .delta-up   { color: var(--coral); }
-  .delta-down { color: var(--mint); }
-  .delta-neu  { color: var(--text-4); }
+.chart-wrap{position:relative;width:100%;max-width:100%;overflow:hidden}
+.chart-wrap canvas{max-width:100%!important}
+.card{min-width:0}
+.kpi-grid>*,.hstrip>*,.ustrip>*,.utstrip>*,.emgrid>*{min-width:0}
 
-  /* ── CARD ────────────────────────────────────── */
-  .card {
-    background: var(--card-solid);
-    border-radius: var(--radius-l);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-s);
-    padding: 22px;
-    transition: box-shadow .15s;
-  }
-  .card:hover { box-shadow: var(--shadow-m); }
-  .card-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-1);
-    letter-spacing: -.01em;
-    margin-bottom: 16px;
-  }
-  .card-title small {
-    font-size: 11px;
-    font-weight: 400;
-    color: var(--text-3);
-    margin-left: 6px;
-  }
+footer{border-top:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--t3)}
+footer strong{color:var(--t2)}
 
-  /* ── LAYOUTS ─────────────────────────────────── */
-  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-  .row-full { margin-bottom: 14px; }
-  .row-3-1 { display: grid; grid-template-columns: 3fr 1fr; gap: 14px; margin-bottom: 14px; }
-  .row-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: 14px; margin-bottom: 14px; }
-
-  /* ── HOSPITAL CARDS ──────────────────────────── */
-  .hosp-strip {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    gap: 8px;
-    margin-top: 4px;
-  }
-  .hc {
-    background: var(--bg);
-    border-radius: var(--radius-s);
-    padding: 12px 8px 10px;
-    text-align: center;
-    border: 1px solid var(--border);
-  }
-  .hc-name {
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: .05em;
-    text-transform: uppercase;
-    color: var(--text-3);
-    margin-bottom: 7px;
-    line-height: 1.3;
-  }
-  .hc-taxa {
-    font-size: 22px;
-    font-weight: 700;
-    font-family: var(--mono);
-    letter-spacing: -.03em;
-    margin-bottom: 3px;
-  }
-  .hc-taxa.high { color: var(--coral); }
-  .hc-taxa.mid  { color: var(--amber); }
-  .hc-taxa.low  { color: #1E9641; }
-  .hc-saida {
-    font-size: 10px;
-    color: var(--text-3);
-    font-weight: 400;
-  }
-  .hc-saida b { color: var(--text-2); font-weight: 600; font-family: var(--mono); }
-
-  /* ── UPA CARDS ───────────────────────────────── */
-  .upa-strip {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-  .upa-c {
-    background: var(--bg);
-    border-radius: var(--radius-s);
-    padding: 14px 8px;
-    text-align: center;
-    border: 1px solid var(--border);
-  }
-  .upa-c .u-name {
-    font-size: 9px; font-weight: 600; letter-spacing: .05em;
-    text-transform: uppercase; color: var(--text-3); margin-bottom: 6px;
-  }
-  .upa-c .u-val {
-    font-size: 24px; font-weight: 700; font-family: var(--mono);
-    letter-spacing: -.03em; color: var(--blue);
-  }
-  .upa-total-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .upa-total-c {
-    background: linear-gradient(135deg, var(--navy), var(--blue));
-    border-radius: var(--radius-s);
-    padding: 14px;
-    text-align: center;
-  }
-  .upa-total-c .ut-label {
-    font-size: 10px; font-weight: 600; letter-spacing: .06em;
-    text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 4px;
-  }
-  .upa-total-c .ut-val {
-    font-size: 30px; font-weight: 700; font-family: var(--mono);
-    letter-spacing: -.03em; color: #fff;
-  }
-
-  /* ── EVO MINI ────────────────────────────────── */
-  .evo-mini-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-  }
-  .evo-mini-card {
-    background: var(--bg);
-    border-radius: var(--radius-m);
-    padding: 16px;
-    border: 1px solid var(--border);
-  }
-  .evo-mini-card h4 {
-    font-size: 10px; font-weight: 600; letter-spacing: .06em;
-    text-transform: uppercase; color: var(--text-3); margin-bottom: 12px;
-  }
-
-  /* ── SEPARATOR ───────────────────────────────── */
-  .sep {
-    height: 1px;
-    background: var(--border);
-    margin: 16px 0;
-  }
-
-  /* ── FOOTER ──────────────────────────────────── */
-  footer {
-    background: rgba(29,52,97,0.94);
-    padding: 14px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 11px;
-    color: rgba(255,255,255,.35);
-    letter-spacing: .02em;
-  }
-  footer strong { color: rgba(255,255,255,.6); }
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:1100px){
+  .kpi-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:820px){
+  main{padding:16px 16px 40px}
+  header{padding:16px 16px}
+  .hd-title{font-size:19px}
+  .r2{grid-template-columns:1fr}
+  .emgrid{grid-template-columns:1fr 1fr}
+  .ustrip{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:560px){
+  header{align-items:center}
+  .hd-title{font-size:18px}
+  .hd-sub{font-size:12px}
+  .kpi-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .kv{font-size:26px}
+  .hstrip{grid-template-columns:1fr 1fr;gap:8px}
+  .ht{font-size:19px}
+  .ustrip{grid-template-columns:1fr 1fr}
+  .utstrip{grid-template-columns:1fr 1fr}
+  .emgrid{grid-template-columns:1fr}
+  .card{padding:16px;border-radius:var(--r-m)}
+  .tabbar{gap:6px}
+  .mtab{padding:8px 13px;font-size:12.5px}
+  footer{flex-direction:column;align-items:flex-start;gap:4px}
+}
+@media (max-width:380px){
+  .kpi-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .kl{font-size:10px}
+}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-left">
-    <div class="header-icon">★</div>
-    <div>
-      <div class="header-title">Dashboard de Indicadores</div>
-      <div class="header-sub">Governo de Alagoas · Regulação Hospitalar</div>
-    </div>
+  <div>
+    <div class="hd-title"><span class="hd-star">★</span>Dashboard de Indicadores</div>
+    <div class="hd-sub">Governo de Alagoas · Regulação Hospitalar</div>
   </div>
-  <div class="header-pill" id="headerPill">Mai/26 · 31 dias</div>
+  <div class="hd-actions">
+    <button class="icobtn" id="themeBtn" title="Alternar tema" aria-label="Alternar tema claro/escuro">☾</button>
+  </div>
 </header>
 
-<div class="month-bar">
-  <button class="month-tab" data-mi="0" onclick="setMonth(0)">Fev/26<span class="days-tag">28d</span></button>
-  <button class="month-tab" data-mi="1" onclick="setMonth(1)">Mar/26<span class="days-tag">31d</span></button>
-  <button class="month-tab" data-mi="2" onclick="setMonth(2)">Abr/26<span class="days-tag">30d</span></button>
-  <button class="month-tab active" data-mi="3" onclick="setMonth(3)">Mai/26<span class="days-tag">31d</span></button>
-</div>
-
 <main>
+  <div class="status"><span class="dot"></span><span id="statusTxt">Período selecionado · Jun/26</span></div>
 
-  <!-- KPIs -->
-  <div class="section-eyebrow">Indicadores Principais</div>
+  <div class="tabbar" id="tabbar"></div>
+
+  <div class="notice" id="notice">
+    <div class="notice-ico">i</div>
+    <div class="notice-tx"><b>Mudança de metodologia a partir de Jun/26.</b> A coleta passou a ser feita em outro horário do dia, elevando de forma consistente os indicadores de regulação (Regulações/Dia, ENF Adulto, UTI Adulto). Junho é o mês de validação dessa diferença — a comparação com Fev–Mai só será direta após o reprocessamento daqueles meses no novo critério.</div>
+  </div>
+
+  <div class="eyebrow">Indicadores principais</div>
   <div class="kpi-grid" id="kpiGrid"></div>
 
-  <!-- Row 1: Evolução Taxa/Fila + Evolução Reg/Sol -->
-  <div class="row-2">
-    <div class="card">
-      <div class="card-title">Evolução Mensal <small>Taxa UTI & Fila de Espera</small></div>
-      <div style="height:200px"><canvas id="evoChart1"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Evolução Mensal <small>Regulações & Solicitações</small></div>
-      <div style="height:200px"><canvas id="evoChart2"></canvas></div>
-    </div>
+  <div class="r2">
+    <div class="card"><div class="ct">Evolução mensal <small>Taxa UTI &amp; fila de espera</small></div><div class="chart-wrap" style="height:210px"><canvas id="ec1"></canvas></div></div>
+    <div class="card"><div class="ct">Evolução mensal <small>Regulações &amp; solicitações</small></div><div class="chart-wrap" style="height:210px"><canvas id="ec2"></canvas></div></div>
   </div>
 
-  <!-- Row 2: Hospitais full -->
-  <div class="row-full card">
-    <div class="card-title" id="hospTitle">Taxa de Ocupação por Hospital</div>
-    <div style="height:190px"><canvas id="hospChart"></canvas></div>
+  <div class="rfull card">
+    <div class="ct" id="htitle">Taxa de ocupação por hospital</div>
+    <div class="chart-wrap" style="height:200px"><canvas id="hchart"></canvas></div>
     <div class="sep"></div>
-    <div class="section-eyebrow">Saídas & Ocupação — Média/Dia</div>
-    <div class="hosp-strip" id="hospCards"></div>
+    <div class="eyebrow">Saídas &amp; ocupação — média/dia</div>
+    <div class="hstrip" id="hcards"></div>
   </div>
 
-  <!-- Row 3: UPAs + Retaguarda -->
-  <div class="row-2">
+  <div class="r2">
     <div class="card">
-      <div class="card-title" id="upaTitle">Situação nas UPAs <small>Média/Dia</small></div>
-      <div class="upa-strip" id="upaCards"></div>
-      <div class="upa-total-strip" id="upaTotais"></div>
+      <div class="ct" id="utitle">Situação nas UPAs <small>Média/dia</small></div>
+      <div class="ustrip" id="ucards"></div>
+      <div class="utstrip" id="utotais"></div>
     </div>
-    <div class="card">
-      <div class="card-title">Retaguarda por Unidade <small>Média/Dia</small></div>
-      <div style="height:220px"><canvas id="retChart"></canvas></div>
-    </div>
+    <div class="card"><div class="ct">Retaguarda por unidade <small>Média/dia</small></div><div class="chart-wrap" style="height:230px"><canvas id="rchart"></canvas></div></div>
   </div>
 
-  <!-- Row 4: Evo minis -->
-  <div class="row-full card">
-    <div class="card-title">Evolução dos Indicadores <small>Fev → Mai 2026</small></div>
-    <div class="evo-mini-grid" id="evoMiniGrid"></div>
+  <div class="rfull card">
+    <div class="ct">Evolução dos indicadores <small>Fev → Jun 2026</small></div>
+    <div class="emgrid" id="emgrid"></div>
   </div>
-
 </main>
 
 <footer>
   <span><strong>Governo de Alagoas</strong> · Dashboard de Indicadores Hospitalares</span>
-  <span>Dados: Relatórios Mensais Fev–Mai 2026</span>
+  <span>Dados: Relatórios Mensais Fev–Jun 2026</span>
 </footer>
 
 <script>
-// ─── DATA ─────────────────────────────────────────────────────────────────────
-const MONTHS = ['Fev/26','Mar/26','Abr/26','Mai/26'];
-const DATA = [
-  { label:'Fev/26', dias:28, taxa_uti:81.1, fila_uti:17.9, regulacoes:103.1, enf_adulto:77.0, uti_adulto:10.5, solicitacoes:266.5,
-    upas_estado:53.3, upas_pronto:40.1,
-    upas:{Jaraguá:14.5, Tabuleiro:6.2, Jacintinho:8.7, Jaqueira:12.9, 'Cid. Univ.':11.0},
-    hosp_taxa: null,
-    hosp_saidas:{HGE:22.6,'HR Alto Sertão':9.6,'HR Norte':10.4,HEDH:7.8,'H Metropolitano':9.0,'H Coração':4.3,'HR Mata':12.8,HEHA:3.0,'H Mulher':14.5,'HR Palmeira':4.8},
-    retaguarda:{HGE:1.1,'HR Norte':3.3,'H Metropolitano':4.8,'HR Mata':2.6,'H Mulher':2.4,'HR Alto Sertão':1.7,HEDH:0.7,'H Coração':0.9,HEHA:0.1,'HR Palmeira':2.1},
-  },
-  { label:'Mar/26', dias:31, taxa_uti:80.4, fila_uti:15.5, regulacoes:107.8, enf_adulto:79.4, uti_adulto:12.6, solicitacoes:227.0,
-    upas_estado:53.9, upas_pronto:38.2,
-    upas:{Jaraguá:16.4, Tabuleiro:6.7, Jacintinho:7.2, Jaqueira:12.2, 'Cid. Univ.':11.4},
-    hosp_taxa:{HGE:90,'HR Norte':65,'H Metropolitano':86,'HR Mata':82,'H Mulher':85,'HR Alto Sertão':71,HEDH:86,'H Coração':93,HEHA:85,'HR Palmeira':66},
-    hosp_saidas:{HGE:22.7,'HR Alto Sertão':9.8,'HR Norte':13.8,HEDH:8.7,'H Metropolitano':8.9,'H Coração':4.5,'HR Mata':12.2,HEHA:3.7,'H Mulher':16.5,'HR Palmeira':2.0},
-    retaguarda:{HGE:1.2,'HR Norte':3.0,'H Metropolitano':4.7,'HR Mata':2.7,'H Mulher':2.9,'HR Alto Sertão':1.4,HEDH:1.5,'H Coração':0.6,HEHA:0.8,'HR Palmeira':3.9},
-  },
-  { label:'Abr/26', dias:30, taxa_uti:83.6, fila_uti:14.4, regulacoes:108.6, enf_adulto:81.5, uti_adulto:12.3, solicitacoes:226.7,
-    upas_estado:54.5, upas_pronto:34.7,
-    upas:{Jaraguá:14.6, Tabuleiro:8.0, Jacintinho:7.5, Jaqueira:13.5, 'Cid. Univ.':10.8},
-    hosp_taxa:{HGE:86,'HR Norte':74,'H Metropolitano':88,'HR Mata':82,'H Mulher':86,'HR Alto Sertão':74,HEDH:91,'H Coração':85,HEHA:80,'HR Palmeira':78},
-    hosp_saidas:{HGE:24.8,'HR Alto Sertão':9.8,'HR Norte':13.2,HEDH:8.9,'H Metropolitano':8.6,'H Coração':3.9,'HR Mata':13.3,HEHA:3.9,'H Mulher':17.3,'HR Palmeira':2.0},
-    retaguarda:{HGE:1.1,'HR Norte':2.5,'H Metropolitano':3.8,'HR Mata':1.2,'H Mulher':2.5,'HR Alto Sertão':0.5,HEDH:0.9,'H Coração':1.5,HEHA:1.1,'HR Palmeira':2.8},
-  },
-  { label:'Mai/26', dias:31, taxa_uti:86.2, fila_uti:12.3, regulacoes:105.9, enf_adulto:79.2, uti_adulto:11.8, solicitacoes:212.8,
-    upas_estado:38.9, upas_pronto:29.8,
-    upas:{Jaraguá:10.7, Tabuleiro:5.8, Jacintinho:6.8, Jaqueira:8.6, 'Cid. Univ.':7.0},
-    hosp_taxa:{HGE:86,'HR Norte':72,'H Metropolitano':91,'HR Mata':91,'H Mulher':90,'HR Alto Sertão':79,HEDH:88,'H Coração':95,HEHA:89,'HR Palmeira':85},
-    hosp_saidas:{HGE:29.6,'HR Alto Sertão':10.4,'HR Norte':13.1,HEDH:15.7,'H Metropolitano':10.8,'H Coração':1.8,'HR Mata':14.8,HEHA:4.6,'H Mulher':15.1,'HR Palmeira':8.2},
-    retaguarda:{HGE:1.3,'HR Norte':2.5,'H Metropolitano':2.6,'HR Mata':1.6,'H Mulher':1.7,'HR Alto Sertão':0.4,HEDH:1.3,'H Coração':0.5,HEHA:0.8,'HR Palmeira':1.8},
-  },
+const MONTHS=['Fev/26','Mar/26','Abr/26','Mai/26','Jun/26'];
+const DATA=[
+  {label:'Fev/26',dias:28,taxa_uti:81.1,fila_uti:17.9,regulacoes:103.1,enf_adulto:77.0,uti_adulto:10.5,solicitacoes:266.5,
+   upas_estado:53.3,upas_pronto:40.1,
+   upas:{Jaraguá:14.5,Tabuleiro:6.2,Jacintinho:8.7,Jaqueira:12.9,'Cid. Univ.':11.0},
+   hosp_taxa:null,
+   hosp_saidas:{HGE:22.6,'HR Alto Sertão':9.6,'HR Norte':10.4,HEDH:7.8,'H Metropolitano':9.0,'H Coração':4.3,'HR Mata':12.8,HEHA:3.0,'H Mulher':14.5,'HR Palmeira':4.8},
+   retaguarda:{HGE:1.1,'HR Norte':3.3,'H Metropolitano':4.8,'HR Mata':2.6,'H Mulher':2.4,'HR Alto Sertão':1.7,HEDH:0.7,'H Coração':0.9,HEHA:0.1,'HR Palmeira':2.1}},
+  {label:'Mar/26',dias:31,taxa_uti:80.4,fila_uti:15.5,regulacoes:107.8,enf_adulto:79.4,uti_adulto:12.6,solicitacoes:227.0,
+   upas_estado:53.9,upas_pronto:38.2,
+   upas:{Jaraguá:16.4,Tabuleiro:6.7,Jacintinho:7.2,Jaqueira:12.2,'Cid. Univ.':11.4},
+   hosp_taxa:{HGE:90,'HR Norte':65,'H Metropolitano':86,'HR Mata':82,'H Mulher':85,'HR Alto Sertão':71,HEDH:86,'H Coração':93,HEHA:85,'HR Palmeira':66},
+   hosp_saidas:{HGE:22.7,'HR Alto Sertão':9.8,'HR Norte':13.8,HEDH:8.7,'H Metropolitano':8.9,'H Coração':4.5,'HR Mata':12.2,HEHA:3.7,'H Mulher':16.5,'HR Palmeira':2.0},
+   retaguarda:{HGE:1.2,'HR Norte':3.0,'H Metropolitano':4.7,'HR Mata':2.7,'H Mulher':2.9,'HR Alto Sertão':1.4,HEDH:1.5,'H Coração':0.6,HEHA:0.8,'HR Palmeira':3.9}},
+  {label:'Abr/26',dias:30,taxa_uti:83.6,fila_uti:14.4,regulacoes:108.6,enf_adulto:81.5,uti_adulto:12.3,solicitacoes:226.7,
+   upas_estado:54.5,upas_pronto:34.7,
+   upas:{Jaraguá:14.6,Tabuleiro:8.0,Jacintinho:7.5,Jaqueira:13.5,'Cid. Univ.':10.8},
+   hosp_taxa:{HGE:86,'HR Norte':74,'H Metropolitano':88,'HR Mata':82,'H Mulher':86,'HR Alto Sertão':74,HEDH:91,'H Coração':85,HEHA:80,'HR Palmeira':78},
+   hosp_saidas:{HGE:24.8,'HR Alto Sertão':9.8,'HR Norte':13.2,HEDH:8.9,'H Metropolitano':8.6,'H Coração':3.9,'HR Mata':13.3,HEHA:3.9,'H Mulher':17.3,'HR Palmeira':2.0},
+   retaguarda:{HGE:1.1,'HR Norte':2.5,'H Metropolitano':3.8,'HR Mata':1.2,'H Mulher':2.5,'HR Alto Sertão':0.5,HEDH:0.9,'H Coração':1.5,HEHA:1.1,'HR Palmeira':2.8}},
+  {label:'Mai/26',dias:31,taxa_uti:86.2,fila_uti:12.3,regulacoes:105.9,enf_adulto:79.2,uti_adulto:11.8,solicitacoes:212.8,
+   upas_estado:38.9,upas_pronto:29.8,
+   upas:{Jaraguá:10.7,Tabuleiro:5.8,Jacintinho:6.8,Jaqueira:8.6,'Cid. Univ.':7.0},
+   hosp_taxa:{HGE:86,'HR Norte':72,'H Metropolitano':91,'HR Mata':91,'H Mulher':90,'HR Alto Sertão':79,HEDH:88,'H Coração':95,HEHA:89,'HR Palmeira':85},
+   hosp_saidas:{HGE:29.6,'HR Alto Sertão':10.4,'HR Norte':13.1,HEDH:15.7,'H Metropolitano':10.8,'H Coração':1.8,'HR Mata':14.8,HEHA:4.6,'H Mulher':15.1,'HR Palmeira':8.2},
+   retaguarda:{HGE:1.3,'HR Norte':2.5,'H Metropolitano':2.6,'HR Mata':1.6,'H Mulher':1.7,'HR Alto Sertão':0.4,HEDH:1.3,'H Coração':0.5,HEHA:0.8,'HR Palmeira':1.8}},
+  {label:'Jun/26',dias:30,taxa_uti:86.2,fila_uti:13.2,regulacoes:164.2,enf_adulto:120.1,uti_adulto:16.6,solicitacoes:184.0,
+   novo_horario:true,
+   upas_estado:18.1,upas_pronto:31.4,
+   upas:{Jaraguá:6.0,Tabuleiro:2.9,Jacintinho:2.9,Jaqueira:3.8,'Cid. Univ.':2.5},
+   hosp_taxa:{HGE:85,'HR Norte':86,'H Metropolitano':91,'HR Mata':89,'H Mulher':90,'HR Alto Sertão':66,HEDH:91,'H Coração':93,HEHA:83,'HR Palmeira':88},
+   hosp_saidas:{HGE:29.0,'HR Alto Sertão':10.3,'HR Norte':15.5,HEDH:14.4,'H Metropolitano':11.4,'H Coração':2.1,'HR Mata':14.4,HEHA:3.5,'H Mulher':14.2,'HR Palmeira':9.0},
+   retaguarda:{HGE:1.2,'HR Norte':1.5,'H Metropolitano':2.5,'HR Mata':1.7,'H Mulher':1.7,'HR Alto Sertão':0.2,HEDH:1.0,'H Coração':0.7,HEHA:1.0,'HR Palmeira':1.5}},
 ];
+const HORD=['HGE','HR Norte','H Metropolitano','HR Mata','H Mulher','HR Alto Sertão','HEDH','H Coração','HEHA','HR Palmeira'];
+let cur=4; const C={};
 
-const HOSP_ORDER = ['HGE','HR Norte','H Metropolitano','HR Mata','H Mulher','HR Alto Sertão','HEDH','H Coração','HEHA','HR Palmeira'];
-let cur = 3;
-const C = {};
+Chart.defaults.font.family='-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif';
 
-// Chart.js defaults
-Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif';
-Chart.defaults.color = '#8E8E93';
-
-function fmt1(v){ return typeof v==='number' ? v.toFixed(1) : v; }
-
-function deltaHtml(curV, prevV, invertGood){
-  if(prevV==null) return '<span style="color:var(--text-4)">—</span>';
-  const d = curV - prevV;
-  if(Math.abs(d)<0.05) return '<span style="color:var(--text-4)">→ sem variação</span>';
-  const good = invertGood ? d<0 : d>0;
-  const cls = good ? 'delta-down' : 'delta-up';
-  const arrow = d>0 ? '▲' : '▼';
-  return `<span class="${cls}">${arrow} ${d>0?'+':''}${fmt1(d)}</span> <span style="color:var(--text-4)">vs mês ant.</span>`;
+function cssVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+function f1(v){return(+v).toFixed(1)}
+function aHex(h,a){return h+Math.round(a*255).toString(16).padStart(2,'0')}
+function dHtml(cv,pv,inv){
+  if(pv==null)return'<span style="color:var(--t4)">—</span>';
+  const d=cv-pv; if(Math.abs(d)<0.05)return'<span style="color:var(--t4)">→ sem variação</span>';
+  const good=inv?d<0:d>0;
+  return`<span class="${good?'ddown':'dup'}">${d>0?'▲':'▼'} ${d>0?'+':''}${f1(d)}</span> <span style="color:var(--t4)">vs mês ant.</span>`;
 }
 
-// ── KPIs ──────────────────────────────────────────────────────────────────────
+function renderTabs(){
+  document.getElementById('tabbar').innerHTML=DATA.map((d,i)=>
+    `<button class="mtab${i===cur?' active':''}" onclick="setMonth(${i})">
+       <span class="mdot"></span>${d.label}<span class="dtag">${d.dias}d</span>
+     </button>`).join('');
+}
+
 function renderKPIs(mi){
-  const d=DATA[mi], p=mi>0?DATA[mi-1]:null;
+  const d=DATA[mi],p=mi>0?DATA[mi-1]:null;
   const items=[
-    {label:'Taxa de Ocupação\nUTI',        val:d.taxa_uti.toFixed(1)+'%',  raw:d.taxa_uti,   prev:p?.taxa_uti,    acc:'kpi-coral', inv:false},
-    {label:'Fila de UTI\nMédia/Dia',       val:d.fila_uti.toFixed(1),      raw:d.fila_uti,   prev:p?.fila_uti,    acc:'kpi-coral', inv:true},
-    {label:'Regulações\n/ Dia',            val:d.regulacoes.toFixed(1),    raw:d.regulacoes, prev:p?.regulacoes,  acc:'kpi-blue',  inv:false},
-    {label:'Média Mês\nENF/Adulto',        val:d.enf_adulto.toFixed(1),    raw:d.enf_adulto, prev:p?.enf_adulto,  acc:'kpi-blue',  inv:false},
-    {label:'Média Mês\nUTI/Adulto',        val:d.uti_adulto.toFixed(1),    raw:d.uti_adulto, prev:p?.uti_adulto,  acc:'kpi-mint',  inv:false},
-    {label:'Solicitações\nMédia/Dia',      val:d.solicitacoes.toFixed(1),  raw:d.solicitacoes,prev:p?.solicitacoes,acc:'kpi-amber',inv:false},
+    {l:'Taxa de Ocupação UTI',   v:f1(d.taxa_uti)+'%', r:d.taxa_uti,    pv:p?.taxa_uti,    a:'kc-coral',inv:false},
+    {l:'Fila de UTI · Média/Dia',v:f1(d.fila_uti),     r:d.fila_uti,    pv:p?.fila_uti,    a:'kc-coral',inv:true},
+    {l:'Regulações / Dia',       v:f1(d.regulacoes),   r:d.regulacoes,  pv:p?.regulacoes,  a:'kc-blue', inv:false},
+    {l:'Média Mês ENF/Adulto',   v:f1(d.enf_adulto),   r:d.enf_adulto,  pv:p?.enf_adulto,  a:'kc-blue', inv:false},
+    {l:'Média Mês UTI/Adulto',   v:f1(d.uti_adulto),   r:d.uti_adulto,  pv:p?.uti_adulto,  a:'kc-mint', inv:false},
+    {l:'Solicitações · Média/Dia',v:f1(d.solicitacoes),r:d.solicitacoes,pv:p?.solicitacoes,a:'kc-amber',inv:false},
   ];
-  document.getElementById('kpiGrid').innerHTML = items.map(k=>`
-    <div class="kpi-card ${k.acc}">
-      <div class="kpi-label">${k.label.replace('\n','<br>')}</div>
-      <div class="kpi-value">${k.val}</div>
-      <div class="kpi-delta">${deltaHtml(k.raw, k.prev, k.inv)}</div>
+  document.getElementById('kpiGrid').innerHTML=items.map(k=>`
+    <div class="kc ${k.a}">
+      <div class="kl">${k.l}</div>
+      <div class="kv">${k.v}</div>
+      <div class="kd">${dHtml(k.r,k.pv,k.inv)}</div>
     </div>`).join('');
 }
 
-// ── EVO CHARTS ────────────────────────────────────────────────────────────────
-function evoOpts(y1label, y2label){
-  return {
-    responsive:true, maintainAspectRatio:false,
-    plugins:{legend:{position:'bottom',labels:{boxWidth:9,padding:16,font:{size:11}}}},
-    scales:{
-      x:{grid:{display:false}, ticks:{font:{size:11}}},
-      y:{grid:{color:'rgba(0,0,0,.05)'}, ticks:{font:{size:10,family:'SF Mono, monospace'}}, title:{display:!!y1label,text:y1label,font:{size:10},color:'#8E8E93'}},
-      y2:{position:'right',grid:{display:false}, ticks:{font:{size:10,family:'SF Mono, monospace'}}, title:{display:!!y2label,text:y2label,font:{size:10},color:'#8E8E93'}},
-    }
-  };
+function eOpts(y1,y2){return{responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{position:'bottom',labels:{boxWidth:9,padding:14,font:{size:11},color:cssVar('--t2')}}},
+  scales:{
+    x:{grid:{display:false},ticks:{font:{size:11},color:cssVar('--tick')}},
+    y:{grid:{color:cssVar('--grid')},ticks:{font:{size:10,family:'monospace'},color:cssVar('--tick')},title:{display:!!y1,text:y1,font:{size:10},color:cssVar('--t3')}},
+    y2:{position:'right',grid:{display:false},ticks:{font:{size:10,family:'monospace'},color:cssVar('--tick')},title:{display:!!y2,text:y2,font:{size:10},color:cssVar('--t3')}},
+  }}}
+
+function renderEvo(){
+  const coral=cssVar('--coral'),navy=cssVar('--navy'),blue=cssVar('--blue'),amber=cssVar('--amber');
+  if(C.e1)C.e1.destroy();
+  C.e1=new Chart(document.getElementById('ec1'),{type:'bar',data:{labels:MONTHS,datasets:[
+    {label:'Taxa UTI (%)',data:DATA.map(d=>d.taxa_uti),backgroundColor:MONTHS.map((_,i)=>aHex(coral,i===cur?1:.28)),borderRadius:6,yAxisID:'y'},
+    {type:'line',label:'Fila UTI/Dia',data:DATA.map(d=>d.fila_uti),borderColor:navy,backgroundColor:'transparent',
+     pointBackgroundColor:MONTHS.map((_,i)=>i===cur?navy:aHex(navy,.45)),pointRadius:5,tension:.35,yAxisID:'y2',borderWidth:2},
+  ]},options:eOpts('%','pac.')});
+  if(C.e2)C.e2.destroy();
+  C.e2=new Chart(document.getElementById('ec2'),{type:'bar',data:{labels:MONTHS,datasets:[
+    {label:'Regulações/Dia',data:DATA.map(d=>d.regulacoes),backgroundColor:MONTHS.map((_,i)=>aHex(blue,i===cur?1:.28)),borderRadius:6,yAxisID:'y'},
+    {type:'line',label:'Solicitações/Dia',data:DATA.map(d=>d.solicitacoes),borderColor:amber,backgroundColor:'transparent',
+     pointBackgroundColor:MONTHS.map((_,i)=>i===cur?amber:aHex(amber,.45)),pointRadius:5,tension:.35,yAxisID:'y2',borderWidth:2},
+  ]},options:eOpts('reg.','sol.')});
 }
 
-function barAlpha(i, active){ return i===active ? 1 : 0.28; }
-
-function renderEvoCharts(){
-  const hl = (base,a) => base.replace(')',`,${a})`).replace('rgb','rgba').replace('rgba(','rgba(');
-  const alphaHex = (hex,a) => hex + Math.round(a*255).toString(16).padStart(2,'0');
-
-  if(C.e1) C.e1.destroy();
-  C.e1 = new Chart(document.getElementById('evoChart1'),{
-    type:'bar',
-    data:{labels:MONTHS, datasets:[
-      {label:'Taxa UTI (%)', data:DATA.map(d=>d.taxa_uti),
-       backgroundColor:MONTHS.map((_,i)=> alphaHex('#FF3B30', barAlpha(i,cur))),
-       borderRadius:6, yAxisID:'y'},
-      {type:'line',label:'Fila UTI/Dia', data:DATA.map(d=>d.fila_uti),
-       borderColor:'#1D3461', backgroundColor:'transparent',
-       pointBackgroundColor:MONTHS.map((_,i)=>i===cur?'#1D3461':'rgba(29,52,97,.45)'),
-       pointRadius:5, tension:.35, yAxisID:'y2', borderWidth:2},
-    ]},
-    options:evoOpts('%','pacientes'),
-  });
-
-  if(C.e2) C.e2.destroy();
-  C.e2 = new Chart(document.getElementById('evoChart2'),{
-    type:'bar',
-    data:{labels:MONTHS, datasets:[
-      {label:'Regulações/Dia', data:DATA.map(d=>d.regulacoes),
-       backgroundColor:MONTHS.map((_,i)=> alphaHex('#007AFF', barAlpha(i,cur))),
-       borderRadius:6, yAxisID:'y'},
-      {type:'line',label:'Solicitações/Dia', data:DATA.map(d=>d.solicitacoes),
-       borderColor:'#FF9500', backgroundColor:'transparent',
-       pointBackgroundColor:MONTHS.map((_,i)=>i===cur?'#FF9500':'rgba(255,149,0,.45)'),
-       pointRadius:5, tension:.35, yAxisID:'y2', borderWidth:2},
-    ]},
-    options:evoOpts('reg.','sol.'),
-  });
-}
-
-// ── HOSP CHART ────────────────────────────────────────────────────────────────
-function renderHospChart(mi){
+function renderHosp(mi){
   const d=DATA[mi];
-  document.getElementById('hospTitle').innerHTML=`Taxa de Ocupação por Hospital <small>${d.label}</small>`;
-  if(C.hosp) C.hosp.destroy();
+  document.getElementById('htitle').innerHTML=`Taxa de ocupação por hospital <small>${d.label}</small>`;
+  if(C.h)C.h.destroy();
   if(d.hosp_taxa){
-    const vals=HOSP_ORDER.map(h=>d.hosp_taxa[h]??null);
-    C.hosp=new Chart(document.getElementById('hospChart'),{
-      type:'bar',
-      data:{labels:HOSP_ORDER, datasets:[{
-        label:'Taxa (%)', data:vals,
-        backgroundColor:vals.map(v=>v>=90?'rgba(255,59,48,.8)':v>=80?'rgba(255,149,0,.8)':'rgba(52,199,89,.8)'),
-        borderRadius:6,
-      }]},
-      options:{responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:false}},
-        scales:{
-          x:{grid:{display:false},ticks:{font:{size:10},maxRotation:20}},
-          y:{min:0,max:110,grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:10,family:'monospace'},callback:v=>v+'%'}},
-        }
-      }
-    });
+    const vs=HORD.map(h=>d.hosp_taxa[h]??null);
+    C.h=new Chart(document.getElementById('hchart'),{type:'bar',data:{labels:HORD,datasets:[{
+      label:'Taxa (%)',data:vs,
+      backgroundColor:vs.map(v=>v>=90?aHex(cssVar('--coral'),.82):v>=80?aHex(cssVar('--amber'),.82):aHex(cssVar('--mint'),.82)),
+      borderRadius:6}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{grid:{display:false},ticks:{font:{size:10},maxRotation:35,minRotation:0,color:cssVar('--tick')}},
+          y:{min:0,max:110,grid:{color:cssVar('--grid')},ticks:{font:{size:10,family:'monospace'},color:cssVar('--tick'),callback:v=>v+'%'}}}}});
   } else {
-    C.hosp=null;
-    const ctx=document.getElementById('hospChart').getContext('2d');
-    ctx.clearRect(0,0,800,200);
-    ctx.fillStyle='#AEAEB2'; ctx.font='13px -apple-system'; ctx.textAlign='center';
-    ctx.fillText('Dados por hospital não disponíveis para Fevereiro',400,100);
+    C.h=null;
+    const cv=document.getElementById('hchart');const ctx=cv.getContext('2d');
+    ctx.clearRect(0,0,cv.width,cv.height);ctx.fillStyle=cssVar('--t4');ctx.font='13px -apple-system';
+    ctx.textAlign='center';ctx.fillText('Dados por hospital não disponíveis para este mês',cv.clientWidth/2,80);
   }
-
-  document.getElementById('hospCards').innerHTML=HOSP_ORDER.map(h=>{
-    const s=d.hosp_saidas[h]; const t=d.hosp_taxa?d.hosp_taxa[h]:null;
-    const cls=t!=null?(t>=90?'high':t>=80?'mid':'low'):'';
-    return `<div class="hc">
-      <div class="hc-name">${h}</div>
-      ${t!=null?`<div class="hc-taxa ${cls}">${t}%</div>`:'<div class="hc-taxa mid" style="font-size:14px">—</div>'}
-      <div class="hc-saida">saídas <b>${s?.toFixed(1)??'—'}</b>/dia</div>
-    </div>`;
+  document.getElementById('hcards').innerHTML=HORD.map(h=>{
+    const s=d.hosp_saidas[h],t=d.hosp_taxa?d.hosp_taxa[h]:null;
+    const cls=t!=null?(t>=90?'hi':t>=80?'hm':'hl'):'';
+    return`<div class="hc"><div class="hn">${h}</div>${t!=null?`<div class="ht ${cls}">${t}%</div>`:'<div class="ht hm" style="font-size:14px">—</div>'}<div class="hs">saídas <b>${s?.toFixed(1)??'—'}</b>/dia</div></div>`;
   }).join('');
 }
 
-// ── UPAs ──────────────────────────────────────────────────────────────────────
 function renderUpas(mi){
   const d=DATA[mi];
-  document.getElementById('upaTitle').innerHTML=`Situação nas UPAs <small>${d.label} · Média/Dia</small>`;
-  document.getElementById('upaCards').innerHTML=Object.entries(d.upas).map(([n,v])=>
-    `<div class="upa-c"><div class="u-name">${n}</div><div class="u-val">${v.toFixed(1)}</div></div>`
-  ).join('');
-  document.getElementById('upaTotais').innerHTML=`
-    <div class="upa-total-c"><div class="ut-label">UPAs Estado</div><div class="ut-val">${d.upas_estado.toFixed(1)}</div></div>
-    <div class="upa-total-c"><div class="ut-label">UPAs Pronto</div><div class="ut-val">${d.upas_pronto.toFixed(1)}</div></div>`;
+  document.getElementById('utitle').innerHTML=`Situação nas UPAs <small>${d.label} · Média/dia</small>`;
+  document.getElementById('ucards').innerHTML=Object.entries(d.upas).map(([n,v])=>
+    `<div class="uc"><div class="un">${n}</div><div class="uv">${v.toFixed(1)}</div></div>`).join('');
+  document.getElementById('utotais').innerHTML=`
+    <div class="utc"><div class="utl">UPAs Estado</div><div class="utv">${d.upas_estado.toFixed(1)}</div></div>
+    <div class="utc"><div class="utl">UPAs Pronto</div><div class="utv">${d.upas_pronto.toFixed(1)}</div></div>`;
 }
 
-// ── RET CHART ─────────────────────────────────────────────────────────────────
-function renderRetChart(mi){
+function renderRet(mi){
   const d=DATA[mi];
-  const sorted=Object.entries(d.retaguarda).sort((a,b)=>b[1]-a[1]);
-  if(C.ret) C.ret.destroy();
-  C.ret=new Chart(document.getElementById('retChart'),{
-    type:'bar',
-    data:{labels:sorted.map(s=>s[0]), datasets:[{
-      label:'Retaguarda Média/Dia', data:sorted.map(s=>s[1]),
-      backgroundColor:'rgba(0,122,255,.72)', borderRadius:5,
-    }]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
-      plugins:{legend:{display:false}},
-      scales:{
-        y:{grid:{display:false},ticks:{font:{size:10}}},
-        x:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:10,family:'monospace'}}},
-      }
-    }
-  });
+  const s=Object.entries(d.retaguarda).sort((a,b)=>b[1]-a[1]);
+  if(C.r)C.r.destroy();
+  C.r=new Chart(document.getElementById('rchart'),{type:'bar',data:{labels:s.map(x=>x[0]),datasets:[{
+    label:'Retaguarda Média/Dia',data:s.map(x=>x[1]),backgroundColor:aHex(cssVar('--blue'),.75),borderRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},
+      scales:{y:{grid:{display:false},ticks:{font:{size:10},color:cssVar('--tick')}},x:{grid:{color:cssVar('--grid')},ticks:{font:{size:10,family:'monospace'},color:cssVar('--tick')}}}}});
 }
 
-// ── EVO MINIS ─────────────────────────────────────────────────────────────────
-function renderEvoMinis(){
+function renderMinis(){
   const cfgs=[
-    {key:'taxa_uti',    label:'Taxa de Ocupação UTI (%)', color:'#FF3B30'},
-    {key:'fila_uti',    label:'Fila de UTI — Média/Dia',  color:'#1D3461'},
-    {key:'regulacoes',  label:'Regulações / Dia',          color:'#007AFF'},
-    {key:'solicitacoes',label:'Solicitações Média/Dia',    color:'#FF9500'},
-    {key:'enf_adulto',  label:'Média Mês ENF/Adulto',      color:'#34C759'},
-    {key:'uti_adulto',  label:'Média Mês UTI/Adulto',      color:'#AF52DE'},
+    {k:'taxa_uti',    l:'Taxa de Ocupação UTI (%)', c:cssVar('--coral')},
+    {k:'fila_uti',    l:'Fila de UTI — Média/Dia',  c:cssVar('--navy')},
+    {k:'regulacoes',  l:'Regulações / Dia',          c:cssVar('--blue')},
+    {k:'solicitacoes',l:'Solicitações Média/Dia',    c:cssVar('--amber')},
+    {k:'enf_adulto',  l:'Média Mês ENF/Adulto',      c:cssVar('--mint')},
+    {k:'uti_adulto',  l:'Média Mês UTI/Adulto',      c:cssVar('--purple')},
   ];
-  const grid=document.getElementById('evoMiniGrid');
-  grid.innerHTML=cfgs.map((_,i)=>`<div class="evo-mini-card"><h4>${cfgs[i].label}</h4><div style="height:120px"><canvas id="em_${i}"></canvas></div></div>`).join('');
+  document.getElementById('emgrid').innerHTML=cfgs.map((_,i)=>
+    `<div class="emcard"><h4>${cfgs[i].l}</h4><div class="chart-wrap" style="height:120px"><canvas id="em${i}"></canvas></div></div>`).join('');
   cfgs.forEach((cfg,i)=>{
-    const vals=DATA.map(d=>d[cfg.key]);
-    new Chart(document.getElementById(`em_${i}`),{
-      type:'bar',
-      data:{labels:MONTHS, datasets:[
-        {label:cfg.label, data:vals,
-         backgroundColor:MONTHS.map((_,mi2)=>mi2===cur?cfg.color:cfg.color+'44'),
-         borderRadius:5},
-        {type:'line', data:vals, borderColor:cfg.color, backgroundColor:'transparent',
-         pointBackgroundColor:MONTHS.map((_,mi2)=>mi2===cur?cfg.color:cfg.color+'77'),
-         pointRadius:4, tension:.35, borderWidth:1.5},
-      ]},
-      options:{responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmt1(ctx.raw)}}},
-        scales:{
-          x:{grid:{display:false},ticks:{font:{size:9}}},
-          y:{display:false},
-        }
-      }
-    });
+    if(C['m'+i])C['m'+i].destroy();
+    const vals=DATA.map(d=>d[cfg.k]);
+    C['m'+i]=new Chart(document.getElementById(`em${i}`),{type:'bar',data:{labels:MONTHS,datasets:[
+      {label:cfg.l,data:vals,backgroundColor:MONTHS.map((_,mi2)=>mi2===cur?cfg.c:aHex(cfg.c,.27)),borderRadius:5},
+      {type:'line',data:vals,borderColor:cfg.c,backgroundColor:'transparent',
+       pointBackgroundColor:MONTHS.map((_,mi2)=>mi2===cur?cfg.c:aHex(cfg.c,.47)),pointRadius:4,tension:.35,borderWidth:1.5},
+    ]},options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>f1(ctx.raw)}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:9},color:cssVar('--tick')}},y:{display:false}}}});
   });
 }
 
-// ── SET MONTH ─────────────────────────────────────────────────────────────────
 function setMonth(mi){
   cur=mi;
-  document.querySelectorAll('.month-tab').forEach((t,i)=>t.classList.toggle('active',i===mi));
-  document.getElementById('headerPill').textContent=DATA[mi].label+' · '+DATA[mi].dias+' dias';
-  renderKPIs(mi);
-  renderEvoCharts();
-  renderHospChart(mi);
-  renderUpas(mi);
-  renderRetChart(mi);
-  renderEvoMinis();
+  renderTabs();
+  document.getElementById('statusTxt').textContent='Período selecionado · '+DATA[mi].label+' ('+DATA[mi].dias+' dias)';
+  document.getElementById('notice').classList.toggle('show',!!DATA[mi].novo_horario);
+  renderKPIs(mi); renderEvo(); renderHosp(mi); renderUpas(mi); renderRet(mi); renderMinis();
 }
 
-setMonth(3);
+// THEME
+const themeBtn=document.getElementById('themeBtn');
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  themeBtn.textContent = t==='dark' ? '☀' : '☾';
+  themeBtn.title = t==='dark' ? 'Tema claro' : 'Tema escuro';
+}
+let theme = 'light';
+applyTheme(theme);
+themeBtn.addEventListener('click',()=>{ theme = theme==='dark'?'light':'dark'; applyTheme(theme); setMonth(cur); });
+
+setMonth(4);
 </script>
 </body>
 </html>
