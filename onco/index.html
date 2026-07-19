@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Centro de Oncologia HMA/HM</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --roxo:#6d3bd4; --roxo-2:#8b5cf6; --roxo-cl:#a78bfa;
+    --verde:#10b981; --ciano:#06b6d4; --azul:#3b82f6;
+    --tinta:#1e293b; --tinta-suave:#64748b; --tinta-fraca:#94a3b8;
+    --branco:#ffffff; --linha:#e8ecf3;
+    --sombra:0 1px 3px rgba(30,41,59,.06),0 8px 24px rgba(109,59,212,.05);
+    --sombra-card:0 2px 8px rgba(30,41,59,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    color:var(--tinta);line-height:1.5;-webkit-font-smoothing:antialiased;
+    background:linear-gradient(135deg,#e8e2f7 0%,#eef1fb 42%,#e6f0fb 100%);
+    background-attachment:fixed;min-height:100vh;
+  }
+  .wrap{max-width:1400px;margin:0 auto;padding:0 32px}
+
+  .topo{padding:36px 0 8px}
+  .topo h1{font-size:2rem;font-weight:700;letter-spacing:-.02em;color:var(--tinta)}
+  .topo .sub{font-size:.92rem;color:var(--tinta-suave);margin-top:2px}
+
+  .filtros-box{
+    background:rgba(255,255,255,.72);backdrop-filter:blur(8px);
+    border-radius:18px;padding:22px 24px;margin-top:20px;box-shadow:var(--sombra);
+    display:grid;grid-template-columns:repeat(5,1fr);gap:16px 18px;
+  }
+  .campo{display:flex;flex-direction:column;gap:5px;min-width:0}
+  .campo label{font-size:.76rem;color:var(--tinta-suave);font-weight:500}
+  .campo input,.campo select{
+    font-family:inherit;font-size:.9rem;color:var(--tinta);
+    border:1px solid var(--linha);border-radius:12px;padding:11px 13px;background:var(--branco);
+    width:100%;cursor:pointer;transition:border-color .15s,box-shadow .15s
+  }
+  .campo input:focus,.campo select:focus{outline:none;border-color:var(--roxo-cl);box-shadow:0 0 0 3px rgba(139,92,246,.12)}
+
+  .rotulo-secao{font-size:.8rem;font-weight:700;letter-spacing:.08em;color:var(--tinta-suave);text-transform:uppercase;margin:34px 0 14px}
+
+  .grid-kpi{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+  .kpi{
+    background:var(--branco);border-radius:16px;padding:20px;box-shadow:var(--sombra-card);
+    position:relative;transition:transform .15s,box-shadow .15s
+  }
+  .kpi:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(109,59,212,.10)}
+  .kpi .top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+  .kpi .rot{font-size:.74rem;font-weight:600;letter-spacing:.04em;color:var(--tinta-suave);text-transform:uppercase}
+  .kpi .sub{font-size:.66rem;font-weight:600;color:#c8863f;margin-top:2px;letter-spacing:.02em}
+  .kpi .icone{
+    width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;color:#fff
+  }
+  .kpi .icone svg{width:19px;height:19px}
+  .kpi .num{font-size:2.1rem;font-weight:700;letter-spacing:-.03em;color:var(--tinta);font-variant-numeric:tabular-nums;line-height:1}
+  .kpi .desc{font-size:.72rem;color:var(--tinta-fraca);margin-top:5px}
+  .ic-roxo{background:linear-gradient(135deg,#7c4ddb,#6d3bd4)}
+  .ic-roxo2{background:linear-gradient(135deg,#9370e6,#8b5cf6)}
+  .ic-verde{background:linear-gradient(135deg,#14c98e,#10b981)}
+  .ic-ciano{background:linear-gradient(135deg,#22c3dd,#06b6d4)}
+  .ic-azul{background:linear-gradient(135deg,#5b93f7,#3b82f6)}
+  .ic-cinza{background:linear-gradient(135deg,#b4bdcc,#94a3b8)}
+
+  .grid-graf{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:8px}
+  .card{background:var(--branco);border-radius:18px;padding:22px 24px;box-shadow:var(--sombra-card)}
+  .card.full{grid-column:1/-1}
+  .card.half{grid-column:span 2}
+  .card h3{font-size:1rem;font-weight:600;color:var(--tinta);margin-bottom:2px}
+  .card .csub{font-size:.76rem;color:var(--tinta-fraca);margin-bottom:16px}
+  .canvas-box{position:relative;height:270px}
+  .card.full .canvas-box{height:320px}
+  .nota{font-size:.74rem;color:var(--tinta-suave);margin-top:10px;padding:9px 13px;background:#f6f4fd;border-radius:10px;border-left:3px solid var(--roxo-cl)}
+
+  footer{padding:28px 0 40px;font-size:.76rem;color:var(--tinta-suave);text-align:center}
+  .info-filtro{grid-column:1/-1;font-size:.78rem;color:var(--tinta-suave);padding-top:4px}
+  .btn-limpar{
+    font-family:inherit;font-size:.84rem;font-weight:600;color:var(--roxo);
+    background:#f0ebfb;border:none;border-radius:12px;padding:11px 16px;cursor:pointer;
+    align-self:flex-end;transition:background .15s;height:fit-content
+  }
+  .btn-limpar:hover{background:#e4d9f7}
+
+  @media(max-width:1100px){
+    .filtros-box{grid-template-columns:repeat(3,1fr)}
+    .grid-kpi{grid-template-columns:repeat(3,1fr)}
+    .grid-graf{grid-template-columns:1fr}
+    .card.half{grid-column:1/-1}
+  }
+  @media(max-width:640px){
+    .wrap{padding:0 18px}
+    .filtros-box{grid-template-columns:repeat(2,1fr)}
+    .grid-kpi{grid-template-columns:repeat(2,1fr)}
+    .kpi .num{font-size:1.7rem}
+  }
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topo">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+      <div>
+        <h1>Dashboard</h1>
+        <div class="sub">Visão analítica do Centro de Oncologia HMA/HM · <span id="gerado">carregando…</span></div>
+      </div>
+      <button class="btn-limpar" id="btnAtualizar" style="align-self:center">Atualizar agora</button>
+    </div>
+    <div id="statusCarregamento" style="font-size:.8rem;color:#64748b;margin-top:8px"></div>
+  </div>
+
+  <div class="filtros-box">
+    <div class="campo">
+      <label for="de">Mês inicial</label>
+      <input type="month" id="de">
+    </div>
+    <div class="campo">
+      <label for="ate">Mês final</label>
+      <input type="month" id="ate">
+    </div>
+    <div class="campo">
+      <label for="hosp">Hospital de Origem</label>
+      <select id="hosp"><option value="">Todos</option></select>
+    </div>
+    <div class="campo">
+      <label for="esp">Especialidade</label>
+      <select id="esp"><option value="">Todas</option></select>
+    </div>
+    <div class="campo">
+      <label for="tnm">Tipo TNM</label>
+      <select id="tnm"><option value="">Todos</option></select>
+    </div>
+    <div class="campo">
+      <label for="sexo">Sexo</label>
+      <select id="sexo"><option value="">Todos</option></select>
+    </div>
+    <div class="campo">
+      <label for="regiao">Região de Saúde</label>
+      <select id="regiao"><option value="">Todas</option></select>
+    </div>
+    <div class="campo">
+      <label for="medico">Médico</label>
+      <select id="medico"><option value="">Todos</option></select>
+    </div>
+    <button class="btn-limpar" id="reset">Limpar filtros</button>
+    <div class="info-filtro" id="infoFiltro"></div>
+  </div>
+
+  <div class="rotulo-secao">Pacientes</div>
+  <div class="grid-kpi" id="kpisPac"></div>
+
+  <div class="rotulo-secao">Atendimentos no Período</div>
+  <div class="grid-kpi" id="kpisAtend"></div>
+
+  <div class="rotulo-secao">Distribuição</div>
+  <div class="grid-graf">
+    <div class="card full">
+      <h3>Novos Pacientes por Mês</h3>
+      <div class="csub">Contagem pela data da primeira consulta · reage a todos os filtros</div>
+      <div class="canvas-box"><canvas id="gNovos"></canvas></div>
+    </div>
+
+    <div class="card full">
+      <h3>Volume de Atendimentos por Mês</h3>
+      <div class="csub">Consultas, exames, biópsias e cirurgias · reage a todos os filtros</div>
+      <div class="canvas-box"><canvas id="gVolume"></canvas></div>
+    </div>
+
+    <div class="card">
+      <h3>Distribuição por Sexo</h3>
+      <div class="csub">Pacientes no filtro atual</div>
+      <div class="canvas-box"><canvas id="gSexo"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Faixa Etária</h3>
+      <div class="csub">Pacientes por idade</div>
+      <div class="canvas-box"><canvas id="gIdade"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Desfecho Clínico</h3>
+      <div class="csub">Situação do tratamento</div>
+      <div class="canvas-box"><canvas id="gDesfecho"></canvas></div>
+    </div>
+
+    <div class="card half">
+      <h3>Pacientes por Município (top 10)</h3>
+      <div class="csub">Origem dos pacientes</div>
+      <div class="canvas-box"><canvas id="gMunicipio"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Região de Saúde</h3>
+      <div class="csub">Distribuição por região</div>
+      <div class="canvas-box"><canvas id="gRegiao"></canvas></div>
+    </div>
+
+    <div class="card full">
+      <h3>Atendimentos por Especialidade</h3>
+      <div class="csub">Consultas registradas em cada especialidade</div>
+      <div class="canvas-box"><canvas id="gEspec"></canvas></div>
+    </div>
+
+    <div class="card full">
+      <h3>Tipo de Câncer (TNM) — top 15</h3>
+      <div class="csub">Categorias mais frequentes</div>
+      <div class="canvas-box"><canvas id="gTnm"></canvas></div>
+      <div class="nota" id="notaDesfecho"></div>
+    </div>
+  </div>
+</div>
+
+<footer>Dados agregados · sem informação individual de pacientes · Centro de Oncologia HMA/HM</footer>
+
+<script>
+const URL_WEBAPP = 'https://script.google.com/macros/s/AKfycbyJFYc6U-yIWVeH03goQn8KgWEaLHOPS8BL7Xyso9IKCXJt4lava5TDR_Ru3jWbaKO0/exec';
+let DADOS = null;
+let PAC = [];
+let EVT = [];
+
+const IC = {
+  users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  trend:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
+  heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+  male:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="14" r="5"/><path d="M19 5l-5.4 5.4M19 5h-5M19 5v5"/></svg>',
+  female:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M12 13v8M9 18h6"/></svg>',
+  stetho:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3v6a5 5 0 0 0 10 0V3"/><path d="M4 3H2M14 3h2M14 14a5 5 0 0 0 5 5 3 3 0 0 0 3-3v-2"/><circle cx="20" cy="10" r="2"/></svg>',
+  flask:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/></svg>',
+  file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+  scissors:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></svg>',
+  drop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>',
+  brain:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.5 2a2.5 2.5 0 0 1 2.5 2.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.98Z"/><path d="M14.5 2a2.5 2.5 0 0 0-2.5 2.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.98Z"/></svg>'
+};
+
+const CORES = ['#6d3bd4','#8b5cf6','#10b981','#06b6d4','#3b82f6','#a78bfa','#14b8a6','#f59e0b','#ec4899','#64748b','#0ea5e9','#22c55e'];
+Chart.defaults.font.family="'Inter',sans-serif";
+Chart.defaults.color='#64748b';
+Chart.defaults.font.size=11;
+let charts={};
+const fmt=n=>(n||0).toLocaleString('pt-BR');
+const rotuloMes=m=>{const[a,mm]=m.split('-');return mm+'/'+a.slice(2);};
+
+
+// ---------- Popula os selects com valores reais dos dados ----------
+function popularSelect(id, valores){
+  const el=document.getElementById(id);
+  const vistos=new Set();
+  valores.sort((a,b)=>a.localeCompare(b,'pt-BR')).forEach(v=>{
+    if(!v || vistos.has(v)) return; vistos.add(v);
+    const o=document.createElement('option'); o.value=v; o.textContent=v; el.appendChild(o);
+  });
+}
+function initFiltros(){
+  popularSelect('hosp',[...new Set(PAC.map(p=>p.hosp))]);
+  popularSelect('esp',[...new Set(EVT.filter(a=>a.tipo==='consulta').map(a=>a.especialidade))]);
+  popularSelect('tnm',[...new Set(PAC.map(p=>p.tnm))]);
+  popularSelect('sexo',[...new Set(PAC.map(p=>p.sexo))]);
+  popularSelect('regiao',[...new Set(PAC.map(p=>p.regiao))]);
+  popularSelect('medico',[...new Set(EVT.map(a=>a.medico))]);
+}
+
+function lerFiltros(){
+  return {
+    de: document.getElementById('de').value,
+    ate: document.getElementById('ate').value,
+    hosp: document.getElementById('hosp').value,
+    esp: document.getElementById('esp').value,
+    tnm: document.getElementById('tnm').value,
+    sexo: document.getElementById('sexo').value,
+    regiao: document.getElementById('regiao').value,
+    medico: document.getElementById('medico').value
+  };
+}
+function dentroPeriodo(mes,f){
+  if(!f.de && !f.ate) return true;
+  if(!mes) return false;
+  return (!f.de||mes>=f.de) && (!f.ate||mes<=f.ate);
+}
+function pacienteAttrsOk(p,f){
+  return (!f.hosp||p.hosp===f.hosp) && (!f.sexo||p.sexo===f.sexo) &&
+         (!f.regiao||p.regiao===f.regiao) && (!f.tnm||p.tnm===f.tnm);
+}
+function eventoAttrsOk(a,f){
+  return (!f.hosp||a.hosp===f.hosp) && (!f.esp||a.especialidade===f.esp) && (!f.medico||a.medico===f.medico);
+}
+
+// Filtra os dois conjuntos, cruzando os filtros entre si (join por id anônimo)
+function filtrar(){
+  const f=lerFiltros();
+  const temEspMed = !!(f.esp||f.medico);
+  const temPacAttr = !!(f.sexo||f.regiao||f.tnm);
+
+  const idsEventoOk = temEspMed ? new Set(EVT.filter(a=>eventoAttrsOk(a,f)).map(a=>a.id)) : null;
+  const idsPacienteOk = temPacAttr ? new Set(PAC.filter(p=>pacienteAttrsOk(p,f)).map(p=>p.id)) : null;
+
+  const pacientes = PAC.filter(p =>
+    pacienteAttrsOk(p,f) &&
+    (idsEventoOk===null || idsEventoOk.has(p.id)) &&
+    dentroPeriodo(p.mes,f)
+  );
+  const eventos = EVT.filter(a =>
+    eventoAttrsOk(a,f) &&
+    (idsPacienteOk===null || idsPacienteOk.has(a.id)) &&
+    dentroPeriodo(a.mes,f)
+  );
+  return {f, pacientes, eventos};
+}
+
+function tally(arr, campo){
+  const out={};
+  arr.forEach(x=>{ const v=x[campo]; if(v===undefined||v===null||v==='') return; out[v]=(out[v]||0)+1; });
+  return out;
+}
+function tallyPorMes(arr, campoMes, campoValor){
+  const out={};
+  arr.forEach(x=>{ const m=x[campoMes]; if(!m) return; out[m]=(out[m]||0)+(campoValor?x[campoValor]:1); });
+  return out;
+}
+
+function kpiHTML(rot,num,desc,icone,cor,sub){
+  return `<div class="kpi">
+    <div class="top"><div><div class="rot">${rot}</div>${sub?`<div class="sub">${sub}</div>`:''}</div><div class="icone ${cor}">${IC[icone]}</div></div>
+    <div class="num">${fmt(num)}</div><div class="desc">${desc}</div></div>`;
+}
+
+function render(){
+  const {f, pacientes, eventos} = filtrar();
+
+  // info filtro
+  let info=[];
+  info.push((f.de||f.ate)?('Período: '+(f.de?rotuloMes(f.de):'início')+' – '+(f.ate?rotuloMes(f.ate):'fim')):'Período: todo o histórico');
+  info.push(f.hosp||'Ambos hospitais');
+  const extras=[f.esp,f.tnm,f.sexo,f.regiao,f.medico].filter(Boolean);
+  if(extras.length) info.push(extras.join(' · '));
+  document.getElementById('infoFiltro').textContent='Exibindo · '+info.join(' · ');
+
+  // ---- KPIs Pacientes ----
+  const porSexo = tally(pacientes,'sexo');
+  const porDesfechoTodos = tally(pacientes,'desfecho');
+  const encaminhados = porDesfechoTodos['(encaminhado)']||0;
+  const porDesfecho = Object.fromEntries(Object.entries(porDesfechoTodos).filter(([k])=>k!=='(encaminhado)'));
+  const novos = pacientes.filter(p=>p.novo).length;
+
+  document.getElementById('kpisPac').innerHTML=
+    kpiHTML('Total',pacientes.length,'pacientes no filtro','users','ic-roxo')+
+    kpiHTML('Novos',novos,'primeiro atendimento','trend','ic-roxo2')+
+    kpiHTML('Em Andamento',porDesfecho['Em Andamento']||0,'tratamento ativo','check','ic-ciano')+
+    kpiHTML('Óbitos',porDesfecho['Obito']||0,'no filtro','heart','ic-verde')+
+    kpiHTML('Masculino',porSexo['Masculino']||0,'pacientes','male','ic-roxo')+
+    kpiHTML('Feminino',porSexo['Feminino']||0,'pacientes','female','ic-roxo2');
+
+  // ---- KPIs Atendimentos ----
+  const consultas=eventos.filter(e=>e.tipo==='consulta').length;
+  const exames=eventos.filter(e=>e.tipo==='exame').length;
+  const biopsias=eventos.filter(e=>e.tipo==='biopsia').length;
+  const cirurgias=eventos.filter(e=>e.tipo==='cirurgia').length;
+  const quimio=eventos.filter(e=>e.tipo==='quimio').reduce((s,e)=>s+(e.qtd||1),0);
+  const psicologia=eventos.filter(e=>e.tipo==='consulta'&&e.especialidade==='Psicologia').length;
+
+  document.getElementById('kpisAtend').innerHTML=
+    kpiHTML('Consultas',consultas,'no filtro','stetho','ic-ciano')+
+    kpiHTML('Exames',exames,'no filtro','flask','ic-verde')+
+    kpiHTML('Biópsias',biopsias,'subtipo de exame','file','ic-azul')+
+    kpiHTML('Cirurgias',cirurgias,'no filtro','scissors','ic-roxo')+
+    kpiHTML('Quimioterapia',0,'integração pendente','drop','ic-roxo2','Infusões')+
+    kpiHTML('Psicologia',psicologia,'atendimentos','brain','ic-ciano');
+
+  // ---- Novos por mês ----
+  const novosPorMes = tallyPorMes(pacientes.filter(p=>p.novo),'mes');
+  const mesesPac = Object.keys(novosPorMes).sort();
+  desenha('gNovos','bar',{labels:mesesPac.map(rotuloMes),
+    datasets:[{label:'Novos pacientes',data:mesesPac.map(m=>novosPorMes[m]),backgroundColor:CORES[0],borderRadius:5,maxBarThickness:26}]},
+    {plugins:{legend:{display:false}}});
+
+  // ---- Volume por mês (consultas/exames/biópsias/cirurgias) ----
+  const mesesEvt=[...new Set(eventos.map(e=>e.mes))].sort();
+  const porTipoMes = tipo => { const t=tallyPorMes(eventos.filter(e=>e.tipo===tipo),'mes'); return mesesEvt.map(m=>t[m]||0); };
+  desenha('gVolume','line',{labels:mesesEvt.map(rotuloMes),datasets:[
+    {label:'Consultas',data:porTipoMes('consulta'),borderColor:CORES[0],backgroundColor:'transparent',tension:.3,borderWidth:2,pointRadius:2},
+    {label:'Exames',data:porTipoMes('exame'),borderColor:CORES[2],backgroundColor:'transparent',tension:.3,borderWidth:2,pointRadius:2},
+    {label:'Biópsias',data:porTipoMes('biopsia'),borderColor:CORES[4],backgroundColor:'transparent',tension:.3,borderWidth:2,pointRadius:2},
+    {label:'Cirurgias',data:porTipoMes('cirurgia'),borderColor:CORES[7],backgroundColor:'transparent',tension:.3,borderWidth:2,pointRadius:2}
+  ]},{plugins:{legend:{position:'bottom'}}});
+
+  // ---- Sexo ----
+  desenha('gSexo','doughnut',{labels:Object.keys(porSexo),
+    datasets:[{data:Object.values(porSexo),backgroundColor:[CORES[1],CORES[0],CORES[9]],borderWidth:3,borderColor:'#fff'}]},
+    {cutout:'60%',plugins:{legend:{position:'bottom'}}});
+
+  // ---- Idade ----
+  const fe=tally(pacientes,'faixa');
+  const ordIdade=['0-18','19-39','40-59','60-74','75+','(sem idade)'].filter(k=>k in fe);
+  desenha('gIdade','bar',{labels:ordIdade,datasets:[{data:ordIdade.map(k=>fe[k]),backgroundColor:CORES[2],borderRadius:5,maxBarThickness:38}]},
+    {plugins:{legend:{display:false}}});
+
+  // ---- Desfecho ----
+  desenha('gDesfecho','bar',{labels:Object.keys(porDesfecho),datasets:[{data:Object.values(porDesfecho),backgroundColor:CORES[1],borderRadius:5}]},
+    {indexAxis:'y',plugins:{legend:{display:false}}});
+
+  // ---- Município ----
+  const mu=Object.entries(tally(pacientes,'municipio')).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  desenha('gMunicipio','bar',{labels:mu.map(x=>x[0]),datasets:[{data:mu.map(x=>x[1]),backgroundColor:CORES[3],borderRadius:5}]},
+    {indexAxis:'y',plugins:{legend:{display:false}}});
+
+  // ---- Região ----
+  const rg=Object.entries(tally(pacientes,'regiao')).sort((a,b)=>parseInt(a[0])-parseInt(b[0]));
+  desenha('gRegiao','bar',{labels:rg.map(x=>x[0]),datasets:[{data:rg.map(x=>x[1]),backgroundColor:CORES[4],borderRadius:5,maxBarThickness:30}]},
+    {plugins:{legend:{display:false}}});
+
+  // ---- Especialidade (só eventos tipo consulta) ----
+  const esp=Object.entries(tally(eventos.filter(e=>e.tipo==='consulta'),'especialidade')).sort((a,b)=>b[1]-a[1]);
+  desenha('gEspec','bar',{labels:esp.map(x=>x[0]),datasets:[{data:esp.map(x=>x[1]),backgroundColor:CORES[0],borderRadius:5}]},
+    {indexAxis:'y',plugins:{legend:{display:false}}});
+
+  // ---- TNM ----
+  const tnm=Object.entries(tally(pacientes,'tnm')).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  desenha('gTnm','bar',{labels:tnm.map(x=>x[0]),datasets:[{data:tnm.map(x=>x[1]),backgroundColor:CORES[7],borderRadius:5}]},
+    {indexAxis:'y',plugins:{legend:{display:false}}});
+
+  document.getElementById('notaDesfecho').textContent=
+    `Desfecho clínico não inclui ${fmt(encaminhados)} pacientes encaminhados a outros serviços (Cacon/Unacon) — encaminhamento é registrado à parte.`;
+}
+
+function desenha(id,tipo,data,opts){
+  if(charts[id])charts[id].destroy();
+  const base={responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{boxWidth:12,padding:12,font:{size:11}}},
+      tooltip:{backgroundColor:'#1e293b',padding:10,cornerRadius:8,titleFont:{size:12},bodyFont:{size:12}}},
+    scales:(tipo==='doughnut')?{}:{
+      y:{beginAtZero:true,grid:{color:'#eef1f6'},ticks:{font:{size:10}}},
+      x:{grid:{display:false},ticks:{font:{size:10}}}}};
+  charts[id]=new Chart(document.getElementById(id),{type:tipo,data:data,options:Object.assign(base,opts||{})});
+}
+
+async function carregarDados(forcar){
+  const status = document.getElementById('statusCarregamento');
+  const btn = document.getElementById('btnAtualizar');
+  btn.disabled = true;
+  status.textContent = forcar
+    ? 'Atualizando a partir da planilha... isso pode levar alguns minutos.'
+    : 'Carregando dados...';
+  try{
+    const url = URL_WEBAPP + (forcar ? '?atualizar=1' : '');
+    const resp = await fetch(url);
+    const json = await resp.json();
+    if(json.erro){ throw new Error(json.erro); }
+    DADOS = json;
+    PAC = DADOS.registros.pacientes;
+    EVT = DADOS.registros.atendimentos;
+    status.textContent = '';
+    document.getElementById('gerado').textContent =
+      'Atualizado em '+new Date(DADOS.gerado_em).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});
+    montarInterface();
+  }catch(err){
+    status.textContent = 'Erro ao carregar dados: '+err.message+'. Verifique se o Web App foi publicado corretamente.';
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+function montarInterface(){
+  ['hosp','esp','tnm','sexo','regiao','medico'].forEach(id=>{
+    const el=document.getElementById(id);
+    while(el.options.length>1) el.remove(1);
+  });
+  initFiltros();
+  const meses=[...new Set(PAC.map(p=>p.mes).filter(Boolean))].sort();
+  if(meses.length){
+    ['de','ate'].forEach(id=>{const el=document.getElementById(id);el.min=meses[0];el.max=meses[meses.length-1];});
+  }
+  render();
+}
+
+['de','ate','hosp','esp','tnm','sexo','regiao','medico'].forEach(id=>document.getElementById(id).addEventListener('change',render));
+document.getElementById('reset').addEventListener('click',()=>{
+  ['de','ate','hosp','esp','tnm','sexo','regiao','medico'].forEach(id=>document.getElementById(id).value='');
+  render();
+});
+document.getElementById('btnAtualizar').addEventListener('click',()=>carregarDados(true));
+
+carregarDados(false);
+</script>
+</body>
+</html>

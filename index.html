@@ -322,6 +322,11 @@ nav{
   --card-glow:rgba(236,72,153,.08);
   --card-icon-bg:rgba(236,72,153,.1);
 }
+.card-onco{
+  --card-accent:#6d3bd4;
+  --card-glow:rgba(109,59,212,.08);
+  --card-icon-bg:rgba(109,59,212,.1);
+}
 
 /* ── COMING SOON CARD ── */
 .card-soon{
@@ -382,6 +387,7 @@ footer{
 }
 [data-theme="light"] .card-indicadores{--card-accent:#0277bd;--card-icon-bg:rgba(2,119,189,.08)}
 [data-theme="light"] .card-maternidades{--card-accent:#c2185b;--card-icon-bg:rgba(194,24,91,.08)}
+[data-theme="light"] .card-onco{--card-accent:#6d3bd4;--card-icon-bg:rgba(109,59,212,.08)}
 </style>
 </head>
 <body>
@@ -428,6 +434,25 @@ footer{
 </div>
 
 <div class="cards-grid">
+
+  <!-- Dashboard Oncologia -->
+  <a href="/onco" class="dash-card card-onco">
+    <div class="card-icon">🧬</div>
+    <span class="card-tag">Oncologia</span>
+    <h2 class="card-title">Dashboard Oncologia</h2>
+    <p class="card-desc">Visão analítica do Centro de Oncologia HMA/HM — pacientes, consultas, exames, biópsias, cirurgias e tipo de câncer (TNM), com filtros por período, hospital, especialidade e região.</p>
+    <div class="card-chips">
+      <span class="chip">Pacientes</span>
+      <span class="chip">Consultas</span>
+      <span class="chip">Exames</span>
+      <span class="chip">Cirurgias</span>
+      <span class="chip">TNM</span>
+    </div>
+    <div class="card-cta">
+      <span class="cta-text">Acessar painel</span>
+      <div class="cta-arrow">↗</div>
+    </div>
+  </a>
 
   <!-- Indicadores Hospitalares -->
   <a href="/Indicadores" class="dash-card card-indicadores">
