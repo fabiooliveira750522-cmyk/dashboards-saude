@@ -43,7 +43,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text1);min-height:
 .topbar-left h1{font-size:20px;font-weight:600;letter-spacing:-.5px}
 .topbar-left p{font-size:12px;color:var(--text2);margin-top:3px}
 .topbar-right{display:flex;align-items:center;gap:8px}
-.dark-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface);backdrop-filter:var(--blur);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:background .2s,transform .15s;box-shadow:var(--shadow-sm)}
+.dark-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface);backdrop-filter:var(--blur);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:background .2s,transform .15s;box-shadow:var(--shadow-sm);text-decoration:none;color:var(--text1)}
 .dark-btn:hover{background:var(--bg3);transform:scale(1.06)}
 .sync-badge{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);background:var(--surface);backdrop-filter:var(--blur);border:1px solid var(--border);border-radius:99px;padding:5px 12px;box-shadow:var(--shadow-sm)}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
@@ -228,6 +228,7 @@ tfoot td:first-child{text-align:left}
     </div>
     <div class="topbar-right">
       <div class="sync-badge"><div class="sync-dot" id="sdot"></div><span id="syncLabel">Carregando...</span></div>
+      <a href="/" class="dark-btn" title="Voltar à central de painéis" aria-label="Home">⌂</a>
       <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()" title="Atualizar dados agora">↻</button>
       <button class="dark-btn" onclick="toggleDark()" id="darkBtn">🌙</button>
     </div>

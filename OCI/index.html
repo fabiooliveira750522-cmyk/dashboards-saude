@@ -113,6 +113,7 @@ header{
   color:var(--t2);cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   font-size:14px;transition:var(--tr);
+  text-decoration:none;
 }
 .btn-icon:hover{background:var(--s3);color:var(--t1)}
 .btn-icon.spinning{animation:spin 1s linear infinite}
@@ -558,6 +559,7 @@ footer{
     </div>
     <div class="header-meta">
       <span class="last-updated" id="lastUpdated">—</span>
+      <a href="/" class="btn-icon" title="Voltar à central de painéis" aria-label="Home">⌂</a>
       <button class="btn-icon" id="btnRefresh" title="Atualizar dados" onclick="loadData()">↺</button>
       <button class="btn-icon" id="btnTheme" title="Alternar tema" onclick="toggleTheme()">☀️</button>
     </div>
