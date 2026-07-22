@@ -1,0 +1,17 @@
+{
+  "name": "Dashboard Oncologia — HMA/HM",
+  "short_name": "Onco Dashboard",
+  "description": "Visão analítica do Centro de Oncologia HMA/HM",
+  "start_url": "/onco/",
+  "scope": "/onco/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#eef1fb",
+  "theme_color": "#6d3bd4",
+  "icons": [
+    { "src": "/onco/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/onco/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/onco/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/onco/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
