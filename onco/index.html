@@ -491,6 +491,13 @@ function montarInterface(){
   if(meses.length){
     ['de','ate'].forEach(id=>{const el=document.getElementById(id);el.min=meses[0];el.max=meses[meses.length-1];});
   }
+  // Filtro padrão: jan/2026 até o mês atual (só se os campos ainda estiverem vazios)
+  const elDe=document.getElementById('de'), elAte=document.getElementById('ate');
+  if(elDe.value===''&&elAte.value===''){
+    const hoje=new Date();
+    elDe.value='2026-01';
+    elAte.value=hoje.getFullYear()+'-'+String(hoje.getMonth()+1).padStart(2,'0');
+  }
   render();
 }
 
