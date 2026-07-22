@@ -370,15 +370,15 @@ function render(){
   const exames=eventos.filter(e=>e.tipo==='exame').length;
   const biopsias=eventos.filter(e=>e.tipo==='biopsia').length;
   const cirurgias=eventos.filter(e=>e.tipo==='cirurgia').length;
-  const quimio=eventos.filter(e=>e.tipo==='quimio').reduce((s,e)=>s+(e.qtd||1),0);
+  const coletas=eventos.filter(e=>e.tipo==='coleta').length;
   const psicologia=eventos.filter(e=>e.tipo==='consulta'&&e.especialidade==='Psicologia').length;
 
   document.getElementById('kpisAtend').innerHTML=
     kpiHTML('Consultas',consultas,'no filtro','stetho','ic-ciano')+
     kpiHTML('Exames',exames,'no filtro','flask','ic-verde')+
+    kpiHTML('Coleta',coletas,'exames laboratoriais','drop','ic-roxo2')+
     kpiHTML('Biópsias',biopsias,'subtipo de exame','file','ic-azul')+
     kpiHTML('Cirurgias',cirurgias,'no filtro','scissors','ic-roxo')+
-    kpiHTML('Quimioterapia',0,'integração pendente','drop','ic-roxo2','Infusões')+
     kpiHTML('Psicologia',psicologia,'atendimentos','brain','ic-ciano');
 
   // ---- Novos por mês ----
