@@ -315,6 +315,7 @@ const URL_WEBAPP = 'https://script.google.com/macros/s/AKfycbyJFYc6U-yIWVeH03goQ
 let DADOS = null;
 let PAC = [];
 let EVT = [];
+let filtrosPrincipalInicializados = false;
 
 const IC = {
   users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
@@ -569,6 +570,17 @@ function montarInterface(){
   if(meses.length){
     ['de','ate'].forEach(id=>{const el=document.getElementById(id);el.min=meses[0];el.max=meses[meses.length-1];});
   }
+
+  // Filtro padrão: jan/2026 até o mês corrente (pega sempre os dados mais
+  // novos ao abrir). Só na 1ª carga — não sobrescreve se o usuário já mexeu.
+  if(!filtrosPrincipalInicializados){
+    const hoje=new Date();
+    const mesAtual=hoje.getFullYear()+'-'+String(hoje.getMonth()+1).padStart(2,'0');
+    document.getElementById('de').value='2026-01';
+    document.getElementById('ate').value= meses.length ? (mesAtual>meses[meses.length-1]?meses[meses.length-1]:mesAtual) : mesAtual;
+    filtrosPrincipalInicializados=true;
+  }
+
   render();
 
   QUIMIO = (DADOS.quimio)||null;
