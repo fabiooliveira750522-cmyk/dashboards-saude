@@ -49,11 +49,23 @@ main{max-width:1360px;margin:0 auto;padding:20px 28px 48px}
 .tabbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
 .mtab{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;font-weight:600;color:var(--t2);background:transparent;border:1px solid transparent;border-radius:999px;cursor:pointer;transition:all .16s;font-family:var(--font)}
 .mtab:hover{color:var(--t1);background:var(--surface-2)}
-.mtab.active{background:var(--surface);color:var(--t1);border-color:var(--border);box-shadow:var(--sh-s)}
+.mtab.active{background:var(--surface);color:var(--t1);border-color:var(--border);box-shadow:var(--sh-s);cursor:default}
+.mtab.active:hover{background:var(--surface);color:var(--t1)}
 .mtab .mdot{width:8px;height:8px;border-radius:50%;background:var(--t4)}
 .mtab.active .mdot{background:var(--blue)}
 .mtab .dtag{font-size:11px;font-weight:600;color:var(--t3)}
 .mtab:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* SELETOR DE MÊS */
+.msel-wrap{position:relative;display:inline-flex;align-items:center}
+.msel{appearance:none;-webkit-appearance:none;-moz-appearance:none;
+  padding:9px 32px 9px 15px;font-size:13px;font-weight:600;font-family:var(--font);
+  color:var(--t2);background:var(--surface-2);border:1px solid var(--border);
+  border-radius:999px;cursor:pointer;transition:all .16s;line-height:1.2}
+.msel:hover{background:var(--border);color:var(--t1)}
+.msel:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.msel-chev{position:absolute;right:12px;color:var(--t3);pointer-events:none}
+.msel option{background:var(--surface);color:var(--t1);font-weight:500}
 
 /* NOTICE */
 .notice{display:none;align-items:flex-start;gap:11px;background:var(--blue-soft);border:1px solid transparent;border-radius:var(--r-m);padding:13px 16px;margin-bottom:20px}
@@ -91,10 +103,15 @@ main{max-width:1360px;margin:0 auto;padding:20px 28px 48px}
 .hs{font-size:10px;color:var(--t3)} .hs b{color:var(--t2);font-weight:600;font-family:var(--mono)}
 
 /* UPA */
-.ustrip{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}
+.ustrip{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:8px;margin-bottom:10px}
 .uc{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-s);padding:14px 8px;text-align:center}
 .un{font-size:9.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
 .uv{font-size:23px;font-weight:700;font-family:var(--mono);letter-spacing:-.03em;color:var(--blue)}
+.uc-extra{border-style:dashed;border-color:var(--border-strong);background:transparent}
+.uc-extra .uv{color:var(--t2)}
+.uex{font-size:8px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:var(--t4);margin-top:4px;line-height:1.3}
+.unote{font-size:10.5px;line-height:1.5;color:var(--t3);margin:0 0 10px;padding-left:2px}
+.unote:empty{display:none}
 .utstrip{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .utc{background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:var(--r-s);padding:14px;text-align:center}
 .utl{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:4px}
@@ -190,24 +207,25 @@ footer strong{color:var(--t2)}
     <div class="card">
       <div class="ct" id="utitle">Situação nas UPAs <small>Média/dia</small></div>
       <div class="ustrip" id="ucards"></div>
+      <div class="unote" id="unote"></div>
       <div class="utstrip" id="utotais"></div>
     </div>
     <div class="card"><div class="ct">Retaguarda por unidade <small>Média/dia</small></div><div class="chart-wrap" style="height:230px"><canvas id="rchart"></canvas></div></div>
   </div>
 
   <div class="rfull card">
-    <div class="ct">Evolução dos indicadores <small>Fev → Jun 2026</small></div>
+    <div class="ct">Evolução dos indicadores <small>Fev → Jul 2026</small></div>
     <div class="emgrid" id="emgrid"></div>
   </div>
 </main>
 
 <footer>
   <span><strong>Governo de Alagoas</strong> · Dashboard de Indicadores Hospitalares</span>
-  <span>Dados: Relatórios Mensais Fev–Jun 2026</span>
+  <span>Dados: Relatórios Mensais Fev–Jul 2026</span>
 </footer>
 
 <script>
-const MONTHS=['Fev/26','Mar/26','Abr/26','Mai/26','Jun/26'];
+const MONTHS=['Fev/26','Mar/26','Abr/26','Mai/26','Jun/26','Jul/26'];
 const DATA=[
   {label:'Fev/26',dias:28,taxa_uti:81.1,fila_uti:17.9,regulacoes:103.1,enf_adulto:77.0,uti_adulto:10.5,solicitacoes:266.5,
    upas_estado:53.3,upas_pronto:40.1,
@@ -240,9 +258,18 @@ const DATA=[
    hosp_taxa:{HGE:85,'HR Norte':86,'H Metropolitano':91,'HR Mata':89,'H Mulher':90,'HR Alto Sertão':66,HEDH:91,'H Coração':93,HEHA:83,'HR Palmeira':88},
    hosp_saidas:{HGE:29.0,'HR Alto Sertão':10.3,'HR Norte':15.5,HEDH:14.4,'H Metropolitano':11.4,'H Coração':2.1,'HR Mata':14.4,HEHA:3.5,'H Mulher':14.2,'HR Palmeira':9.0},
    retaguarda:{HGE:1.2,'HR Norte':1.5,'H Metropolitano':2.5,'HR Mata':1.7,'H Mulher':1.7,'HR Alto Sertão':0.2,HEDH:1.0,'H Coração':0.7,HEHA:1.0,'HR Palmeira':1.5}},
+  {label:'Jul/26',dias:31,taxa_uti:86.5,fila_uti:16.6,regulacoes:174.3,enf_adulto:133.3,uti_adulto:16.8,solicitacoes:222.6,
+   novo_horario:true,
+   upas_estado:29.4,upas_pronto:29.0,
+   upas:{Jaraguá:7.1,Tabuleiro:3.3,Jacintinho:4.7,Jaqueira:4.1,'Cid. Univ.':3.4,Arapiraca:6.8},
+   upas_extra:[{nome:'Rio Largo',valor:2.5,nota:'desde 21/07 · 11 dias'}],
+   upas_nota:'“UPAs Estado” (29,4) = 5 UPAs de Maceió + Arapiraca. Rio Largo (interior) registrada a partir de 21/07 (11 dias) e não entra no subtotal.',
+   hosp_taxa:{HGE:79,'HR Norte':83,'H Metropolitano':92,'HR Mata':93,'H Mulher':90,'HR Alto Sertão':84,HEDH:88,'H Coração':92,HEHA:81,'HR Palmeira':92},
+   hosp_saidas:{HGE:32.1,'HR Alto Sertão':12.9,'HR Norte':14.6,HEDH:16.3,'H Metropolitano':11.5,'H Coração':1.5,'HR Mata':16.0,HEHA:3.9,'H Mulher':14.0,'HR Palmeira':10.0},
+   retaguarda:{HGE:1.3,'HR Norte':2.2,'H Metropolitano':2.2,'HR Mata':1.2,'H Mulher':1.6,'HR Alto Sertão':0.5,HEDH:1.2,'H Coração':0.8,HEHA:0.7,'HR Palmeira':1.1}},
 ];
 const HORD=['HGE','HR Norte','H Metropolitano','HR Mata','H Mulher','HR Alto Sertão','HEDH','H Coração','HEHA','HR Palmeira'];
-let cur=4; const C={};
+let cur=5; const C={};
 
 Chart.defaults.font.family='-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif';
 
@@ -257,10 +284,16 @@ function dHtml(cv,pv,inv){
 }
 
 function renderTabs(){
-  document.getElementById('tabbar').innerHTML=DATA.map((d,i)=>
-    `<button class="mtab${i===cur?' active':''}" onclick="setMonth(${i})">
-       <span class="mdot"></span>${d.label}<span class="dtag">${d.dias}d</span>
-     </button>`).join('');
+  const d=DATA[cur];
+  document.getElementById('tabbar').innerHTML=`
+    <div class="mtab active" aria-current="true"><span class="mdot"></span>${d.label}<span class="dtag">${d.dias}d</span></div>
+    <div class="msel-wrap">
+      <select class="msel" id="msel" aria-label="Selecionar mês de referência">
+        ${DATA.map((m,i)=>`<option value="${i}"${i===cur?' selected':''}>${m.label} · ${m.dias} dias</option>`).join('')}
+      </select>
+      <svg class="msel-chev" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+    </div>`;
+  document.getElementById('msel').addEventListener('change',e=>setMonth(+e.target.value));
 }
 
 function renderKPIs(mi){
@@ -334,8 +367,12 @@ function renderHosp(mi){
 function renderUpas(mi){
   const d=DATA[mi];
   document.getElementById('utitle').innerHTML=`Situação nas UPAs <small>${d.label} · Média/dia</small>`;
-  document.getElementById('ucards').innerHTML=Object.entries(d.upas).map(([n,v])=>
+  const base=Object.entries(d.upas).map(([n,v])=>
     `<div class="uc"><div class="un">${n}</div><div class="uv">${v.toFixed(1)}</div></div>`).join('');
+  const extra=(d.upas_extra||[]).map(e=>
+    `<div class="uc uc-extra"><div class="un">${e.nome}</div><div class="uv">${e.valor.toFixed(1)}</div><div class="uex">${e.nota}</div></div>`).join('');
+  document.getElementById('ucards').innerHTML=base+extra;
+  document.getElementById('unote').textContent = d.upas_nota || '';
   document.getElementById('utotais').innerHTML=`
     <div class="utc"><div class="utl">UPAs Estado</div><div class="utv">${d.upas_estado.toFixed(1)}</div></div>
     <div class="utc"><div class="utl">UPAs Pronto</div><div class="utv">${d.upas_pronto.toFixed(1)}</div></div>`;
@@ -394,7 +431,7 @@ let theme = 'light';
 applyTheme(theme);
 themeBtn.addEventListener('click',()=>{ theme = theme==='dark'?'light':'dark'; applyTheme(theme); setMonth(cur); });
 
-setMonth(4);
+setMonth(5);
 </script>
 </body>
 </html>
