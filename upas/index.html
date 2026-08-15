@@ -224,7 +224,7 @@ tfoot td:first-child{text-align:left}
   <div class="topbar">
     <div class="topbar-left">
       <h1>UPAs Alagoas</h1>
-      <p>Classificação de Risco — Protocolo de Manchester · maio/2026</p>
+      <p>Classificação de Risco — Protocolo de Manchester</p>
     </div>
     <div class="topbar-right">
       <div class="sync-badge"><div class="sync-dot" id="sdot"></div><span id="syncLabel">Carregando...</span></div>
@@ -365,10 +365,10 @@ tfoot td:first-child{text-align:left}
 <script>
 // ── CONSTANTES ────────────────────────────────────────────────────────────
 const META  = 15;
-const UPAS  = ['Arapiraca','Jaraguá','Tabuleiro','Jacintinho','Jaqueira','Cidade Univ.'];
-const CODES = ['ARA','JAR','TAB','JAC','JAQ','CID'];
+const UPAS  = ['Arapiraca','Jaraguá','Tabuleiro','Jacintinho','Jaqueira','Cidade Univ.','Rio Largo'];
+const CODES = ['ARA','JAR','TAB','JAC','JAQ','CID','URL'];
 const NCOLS = ['#007aff','#34c759','#ff9500','#ff3b30','#af52de'];
-const UCOLS = ['#007aff','#34c759','#ff9500','#ff3b30','#af52de','#5ac8fa'];
+const UCOLS = ['#007aff','#34c759','#ff9500','#ff3b30','#af52de','#5ac8fa','#00897b'];
 
 // ── DADOS — carregados da planilha via Google Visualization API ───────────
 // Esta API não tem bloqueio CORS e funciona em qualquer hospedagem.
@@ -397,7 +397,7 @@ function parseVizResponse(jsonText){
   const data = JSON.parse(json);
   const rows = data?.table?.rows || [];
   const result = {};
-  const upaOrder = ['ARA','JAR','TAB','JAC','JAQ','CID'];
+  const upaOrder = CODES; // ordem das UPAs = ordem das colunas na planilha
 
   for(const row of rows){
     const cells = row.c || [];
@@ -461,9 +461,10 @@ async function loadSheet(){
       '2026-05-23':{ARA:{psav:0,savd:null,n:[0,107,65,0,2]},JAR:{psav:0,savd:null,n:[2,159,45,0,1]},TAB:{psav:0,savd:null,n:[7,62,56,0,4]},JAC:{psav:0,savd:null,n:[1,124,80,0,0]},JAQ:{psav:0,savd:null,n:[0,169,64,0,0]},CID:{psav:0,savd:null,n:[2,115,133,0,1]}},
       '2026-05-24':{ARA:{psav:0,savd:null,n:[0,117,40,0,4]},JAR:{psav:0,savd:null,n:[5,146,50,0,2]},TAB:{psav:0,savd:null,n:[12,100,74,0,1]},JAC:{psav:0,savd:null,n:[8,126,52,0,1]},JAQ:{psav:0,savd:null,n:[2,125,61,0,0]},CID:{psav:0,savd:null,n:[0,111,112,0,4]}},
     };
-    // Mensagem discreta — não é erro, é apenas o ambiente de preview
+    // Falha na leitura da planilha — sinaliza claramente
     document.getElementById('syncLabel').textContent =
-      'Dados: 22/05/2026';
+      '⚠ Sem conexão — dados de exemplo';
+    document.getElementById('sdot') && (document.getElementById('sdot').style.background='#ff9500');
     document.getElementById('sdot') && (document.getElementById('sdot').style.background='');
     return false;
   }
@@ -636,7 +637,9 @@ function buildKPIs(dates,agg){
     document.getElementById('bannerNote').textContent=dias+' dia(s) — '+(isMedia?'médias do período':'soma do período');
   } else {
     document.getElementById('bannerTag').textContent='Última atualização';
-    document.getElementById('bannerDate').textContent='Maio/2026';
+    const _selMes=document.getElementById('inMes');
+    document.getElementById('bannerDate').textContent=
+      (_selMes&&_selMes.selectedOptions[0]?_selMes.selectedOptions[0].textContent:'Mês selecionado');
     document.getElementById('bannerNote').textContent=dias+' dias — '+(isMedia?'médias':'soma');
   }
 
@@ -714,47 +717,116 @@ function buildChartLine(selDates){
     showDates=ALL_DATES_FN(); highlightDates=ALL_DATES_FN();
     sub='Todos os registros disponíveis';
   } else if(mode==='dia'){
-    const idx=ALL_DATES_FN().indexOf(selDates[0]);
-    const from=Math.max(0,idx-2),to=Math.min(ALL_DATES_FN().length-1,idx+2);
-    showDates=ALL_DATES_FN().slice(from,to+1);
+    // janela de contexto: 14 dias terminando no dia selecionado
+    const all=ALL_DATES_FN(); const idx=all.indexOf(selDates[0]);
+    const from=Math.max(0,idx-13);
+    showDates=all.slice(from,idx+1);
     highlightDates=selDates;
-    sub='Contexto em torno de '+fd(selDates[0]);
+    sub='Últimos 14 dias até '+fd(selDates[0]);
   } else if(mode==='periodo'){
     showDates=selDates; highlightDates=selDates;
-    sub='Período selecionado';
+    sub='Período selecionado ('+selDates.length+' dias)';
   } else {
-    showDates=ALL_DATES_FN(); highlightDates=selDates;
-    sub='Destaque: Maio/2026';
+    // mês: mostra o mês selecionado + 15 dias antes e depois como contexto
+    const all=ALL_DATES_FN();
+    const first=all.indexOf(selDates[0]);
+    const last=all.indexOf(selDates[selDates.length-1]);
+    showDates=all.slice(Math.max(0,first-15),Math.min(all.length,last+16));
+    highlightDates=selDates;
+    const mesLbl=document.getElementById('inMes');
+    sub='Destaque: '+(mesLbl&&mesLbl.selectedOptions[0]?mesLbl.selectedOptions[0].textContent:'mês selecionado');
   }
   document.getElementById('subLine').textContent=sub;
 
-  const ds=UPAS.map((u,ui)=>({
-    label:u,
-    data:showDates.map(d=>DADOS[d]?.[CODES[ui]]?sum(DADOS[d][CODES[ui]].n):null),
-    borderColor:UCOLS[ui],backgroundColor:'transparent',
-    borderWidth:2,tension:0.35,
-    pointRadius:showDates.map(d=>highlightDates.includes(d)?5:2),
-    pointBackgroundColor:showDates.map(d=>highlightDates.includes(d)?UCOLS[ui]:'transparent'),
-    pointBorderColor:UCOLS[ui],pointBorderWidth:1.5,
-    segment:{
-      borderDash:ctx=>{const d=showDates[ctx.p0DataIndex];return(mode==='mes'&&!highlightDates.includes(d))?[4,4]:[];},
-      borderColor:ctx=>{const d=showDates[ctx.p0DataIndex];return(mode==='mes'&&!highlightDates.includes(d))?UCOLS[ui]+'55':UCOLS[ui];}
-    }
-  }));
+  const n=showDates.length;
+  const denso = n>45;               // muitos pontos → esconde marcadores
+  const medio = n>20 && n<=45;
+  const hiSet = new Set(highlightDates);
+  const temContexto = (mode==='mes') && highlightDates.length < n;
+
+  const ds=UPAS.map((u,ui)=>{
+    const vals=showDates.map(d=>DADOS[d]?.[CODES[ui]]?sum(DADOS[d][CODES[ui]].n):null);
+    return {
+      label:u,
+      data:vals,
+      borderColor:UCOLS[ui],
+      backgroundColor:'transparent',
+      borderWidth: denso?1.6:2.2,
+      tension:0.3,
+      spanGaps:false,
+      // marcadores só quando há espaço; sempre visíveis no hover
+      pointRadius: showDates.map(d=>{
+        if(hiSet.has(d) && mode==='dia') return 6;
+        if(denso) return 0;
+        if(!hiSet.has(d)) return medio?0:2;
+        return medio?2.5:3.5;
+      }),
+      pointHoverRadius:5,
+      pointBackgroundColor:UCOLS[ui],
+      pointBorderColor:UCOLS[ui],
+      pointBorderWidth:0,
+      // fora do destaque: linha fina, tracejada e esmaecida
+      segment:{
+        borderDash:ctx=>{
+          if(!temContexto) return [];
+          const d=showDates[ctx.p1DataIndex];
+          return hiSet.has(d)?[]:[3,3];
+        },
+        borderColor:ctx=>{
+          if(!temContexto) return UCOLS[ui];
+          const d=showDates[ctx.p1DataIndex];
+          return hiSet.has(d)?UCOLS[ui]:UCOLS[ui]+'40';
+        },
+        borderWidth:ctx=>{
+          if(!temContexto) return denso?1.6:2.2;
+          const d=showDates[ctx.p1DataIndex];
+          return hiSet.has(d)?(denso?1.8:2.4):1;
+        }
+      }
+    };
+  });
 
   document.getElementById('lineLeg').innerHTML=UPAS.map((u,i)=>
-    `<div class="legend-item"><div class="legend-dot" style="background:${UCOLS[i]}"></div>${u.length>8?u.slice(0,7)+'…':u}</div>`
+    `<div class="legend-item"><div class="legend-dot" style="background:${UCOLS[i]}"></div>${u.length>11?u.slice(0,10)+'…':u}</div>`
   ).join('');
 
   if(cLineI)cLineI.destroy();
   cLineI=new Chart(document.getElementById('cLine'),{
     type:'line',
     data:{labels:showDates.map(fd),datasets:ds},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          mode:'index',intersect:false,
+          itemSort:(a,b)=>b.parsed.y-a.parsed.y,   // maior volume primeiro
+          callbacks:{
+            title:items=>{
+              const d=showDates[items[0].dataIndex];
+              const dow=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][new Date(d+'T12:00:00').getDay()];
+              return fd(d)+' ('+dow+')';
+            },
+            label:c=>c.dataset.label+': '+c.parsed.y
+          }
+        }
+      },
       scales:{
-        x:{grid:{display:false},ticks:{font:{size:10},color:tick,autoSkip:false,maxRotation:20}},
-        y:{grid:{color:grid},ticks:{font:{size:10},color:tick}},
+        x:{
+          grid:{display:false},
+          ticks:{
+            font:{size:10},color:tick,
+            autoSkip:true,                       // evita empilhar rótulos
+            maxTicksLimit: denso?10:(medio?12:14),
+            maxRotation:0,minRotation:0
+          }
+        },
+        y:{
+          grid:{color:grid},
+          ticks:{font:{size:10},color:tick},
+          beginAtZero:false
+        }
       }
     }
   });
