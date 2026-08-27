@@ -328,12 +328,6 @@ nav{
   --card-icon-bg:rgba(109,59,212,.1);
 }
 
-.card-agora{
-  --card-accent:#ffab40;
-  --card-glow:rgba(255,171,64,.08);
-  --card-icon-bg:rgba(255,171,64,.1);
-}
-
 /* ── COMING SOON CARD ── */
 .card-soon{
   --card-accent:#ffab40;
@@ -394,8 +388,6 @@ footer{
 [data-theme="light"] .card-indicadores{--card-accent:#0277bd;--card-icon-bg:rgba(2,119,189,.08)}
 [data-theme="light"] .card-maternidades{--card-accent:#c2185b;--card-icon-bg:rgba(194,24,91,.08)}
 [data-theme="light"] .card-onco{--card-accent:#6d3bd4;--card-icon-bg:rgba(109,59,212,.08)}
-[data-theme="light"] .card-agora{--card-accent:#e65100;--card-icon-bg:rgba(230,81,0,.08)}
-[data-theme="light"] .card-oci{--card-accent:#1565c0;--card-icon-bg:rgba(21,101,192,.08)}
 </style>
 </head>
 <body>
@@ -423,7 +415,7 @@ footer{
   </p>
   <div class="hero-stats">
     <div class="hero-stat">
-      <div class="hero-stat-val">7</div>
+      <div class="hero-stat-val">5</div>
       <div class="hero-stat-lbl">Painéis ativos</div>
     </div>
     <div class="hero-stat">
@@ -486,13 +478,12 @@ footer{
     <div class="card-icon">🏥</div>
     <span class="card-tag">Urgência</span>
     <h2 class="card-title">Dashboard UPAs</h2>
-    <p class="card-desc">Classificação de risco pelo Protocolo de Manchester nas 7 UPAs do Estado — volume e criticidade dos atendimentos, adesão ao PSAV e padrão de demanda por dia da semana.</p>
+    <p class="card-desc">Acompanhamento das Unidades de Pronto Atendimento — fluxo de pacientes, tempo de espera, ocupação e indicadores de atendimento de urgência e emergência.</p>
     <div class="card-chips">
-      <span class="chip">Manchester</span>
-      <span class="chip">Criticidade</span>
-      <span class="chip">PSAV</span>
-      <span class="chip">7 UPAs</span>
-      <span class="chip">Dia da semana</span>
+      <span class="chip">Atendimentos</span>
+      <span class="chip">Ocupação</span>
+      <span class="chip">Tempo espera</span>
+      <span class="chip">Regiões</span>
     </div>
     <div class="card-cta">
       <span class="cta-text">Acessar painel</span>
@@ -504,33 +495,13 @@ footer{
   <a href="/cirurgias" class="dash-card card-cirurgias">
     <div class="card-icon">🩺</div>
     <span class="card-tag">Cirurgias</span>
-    <h2 class="card-title">Saúde Até Você · Cirurgias</h2>
-    <p class="card-desc">Produção cirúrgica do programa Saúde Até Você por equipe — a Equipe 1 no pós-agendamento e nos procedimentos realizados, a Equipe 2 na triagem e na fila de espera.</p>
+    <h2 class="card-title">Dashboard Cirurgias</h2>
+    <p class="card-desc">Gestão da fila cirúrgica do Estado — volume de procedimentos, especialidades, hospitais, tempos de espera e produtividade da rede cirúrgica pública.</p>
     <div class="card-chips">
-      <span class="chip">Equipe 1</span>
-      <span class="chip">Equipe 2</span>
       <span class="chip">Procedimentos</span>
-      <span class="chip">Triagem</span>
+      <span class="chip">Especialidades</span>
       <span class="chip">Fila</span>
-    </div>
-    <div class="card-cta">
-      <span class="cta-text">Acessar painel</span>
-      <div class="cta-arrow">↗</div>
-    </div>
-  </a>
-
-  <!-- Agora Tem Especialista -->
-  <a href="/agora" class="dash-card card-agora">
-    <div class="card-icon">🩹</div>
-    <span class="card-tag">Regulação</span>
-    <h2 class="card-title">Agora Tem Especialista</h2>
-    <p class="card-desc">Acompanhamento das edições do programa — jornada do paciente do cadastro à cirurgia realizada, por município e especialidade, com conferência do preenchimento das planilhas frente ao modelo oficial.</p>
-    <div class="card-chips">
-      <span class="chip">Edições</span>
-      <span class="chip">Triagem</span>
-      <span class="chip">Convocação</span>
-      <span class="chip">Cirurgias</span>
-      <span class="chip">Conformidade</span>
+      <span class="chip">Hospitais</span>
     </div>
     <div class="card-cta">
       <span class="cta-text">Acessar painel</span>
@@ -550,7 +521,6 @@ footer{
       <span class="chip">Gástrico</span>
       <span class="chip">Mama</span>
       <span class="chip">Colo do Útero</span>
-      <span class="chip">Nasofaringe</span>
     </div>
     <div class="card-cta">
       <span class="cta-text">Acessar painel</span>
@@ -583,8 +553,6 @@ footer{
   <div class="footer-inner">
     <span class="footer-copy">© 2026 · Secretaria de Estado da Saúde de Alagoas · Dados atualizados em tempo real via Google Sheets</span>
     <div class="footer-dots">
-      <div class="dot active"></div>
-      <div class="dot active"></div>
       <div class="dot active"></div>
       <div class="dot active"></div>
       <div class="dot active"></div>
