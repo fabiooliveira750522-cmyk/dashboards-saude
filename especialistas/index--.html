@@ -62,9 +62,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text1);min-height:
 .ed-tab.on{background:var(--bg2);color:var(--text1);box-shadow:var(--shadow-sm)}
 .ed-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 
-.reg-aviso{background:var(--orange-soft);color:var(--orange);border-radius:var(--radius-md);padding:11px 14px;font-size:11.5px;line-height:1.6;margin-bottom:18px}
-.reg-aviso code{font-family:'SF Mono',Menlo,monospace;background:var(--bg3);border-radius:5px;padding:1px 6px}
-
 /* AJUDA / MODAL */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;animation:fade .18s ease}
 @keyframes fade{from{opacity:0}to{opacity:1}}
@@ -234,14 +231,12 @@ footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--border2);font
   <!-- EDIÇÕES -->
   <div class="ed-bar">
     <div class="ed-tabs" id="edTabs"></div>
-    <button class="mini-btn" onclick="toggleNovaEd()" id="novaEdBtn">＋ Publicar edição</button>
+    <button class="mini-btn" onclick="toggleNovaEd()" id="novaEdBtn">＋ Nova edição</button>
   </div>
-
-  <div class="reg-aviso hide" id="regAviso"></div>
 
   <div class="nova-ed hide" id="novaEd">
     <div class="ne-title">Adicionar edição</div>
-    <div class="ne-desc">Cole o link da planilha do Google — ela precisa estar compartilhada como <b>“Qualquer pessoa com o link · Leitor”</b>. O painel testa a leitura e devolve a linha pronta para você acrescentar no <b>registro de edições</b>. É o registro que publica a edição: assim que a linha entrar lá, todo mundo que abrir o painel passa a ver, sem precisar republicar nada.</div>
+    <div class="ne-desc">Cole o link da planilha do Google. Ela precisa estar compartilhada como <b>“Qualquer pessoa com o link · Leitor”</b>. A edição fica salva neste navegador e passa a carregar ao vivo, igual às demais.</div>
     <div class="ne-row">
       <div class="fgrp"><label>Nome da aba</label><input id="neNome" placeholder="Edição 02"></div>
       <div class="fgrp" style="flex:3 1 320px"><label>Link ou ID da planilha</label><input id="neUrl" placeholder="https://docs.google.com/spreadsheets/d/…"></div>
@@ -250,7 +245,7 @@ footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--border2);font
     <div class="ne-row">
       <div class="fgrp" style="flex:2 1 220px"><label>Título completo (opcional)</label><input id="neTitulo" placeholder="ED 02 — Agora Tem Especialistas 2026"></div>
       <div class="fgrp"><label>Município / região (opcional)</label><input id="neLocal" placeholder="Região de …"></div>
-      <button class="mini-btn on" style="align-self:flex-end" onclick="adicionarEdicao()">Testar planilha</button>
+      <button class="mini-btn on" style="align-self:flex-end" onclick="adicionarEdicao()">Testar e adicionar</button>
     </div>
     <div class="ne-msg hide" id="neMsg"></div>
     <div class="ne-code hide" id="neCode"></div>
@@ -433,23 +428,8 @@ footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--border2);font
         <div class="md-err"><b>Município com grafias diferentes</b><span><code>VICOSA</code> e <code>VIÇOSA</code> são o mesmo município e dividem os totais. Padronizar com acento.</span></div>
         <div class="md-err"><b>Motivo preenchido sem REALIZADA = NÃO</b><span>O motivo só se aplica a cirurgia que não aconteceu.</span></div>
 
-        <h3>Como publicar uma edição nova</h3>
-        <p>A lista de edições fica numa planilha do Google chamada <b>registro de edições</b>, que funciona como índice. Publicar uma edição é acrescentar uma linha nesse registro — não precisa republicar o site, e todo mundo que abrir o painel passa a ver.</p>
-        <p>No botão <b>＋ Publicar edição</b>, cole o link da planilha da edição. O painel testa a leitura na hora e devolve a linha pronta para colar no registro.</p>
-        <div class="md-tw"><table>
-          <thead><tr><th>Coluna do registro</th><th>Conteúdo</th></tr></thead>
-          <tbody>
-            <tr><td>NOME</td><td>rótulo curto da aba, ex.: <code>Edição 05</code></td></tr>
-            <tr><td>TITULO</td><td>título completo mostrado no banner</td></tr>
-            <tr><td>SHEET_ID</td><td>ID da planilha da edição (trecho entre <code>/d/</code> e <code>/edit</code> da URL)</td></tr>
-            <tr><td>ABA</td><td>aba com os dados; vazio usa a primeira</td></tr>
-            <tr><td>LOCAL</td><td>município ou região sede (opcional)</td></tr>
-            <tr><td>PERIODO</td><td>período da edição (opcional)</td></tr>
-            <tr><td>COR</td><td>cor da aba em hex, ex.: <code>#34c759</code> (opcional)</td></tr>
-            <tr><td>ATIVO</td><td><code>NÃO</code> oculta a edição do painel; vazio ou <code>SIM</code> a mantém visível</td></tr>
-          </tbody>
-        </table></div>
-        <p>O registro e as planilhas das edições precisam estar compartilhados como <b>“Qualquer pessoa com o link · Leitor”</b>. Uma edição encerrada não precisa ser apagada: basta marcar <code>ATIVO = NÃO</code>.</p>
+        <h3>Como adicionar uma nova edição</h3>
+        <p>No botão <b>＋ Nova edição</b>, cole o link da planilha. O painel testa a leitura na hora e passa a carregar a edição ao vivo neste navegador. Para valer para todos os usuários, ele devolve a linha de código pronta para colar no arquivo <code>index.html</code>, dentro de <code>EDICOES_FIXAS</code>.</p>
       </div>
       <div class="md-ft">
         <span>Os dados são lidos ao vivo do Google Sheets a cada abertura do painel, pelo botão ↻ e automaticamente a cada 5 minutos.</span>
@@ -466,91 +446,55 @@ footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--border2);font
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════════════
-   CADASTRO DE EDIÇÕES  —  PLANILHA DE REGISTRO
+   CONFIGURAÇÃO DAS EDIÇÕES
    ───────────────────────────────────────────────────────────────────────────
-   As edições NÃO ficam no navegador de ninguém. Elas são lidas de uma planilha
-   do Google — o "registro" — que funciona como índice de todas as edições.
-   Quem abre o painel, de qualquer lugar, vê exatamente a mesma lista.
+   Para adicionar uma nova edição, basta acrescentar um objeto neste array.
+   Nada mais no arquivo precisa ser alterado.
 
-   Para publicar uma edição nova: acrescentar uma linha no registro. Sem deploy,
-   sem editar código, e todo mundo passa a ver na próxima abertura do painel.
+     id      → identificador curto e único (usado internamente)
+     nome    → rótulo que aparece na aba
+     titulo  → título completo mostrado no banner
+     sheetId → ID da planilha (o trecho entre /d/ e /edit da URL)
+     aba     → nome da aba com os dados. Deixe '' para usar a primeira aba.
+     local   → município/região sede da edição (texto livre, opcional)
+     periodo → período da edição (texto livre, opcional)
+     cor     → cor de destaque da aba
 
-   Estrutura do registro (cabeçalho na linha 1):
-
-     NOME | TITULO | SHEET_ID | ABA | LOCAL | PERIODO | COR | ATIVO
-
-     NOME     rótulo curto da aba              ex.: Edição 05
-     TITULO   título completo do banner        ex.: ED 05 — Agora Tem Especialistas 2026
-     SHEET_ID ID da planilha da edição (trecho entre /d/ e /edit da URL)
-     ABA      nome da aba com os dados; vazio = primeira aba
-     LOCAL    município ou região sede         (opcional)
-     PERIODO  período da edição                (opcional)
-     COR      cor da aba em hex                (opcional, ex.: #34c759)
-     ATIVO    NÃO oculta a edição do painel; vazio ou SIM a mantém visível
-
-   Tanto o registro quanto as planilhas das edições precisam estar
-   compartilhados como "Qualquer pessoa com o link · Leitor".
+   A planilha precisa estar compartilhada como
+   "Qualquer pessoa com o link pode visualizar".
    ═══════════════════════════════════════════════════════════════════════════ */
-const REGISTRO_SHEET_ID = '';   // ← cole aqui o ID da planilha de registro
-const REGISTRO_ABA      = '';   // aba do registro; vazio = primeira
-
-/* Lista usada apenas se o registro não estiver configurado ou não puder ser
-   lido. Serve de rede de segurança para o painel nunca abrir vazio. */
 const EDICOES_FIXAS = [
-  { id:'ed01', nome:'Edição 01', titulo:'ED 01 — Agora Tem Especialistas 2026',
-    sheetId:'1Q68AFc9Btn_5nY_tB2MWIO-XO3mHMAKo_0fkx8xduco', aba:'', local:'', periodo:'2026', cor:'#0071e3' },
-  { id:'ed02', nome:'Edição 02', titulo:'ED 02 — Agora Tem Especialistas 2026',
-    sheetId:'1Muyq6jb2kREVPxpjfSk-BFKEw8CWtaRosUic8AWzFkI', aba:'', local:'', periodo:'2026', cor:'#34c759' },
-  { id:'ed03', nome:'Edição 03', titulo:'ED 03 — Agora Tem Especialistas 2026',
-    sheetId:'17LmAumnJh0WXbrqm7ngP1BluJH-M3hV3KNjOdQYPFnE', aba:'', local:'', periodo:'2026', cor:'#ff9500' },
-  { id:'ed04', nome:'Edição 04', titulo:'ED 04 — Agora Tem Especialistas 2026',
-    sheetId:'16OSVsyk-9Z9MdHnzGpGFmno93-ZpqgzzP9IWl1viRko', aba:'', local:'', periodo:'2026', cor:'#af52de' }
+  {
+    id:'ed01',
+    nome:'Edição 01',
+    titulo:'ED 01 — Agora Tem Especialistas 2026',
+    sheetId:'1Q68AFc9Btn_5nY_tB2MWIO-XO3mHMAKo_0fkx8xduco',
+    aba:'',                 // '' = primeira aba da planilha
+    local:'Região de Palmeira dos Índios / Vale do Paraíba',
+    periodo:'2026',
+    cor:'#0071e3'
+  }
+  // ,{ id:'ed02', nome:'Edição 02', titulo:'ED 02 — …', sheetId:'COLE_O_ID_AQUI', aba:'', local:'', periodo:'2026', cor:'#34c759' }
+  // ,{ id:'ed03', nome:'Edição 03', titulo:'ED 03 — …', sheetId:'COLE_O_ID_AQUI', aba:'', local:'', periodo:'2026', cor:'#ff9500' }
+  // ,{ id:'ed04', nome:'Edição 04', titulo:'ED 04 — …', sheetId:'COLE_O_ID_AQUI', aba:'', local:'', periodo:'2026', cor:'#af52de' }
 ];
 
 const AUTO_REFRESH_MS = 5 * 60 * 1000;   // atualização automática: 5 minutos
 const PAGE_SIZE = 50;                    // linhas por página na lista de pacientes
-const CORES_EDICAO = ['#0071e3','#34c759','#ff9500','#af52de','#ff2d55','#5856d6','#00c7be','#5ac8fa','#a2845e','#ffcc00'];
+const LS_EDICOES = 'agora-edicoes-extras';
+const CORES_EXTRA = ['#34c759','#ff9500','#af52de','#ff2d55','#5856d6','#00c7be','#5ac8fa','#a2845e'];
 
-let EDICOES = EDICOES_FIXAS.slice();
-let ORIGEM_EDICOES = 'fixa';   // 'registro' | 'fixa'
-
-/* Lê o registro e monta a lista de edições. Se falhar, mantém a lista fixa. */
-async function carregarRegistro(){
-  if(!REGISTRO_SHEET_ID){ ORIGEM_EDICOES = 'fixa'; return; }
-  try{
-    const t = await fetchSheet(REGISTRO_SHEET_ID, REGISTRO_ABA, 1);
-    const labels = (t.cols || []).map(c => norm(c.label));
-    const col = nome => { const i = labels.indexOf(nome); return i; };
-    const iNome = col('NOME'), iSheet = col('SHEET_ID');
-    if(iNome < 0 || iSheet < 0) throw new Error('O registro precisa ter as colunas NOME e SHEET_ID.');
-    const iTit = col('TITULO'), iAba = col('ABA'), iLoc = col('LOCAL'),
-          iPer = col('PERIODO'), iCor = col('COR'), iAtivo = col('ATIVO');
-    const linhas = gvizToMatrix(t);
-    const lista = [];
-    linhas.forEach(function(r, k){
-      const nome = (r[iNome] || '').trim();
-      const sid  = extrairSheetId(r[iSheet] || '');
-      if(!nome || !sid) return;
-      if(iAtivo >= 0 && NAO(r[iAtivo])) return;   // ATIVO = NÃO → não entra
-      lista.push({
-        id: 'r' + k + '_' + sid.slice(0, 6),
-        nome: nome,
-        titulo: (iTit >= 0 ? (r[iTit] || '').trim() : '') || nome,
-        sheetId: sid,
-        aba: iAba >= 0 ? (r[iAba] || '').trim() : '',
-        local: iLoc >= 0 ? (r[iLoc] || '').trim() : '',
-        periodo: iPer >= 0 ? (r[iPer] || '').trim() : '',
-        cor: (iCor >= 0 && (r[iCor] || '').trim()) || CORES_EDICAO[lista.length % CORES_EDICAO.length]
-      });
-    });
-    if(!lista.length) throw new Error('O registro não tem nenhuma edição ativa.');
-    EDICOES = lista;
-    ORIGEM_EDICOES = 'registro';
-  }catch(e){
-    ORIGEM_EDICOES = 'fixa';
-    console.warn('Registro de edições indisponível, usando a lista do arquivo:', e.message || e);
-  }
+/* Edições adicionadas pelo botão "+ Nova edição" ficam salvas no navegador.
+   Servem para uso imediato e para testar a planilha antes de fixar no arquivo. */
+function lerExtras(){
+  try{ const j = JSON.parse(localStorage.getItem(LS_EDICOES) || '[]'); return Array.isArray(j) ? j : []; }
+  catch(e){ return []; }
 }
+function salvarExtras(arr){
+  try{ localStorage.setItem(LS_EDICOES, JSON.stringify(arr)); }catch(e){ alert('Não foi possível salvar neste navegador.'); }
+}
+let EDICOES = EDICOES_FIXAS.concat(lerExtras());
+function recomporEdicoes(){ EDICOES = EDICOES_FIXAS.concat(lerExtras()); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    ESTADO
@@ -961,6 +905,7 @@ function montarTabs(){
   EDICOES.forEach(e => {
     html += '<button class="ed-tab' + (edAtual === e.id ? ' on' : '') + '" onclick="setEdicao(\'' + e.id + '\')">'
           + '<span class="ed-dot" style="background:' + e.cor + '"></span>' + esc(e.nome)
+          + (e.custom ? '<span class="ed-x" onclick="event.stopPropagation();removerEdicao(\'' + e.id + '\')" title="Remover esta edição deste navegador">✕</span>' : '')
           + '</button>';
   });
   if(EDICOES.length > 1){
@@ -1024,35 +969,54 @@ async function adicionarEdicao(){
       '<br>Confira se a planilha está compartilhada por link e se a aba informada existe.', 'err');
   }
 
-  // Leitura validada. A edição não é salva neste navegador: para todo mundo ver,
-  // ela precisa entrar no registro. O painel entrega a linha pronta.
-  const cor = CORES_EDICAO[EDICOES.length % CORES_EDICAO.length];
-  const linha = [nome, titulo || nome, sheetId, aba, local, '', cor, 'SIM'];
+  const extras = lerExtras();
+  const nova = {
+    id: 'x' + Date.now().toString(36),
+    nome: nome,
+    titulo: titulo || nome,
+    sheetId: sheetId,
+    aba: aba,
+    local: local,
+    periodo: '',
+    cor: CORES_EXTRA[(EDICOES_FIXAS.length + extras.length) % CORES_EXTRA.length],
+    custom: true
+  };
+  extras.push(nova);
+  salvarExtras(extras);
+  recomporEdicoes();
 
-  neMsg('<b>Planilha validada.</b> ' + pacientes.length.toLocaleString('pt-BR') +
-        ' pacientes lidos, ' + Object.keys((pacientes.colunas || {})).length + ' colunas do modelo reconhecidas. ' +
-        'Agora acrescente a linha abaixo no <b>registro de edições</b> — é ela que publica a edição para todos.', 'ok');
+  neMsg('<b>Edição adicionada.</b> ' + pacientes.length.toLocaleString('pt-BR') +
+        ' pacientes lidos da planilha. Ela já aparece nas abas acima e passa a carregar ao vivo.', 'ok');
 
+  // snippet para fixar a edição no arquivo (visível para todo mundo, não só neste navegador)
+  const snip = "  ,{ id:'" + nova.id + "', nome:'" + nome.replace(/'/g,"\\'") + "', titulo:'" + (titulo || nome).replace(/'/g,"\\'") +
+               "',\n     sheetId:'" + sheetId + "', aba:'" + aba + "', local:'" + local.replace(/'/g,"\\'") +
+               "', periodo:'', cor:'" + nova.cor + "' }";
   const code = document.getElementById('neCode');
   code.classList.remove('hide');
-  code.innerHTML =
-    '<div class="ne-code-hd"><span>Cole como uma nova linha no registro de edições (uma célula por coluna):</span>' +
-      '<button class="mini-btn" onclick="copiarLinha()">Copiar linha</button></div>' +
-    '<table style="min-width:0;font-size:11px"><thead><tr>' +
-      ['NOME','TITULO','SHEET_ID','ABA','LOCAL','PERIODO','COR','ATIVO'].map(h => '<th>' + h + '</th>').join('') +
-    '</tr></thead><tbody><tr>' +
-      linha.map(v => '<td style="text-align:left;word-break:break-all">' + (esc(v) || '—') + '</td>').join('') +
-    '</tr></tbody></table>' +
-    '<span id="snipTxt" class="hide">' + esc(linha.join('\t')) + '</span>';
+  code.innerHTML = '<div class="ne-code-hd"><span>Para valer para todos os usuários, cole esta linha no array <b>EDICOES_FIXAS</b> do arquivo e publique:</span>' +
+                   '<button class="mini-btn" onclick="copiarSnippet()">Copiar</button></div>' +
+                   '<span id="snipTxt">' + esc(snip) + '</span>';
 
   ['neNome','neUrl','neAba','neTitulo','neLocal'].forEach(i => document.getElementById(i).value = '');
+  await setEdicao(nova.id);
 }
-function copiarLinha(){
+function copiarSnippet(){
   const t = document.getElementById('snipTxt').textContent;
   navigator.clipboard.writeText(t).then(
-    () => neMsg('Linha copiada. Cole numa linha vazia do registro — as colunas se distribuem sozinhas.', 'ok'),
-    () => neMsg('Não consegui copiar automaticamente. Copie os valores da tabela abaixo manualmente.', 'err')
+    () => neMsg('Trecho copiado. Cole no arquivo <b>index.html</b>, dentro de EDICOES_FIXAS.', 'ok'),
+    () => neMsg('Não consegui copiar automaticamente — selecione o texto abaixo e copie.', 'err')
   );
+}
+function removerEdicao(id){
+  const e = EDICOES.filter(x => x.id === id)[0];
+  if(!e || !confirm('Remover "' + e.nome + '" deste navegador? A planilha não é alterada.')) return;
+  salvarExtras(lerExtras().filter(x => x.id !== id));
+  recomporEdicoes();
+  delete CACHE[id];
+  if(edAtual === id) edAtual = EDICOES[0] ? EDICOES[0].id : null;
+  montarTabs();
+  setEdicao(edAtual);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1618,36 +1582,9 @@ function toggleDark(){
 })();
 
 /* ── INÍCIO ───────────────────────────────────────────────────────────────── */
-(async function iniciar(){
-  await carregarRegistro();              // lista de edições vem da planilha de registro
-  edAtual = EDICOES[0] ? EDICOES[0].id : null;
-  montarTabs();
-  avisoRegistro();
-  await carregar(false);
-  // o registro também é relido: edição publicada aparece sem ninguém republicar o site
-  setInterval(async () => {
-    const antes = EDICOES.map(e => e.id).join('|');
-    await carregarRegistro();
-    if(EDICOES.map(e => e.id).join('|') !== antes){
-      if(!EDICOES.some(e => e.id === edAtual) && edAtual !== 'todas') edAtual = EDICOES[0] ? EDICOES[0].id : null;
-      montarTabs();
-      avisoRegistro();
-    }
-    await carregar(true);
-  }, AUTO_REFRESH_MS);
-})();
-
-// Deixa explícito de onde veio a lista de edições — sem isso ninguém percebe
-// que o painel caiu na lista de emergência do arquivo.
-function avisoRegistro(){
-  const el = document.getElementById('regAviso');
-  if(!el) return;
-  if(ORIGEM_EDICOES === 'registro'){ el.classList.add('hide'); return; }
-  el.classList.remove('hide');
-  el.innerHTML = REGISTRO_SHEET_ID
-    ? '⚠️ <b>Registro de edições indisponível.</b> O painel está usando a lista gravada no arquivo. Verifique se a planilha de registro continua compartilhada como “Qualquer pessoa com o link · Leitor”.'
-    : '⚠️ <b>Registro de edições ainda não configurado.</b> As edições estão fixas no arquivo, então publicar uma nova exige republicar o site. Preencha <code>REGISTRO_SHEET_ID</code> no topo do arquivo para passar a controlar as edições por planilha.';
-}
+montarTabs();
+carregar(false);
+setInterval(() => carregar(true), AUTO_REFRESH_MS);
 </script>
 </body>
 </html>
