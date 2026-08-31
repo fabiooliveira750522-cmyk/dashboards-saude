@@ -57,6 +57,11 @@
   .rotulo-secao{font-size:.8rem;font-weight:700;letter-spacing:.08em;color:var(--tinta-suave);text-transform:uppercase;margin:34px 0 14px}
 
   .grid-kpi{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+  /* Grade de 7 cards (aba Quimioterapia): mesma linha, um pouco mais apertada.
+     As media queries abaixo continuam valendo (mesma especificidade, vêm depois). */
+  .grid-kpi-7{grid-template-columns:repeat(7,1fr);gap:12px}
+  .grid-kpi-7 .kpi{padding:16px}
+  .grid-kpi-7 .kpi .rot{font-size:.7rem;letter-spacing:.02em}
   .kpi{
     background:var(--branco);border-radius:16px;padding:20px;box-shadow:var(--sombra-card);
     position:relative;transition:transform .15s,box-shadow .15s
@@ -265,7 +270,7 @@
     </div>
 
     <div class="rotulo-secao">Panorama do Período</div>
-    <div class="grid-kpi" id="kpisQuimio"></div>
+    <div class="grid-kpi grid-kpi-7" id="kpisQuimio"></div>
 
     <div class="rotulo-secao">Distribuição</div>
     <div class="grid-graf">
