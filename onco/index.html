@@ -654,6 +654,7 @@ function renderQuimio(){
   const diasComAtendimento = diario.filter(d=>d.atendimentos>0).length;
   const mediaPorDia = diasComAtendimento>0 ? (atendimentos/diasComAtendimento).toFixed(1) : '0';
   const apoioExternoTotal = diario.reduce((s,d)=>s+(d.outras_qtde||0),0);
+  const internamentos = diario.reduce((s,d)=>s+(d.internamentos||0),0);
   const taxaFalta = atendimentos>0 ? (faltas/atendimentos*100).toFixed(2)+'%' : '0%';
 
   document.getElementById('kpisQuimio').innerHTML =
@@ -662,7 +663,8 @@ function renderQuimio(){
     kpiHTML('Dias com Atendimento',diasComAtendimento,'no período filtrado','check','ic-verde')+
     kpiHTML('Média por Dia',parseFloat(mediaPorDia),'atendimentos por dia ativo','trend','ic-roxo2')+
     kpiHTML('Faltas',faltas,'taxa de falta de '+taxaFalta,'users','ic-azul')+
-    kpiHTML('Apoio Externo',apoioExternoTotal,'atendimentos de outras especialidades','heart','ic-cinza');
+    kpiHTML('Apoio Externo',apoioExternoTotal,'atendimentos de outras especialidades','heart','ic-cinza')+
+    kpiHTML('Internamentos',internamentos,'pacientes internados','file','ic-azul');
 
   // ---- Volume diário ----
   desenha('qVolumeDiario','bar',{labels:diario.map(d=>d.data.slice(8,10)+'/'+d.data.slice(5,7)),
