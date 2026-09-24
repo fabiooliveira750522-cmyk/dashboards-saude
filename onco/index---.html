@@ -27,9 +27,6 @@
     --sombra-card:0 2px 8px rgba(30,41,59,.05);
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  /* Escala geral das fontes (+22%). Todas as fontes do painel são em rem,
-     então este valor único aumenta tudo de forma proporcional. */
-  html{font-size:122%}
   body{
     font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     color:var(--tinta);line-height:1.5;-webkit-font-smoothing:antialiased;
@@ -60,6 +57,11 @@
   .rotulo-secao{font-size:.8rem;font-weight:700;letter-spacing:.08em;color:var(--tinta-suave);text-transform:uppercase;margin:34px 0 14px}
 
   .grid-kpi{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+  /* Grade de 7 cards (aba Quimioterapia): mesma linha, um pouco mais apertada.
+     As media queries abaixo continuam valendo (mesma especificidade, vêm depois). */
+  .grid-kpi-7{grid-template-columns:repeat(7,1fr);gap:12px}
+  .grid-kpi-7 .kpi{padding:16px}
+  .grid-kpi-7 .kpi .rot{font-size:.7rem;letter-spacing:.02em}
   .kpi{
     background:var(--branco);border-radius:16px;padding:20px;box-shadow:var(--sombra-card);
     position:relative;transition:transform .15s,box-shadow .15s
@@ -88,8 +90,8 @@
   .card.half{grid-column:span 2}
   .card h3{font-size:1rem;font-weight:600;color:var(--tinta);margin-bottom:2px}
   .card .csub{font-size:.76rem;color:var(--tinta-fraca);margin-bottom:16px}
-  .canvas-box{position:relative;height:300px}
-  .card.full .canvas-box{height:350px}
+  .canvas-box{position:relative;height:270px}
+  .card.full .canvas-box{height:320px}
   .nota{font-size:.74rem;color:var(--tinta-suave);margin-top:10px;padding:9px 13px;background:#f6f4fd;border-radius:10px;border-left:3px solid var(--roxo-cl)}
 
   footer{padding:28px 0 40px;font-size:.76rem;color:var(--tinta-suave);text-align:center}
@@ -240,7 +242,7 @@
 
     <div class="card full">
       <h3>Atendimentos por Especialidade</h3>
-      <div class="csub">Consultas registradas em cada especialidade · não exibe Clínica Médica e Hepatologia</div>
+      <div class="csub">Consultas registradas em cada especialidade</div>
       <div class="canvas-box"><canvas id="gEspec"></canvas></div>
     </div>
 
@@ -268,32 +270,31 @@
     </div>
 
     <div class="rotulo-secao">Panorama do Período</div>
-    <div class="grid-kpi" id="kpisQuimio"></div>
-    <div class="nota" id="qNotaAbsenteismo"></div>
+    <div class="grid-kpi grid-kpi-7" id="kpisQuimio"></div>
 
     <div class="rotulo-secao">Distribuição</div>
     <div class="grid-graf">
       <div class="card full">
         <h3>Volume de Atendimento por Dia</h3>
-        <div class="csub">Pacientes atendidos e infusões por dia no setor de quimioterapia</div>
+        <div class="csub">Pacientes atendidos por dia no setor de quimioterapia</div>
         <div class="canvas-box"><canvas id="qVolumeDiario"></canvas></div>
       </div>
 
       <div class="card full">
-        <h3>A Curva de Crescimento de Infusões</h3>
-        <div class="csub">Média de infusões por dia com movimento em cada mês (com a média de atendimentos para comparação)</div>
+        <h3>A Curva de Crescimento</h3>
+        <div class="csub">Média de atendimentos por dia com movimento em cada mês</div>
         <div class="canvas-box"><canvas id="qCurvaCrescimento"></canvas></div>
       </div>
 
       <div class="card full">
         <h3>Produção Mensal</h3>
-        <div class="csub">Atendimentos, infusões e faltas (absenteísmo) por mês</div>
+        <div class="csub">Atendimentos, infusões e faltas por mês</div>
         <div class="canvas-box"><canvas id="qProducaoMensal"></canvas></div>
       </div>
 
       <div class="card half">
         <h3>Tipos de Procedimento</h3>
-        <div class="csub">Composição das infusões por tipo · internamentos entram como não classificado</div>
+        <div class="csub">Composição das infusões por tipo</div>
         <div class="canvas-box"><canvas id="qTipos"></canvas></div>
       </div>
 
@@ -345,7 +346,7 @@ const IC = {
 const CORES = ['#6d3bd4','#8b5cf6','#10b981','#06b6d4','#3b82f6','#a78bfa','#14b8a6','#f59e0b','#ec4899','#64748b','#0ea5e9','#22c55e'];
 Chart.defaults.font.family="'Inter',sans-serif";
 Chart.defaults.color='#64748b';
-Chart.defaults.font.size=13;
+Chart.defaults.font.size=11;
 let charts={};
 const fmt=n=>(n||0).toLocaleString('pt-BR');
 const rotuloMes=m=>{const[a,mm]=m.split('-');return mm+'/'+a.slice(2);};
@@ -520,10 +521,7 @@ function render(){
     {plugins:{legend:{display:false}}});
 
   // ---- Especialidade (só eventos tipo consulta) ----
-  // Clínica Médica e Hepatologia saem SÓ deste gráfico; seguem no total de Consultas e no filtro.
-  const semAcento=t=>(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
-  const foraDoGrafico=t=>{const k=semAcento(t);return k.startsWith('clinica medica')||k.startsWith('hepat');};
-  const esp=Object.entries(tally(eventos.filter(e=>e.tipo==='consulta'&&!foraDoGrafico(e.especialidade)),'especialidade')).sort((a,b)=>b[1]-a[1]);
+  const esp=Object.entries(tally(eventos.filter(e=>e.tipo==='consulta'),'especialidade')).sort((a,b)=>b[1]-a[1]);
   desenha('gEspec','bar',{labels:esp.map(x=>x[0]),datasets:[{data:esp.map(x=>x[1]),backgroundColor:CORES[0],borderRadius:5}]},
     {indexAxis:'y',plugins:{legend:{display:false}}});
 
@@ -539,19 +537,12 @@ function render(){
 function desenha(id,tipo,data,opts){
   if(charts[id])charts[id].destroy();
   const base={responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{labels:{boxWidth:14,padding:14,font:{size:13}}},
-      tooltip:{backgroundColor:'#1e293b',padding:12,cornerRadius:8,titleFont:{size:15},bodyFont:{size:15}}},
+    plugins:{legend:{labels:{boxWidth:12,padding:12,font:{size:11}}},
+      tooltip:{backgroundColor:'#1e293b',padding:10,cornerRadius:8,titleFont:{size:12},bodyFont:{size:12}}},
     scales:(tipo==='doughnut')?{}:{
-      y:{beginAtZero:true,grid:{color:'#eef1f6'},ticks:{font:{size:12}}},
-      x:{grid:{display:false},ticks:{font:{size:12}}}}};
-  // Mescla plugins em vez de substituir: sem isso, qualquer gráfico que passe
-  // plugins.legend perdia as fontes e o estilo de tooltip definidos acima.
-  const o=opts||{}, op=o.plugins||{};
-  const plugins=Object.assign({},base.plugins,op,{
-    legend:Object.assign({},base.plugins.legend,op.legend||{},{labels:Object.assign({},base.plugins.legend.labels,(op.legend||{}).labels||{})}),
-    tooltip:Object.assign({},base.plugins.tooltip,op.tooltip||{})
-  });
-  charts[id]=new Chart(document.getElementById(id),{type:tipo,data:data,options:Object.assign(base,o,{plugins})});
+      y:{beginAtZero:true,grid:{color:'#eef1f6'},ticks:{font:{size:10}}},
+      x:{grid:{display:false},ticks:{font:{size:10}}}}};
+  charts[id]=new Chart(document.getElementById(id),{type:tipo,data:data,options:Object.assign(base,opts||{})});
 }
 
 async function carregarDados(forcar){
@@ -658,72 +649,45 @@ function renderQuimio(){
   document.getElementById('qInfoFiltro').textContent = 'Exibindo · ' +
     ((f.de||f.ate)?('Período: '+(f.de?rotuloMes(f.de):'início')+' – '+(f.ate?rotuloMes(f.ate):'fim')):'Período: todo o histórico');
 
-  const linhasDia = QUIMIO.diario.filter(d=>dentro(d.data.slice(0,7)));
+  const diario = QUIMIO.diario.filter(d=>dentro(d.data.slice(0,7)));
   const mensal = QUIMIO.mensal.filter(m=>dentro(m.mes));
 
-  // Consolida por DATA: um dia com duas linhas (manhã e tarde) vira 1 dia.
-  const porData = {};
-  linhasDia.forEach(d=>{
-    const x = porData[d.data] || (porData[d.data]={data:d.data,atendimentos:0,infusoes:0,faltas:0,outras_qtde:0});
-    x.atendimentos += d.atendimentos||0; x.infusoes += d.infusoes||0;
-    x.faltas += d.faltas||0; x.outras_qtde += d.outras_qtde||0;
-  });
-  const diario = Object.values(porData).sort((a,b)=>a.data.localeCompare(b.data));
-
   // ---- KPIs ----
-  // Infusões já vêm do motor somando "Qtde de infusões" + "Qtde de Internamentos".
   const atendimentos = diario.reduce((s,d)=>s+d.atendimentos,0);
   const infusoes = diario.reduce((s,d)=>s+d.infusoes,0);
   const faltas = diario.reduce((s,d)=>s+d.faltas,0);
-  const diasComMovimento = diario.length;
-  const mediaInfusoes = diasComMovimento>0 ? +(infusoes/diasComMovimento).toFixed(1) : 0;
-  const mediaAtend = diasComMovimento>0 ? +(atendimentos/diasComMovimento).toFixed(1) : 0;
-  const apoioExternoTotal = diario.reduce((s,d)=>s+d.outras_qtde,0);
-  const agendados = atendimentos + faltas;
-  const taxaAbs = agendados>0 ? (faltas/agendados*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%' : '0%';
+  const diasComAtendimento = diario.filter(d=>d.atendimentos>0).length;
+  const mediaPorDia = diasComAtendimento>0 ? (atendimentos/diasComAtendimento).toFixed(1) : '0';
+  const apoioExternoTotal = diario.reduce((s,d)=>s+(d.outras_qtde||0),0);
+  const internamentos = diario.reduce((s,d)=>s+(d.internamentos||0),0);
+  const taxaFalta = atendimentos>0 ? (faltas/atendimentos*100).toFixed(2)+'%' : '0%';
 
   document.getElementById('kpisQuimio').innerHTML =
-    kpiHTML('Atendimentos',atendimentos,'pacientes atendidos no período','stetho','ic-roxo')+
-    kpiHTML('Infusões',infusoes,'inclui pacientes internados','drop','ic-ciano')+
-    kpiHTML('Dias com Movimento',diasComMovimento,'datas com atendimento no período','check','ic-verde')+
-    kpiHTML('Média por Dia',mediaInfusoes,'infusões por dia · '+mediaAtend.toLocaleString('pt-BR')+' atendimentos','trend','ic-roxo2')+
-    kpiHTML('Absenteísmo',faltas,taxaAbs+' dos agendados faltaram','users','ic-azul')+
-    kpiHTML('Apoio Externo',apoioExternoTotal,'atendimentos de outras especialidades','heart','ic-cinza');
-
-  document.getElementById('qNotaAbsenteismo').textContent =
-    'Absenteísmo é a parcela de pacientes agendados que não compareceram. '+
-    'Taxa = faltas ÷ agendados, onde agendados = atendidos + faltas. '+
-    'No período: '+fmt(faltas)+' faltas em '+fmt(agendados)+' agendados ('+taxaAbs+').';
+    kpiHTML('Atendimentos',atendimentos,'registros de atendimento no período','stetho','ic-roxo')+
+    kpiHTML('Infusões',infusoes,'infusões realizadas','drop','ic-ciano')+
+    kpiHTML('Dias com Atendimento',diasComAtendimento,'no período filtrado','check','ic-verde')+
+    kpiHTML('Média por Dia',parseFloat(mediaPorDia),'atendimentos por dia ativo','trend','ic-roxo2')+
+    kpiHTML('Faltas',faltas,'taxa de falta de '+taxaFalta,'users','ic-azul')+
+    kpiHTML('Apoio Externo',apoioExternoTotal,'atendimentos de outras especialidades','heart','ic-cinza')+
+    kpiHTML('Internamentos',internamentos,'pacientes internados','file','ic-azul');
 
   // ---- Volume diário ----
   desenha('qVolumeDiario','bar',{labels:diario.map(d=>d.data.slice(8,10)+'/'+d.data.slice(5,7)),
-    datasets:[
-      {label:'Atendimentos',data:diario.map(d=>d.atendimentos),backgroundColor:CORES[0],borderRadius:4,maxBarThickness:22},
-      {label:'Infusões',data:diario.map(d=>d.infusoes),backgroundColor:CORES[3],borderRadius:4,maxBarThickness:22}
-    ]},
-    {plugins:{legend:{position:'bottom'}}});
+    datasets:[{label:'Atendimentos',data:diario.map(d=>d.atendimentos),backgroundColor:CORES[0],borderRadius:4,maxBarThickness:22}]},
+    {plugins:{legend:{display:false}}});
 
-  // ---- Curva de crescimento: média de infusões por dia com movimento ----
-  // Recalcula a partir dos totais do mês para funcionar também com cache antigo.
-  const diasMes = m => m.dias_com_movimento || m.dias_com_atendimento || 0;
-  const mediaInfMes = m => m.media_infusoes_por_dia!=null ? m.media_infusoes_por_dia : (diasMes(m)>0?+(m.infusoes/diasMes(m)).toFixed(1):0);
+  // ---- Curva de crescimento (média por dia útil) ----
   desenha('qCurvaCrescimento','line',{labels:mensal.map(m=>rotuloMes(m.mes)),
-    datasets:[
-      {label:'Infusões por dia',data:mensal.map(mediaInfMes),borderColor:CORES[3],
-        backgroundColor:'rgba(6,182,212,.12)',fill:true,tension:.3,borderWidth:3,pointRadius:5},
-      {label:'Atendimentos por dia',data:mensal.map(m=>m.media_por_dia_util),borderColor:CORES[0],
-        backgroundColor:'transparent',borderDash:[6,4],tension:.3,borderWidth:2,pointRadius:3}
-    ]},
-    {plugins:{legend:{position:'bottom'}}});
+    datasets:[{label:'Média/dia',data:mensal.map(m=>m.media_por_dia_util),borderColor:CORES[0],
+      backgroundColor:'rgba(109,59,212,.12)',fill:true,tension:.3,borderWidth:2,pointRadius:4}]},
+    {plugins:{legend:{display:false}}});
 
   // ---- Produção mensal ----
   desenha('qProducaoMensal','bar',{labels:mensal.map(m=>rotuloMes(m.mes)),datasets:[
     {label:'Atendimentos',data:mensal.map(m=>m.atendimentos),backgroundColor:CORES[0],borderRadius:5},
     {label:'Infusões',data:mensal.map(m=>m.infusoes),backgroundColor:CORES[3],borderRadius:5},
-    {label:'Faltas (absenteísmo)',data:mensal.map(m=>m.faltas),backgroundColor:CORES[7],borderRadius:5}
-  ]},{plugins:{legend:{position:'bottom'},
-    tooltip:{callbacks:{afterBody:(items)=>{const m=mensal[items[0].dataIndex];const ag=m.atendimentos+m.faltas;
-      return ag>0?'Absenteísmo: '+(m.faltas/ag*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'% dos agendados':'';}}}}});
+    {label:'Faltas',data:mensal.map(m=>m.faltas),backgroundColor:CORES[7],borderRadius:5}
+  ]},{plugins:{legend:{position:'bottom'}}});
 
   // ---- Tipos de procedimento ----
   const nomesTipos={qt_citotoxica:'QT citotóxica',imunoterapia:'Imunoterapia',quimio_oral:'Quimioterapia oral',
